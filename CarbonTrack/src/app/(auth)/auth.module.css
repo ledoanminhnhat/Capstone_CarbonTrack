@@ -1,0 +1,63 @@
+.container {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+}
+
+.imageSection {
+  display: none;
+  position: relative;
+}
+
+@media (min-width: 768px) {
+  .imageSection {
+    display: block;
+    flex: 0 0 35%; /* Make the image smaller, taking up 35% of the screen */
+    max-width: 35%;
+    overflow: hidden; /* Prevent any strange overflow artifacts on edges */
+  }
+}
+
+.image {
+  object-fit: cover;
+}
+
+.formSection {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background-color: #e3f2e6; /* The light green background from the right side */
+}
+
+.formContainer {
+  background: white;
+  padding: 3rem 2rem;
+  border-radius: 8px;
+  width: 100%;
+  max-width: 450px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05); /* Optional subtle shadow for premium feel */
+}
+
+.logoSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.logo {
+  margin-bottom: 0.25rem;
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: 600;
+  color: #333;
+  margin: 0;
+}

@@ -16,26 +16,11 @@ import {
   Cell,
   ReferenceLine
 } from "recharts";
-import styles from "./home.module.css";
+import Input from "@/components/ui/Input";
+import Button from "@/components/ui/Button";
+import LogActivityModal from "./LogActivityModal";
 
-const lineData = [
-  { name: '1', value: 10 },
-  { name: '2', value: 25 },
-  { name: '3', value: 15 },
-  { name: '4', value: 50 },
-  { name: '5', value: 20 },
-  { name: '6', value: 35 },
-  { name: '7', value: 25 },
-  { name: '8', value: 35 },
-  { name: '9', value: 20 },
-  { name: '10', value: 45 },
-];
-
-const pieData = [
-  { name: 'Transport', value: 45, color: '#3182ce' }, // Blue
-  { name: 'Food', value: 30, color: '#ed8936' }, // Orange
-  { name: 'Energy', value: 25, color: '#ecc94b' }, // Yellow
-];
+import { lineData, pieData, recentActivities } from "@/lib/mockData";
 
 // Custom label for PieChart
 const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent, index, name, value }: any) => {
@@ -54,6 +39,7 @@ const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, per
 
 export default function HomePage() {
   const [currentDate, setCurrentDate] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     const now = new Date();
@@ -66,61 +52,61 @@ export default function HomePage() {
 
   return (
     <div>
-      <header className={styles.header}>
-        <div className={styles.greeting}>
-          <h2>Good morning, Nhat!</h2>
-          <p>{currentDate || "\u00A0"}</p>
+      <header className="flex justify-between items-start mb-8">
+        <div>
+          <h2 className="text-[1.75rem] font-bold text-[#333] m-0 mb-1">Good morning, Nhat!</h2>
+          <p className="text-[#777] m-0 text-[0.9rem]">{currentDate || "\u00A0"}</p>
         </div>
         
-        <div className={styles.headerActions}>
-          <div className={styles.searchContainer}>
-            <MdSearch className={styles.searchIcon} size={20} />
-            <input 
+        <div className="flex gap-4 items-center">
+          <div className="w-[250px]">
+            <Input 
               type="text" 
               placeholder="Search" 
-              className={styles.searchInput}
+              icon={<MdSearch size={20} />}
+              iconPosition="left"
             />
           </div>
-          <button className={styles.addButton}>
-            <MdAdd size={20} /> Log New Activity
-          </button>
+          <Button onClick={() => setIsModalOpen(true)}>
+            <MdAdd size={20} className="mr-2" /> Log New Activity
+          </Button>
         </div>
       </header>
 
-      <section className={styles.statsGrid}>
-        <div className={styles.card}>
-          <div className={styles.cardTitle}>Total emissions this month</div>
-          <div className={styles.cardValue}>
+      <section className="grid grid-cols-4 gap-6 mb-6">
+        <div className="bg-white rounded-xl p-5 shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
+          <div className="text-[#777] text-[0.85rem] mb-2">Total emissions this month</div>
+          <div className="text-[1.25rem] font-bold text-[#333] flex items-center justify-between">
             120.5 kg CO₂e
-            <span className={styles.trendUp}>↑ +5%</span>
+            <span className="text-[#e53e3e] text-[0.85rem] font-medium">↑ +5%</span>
           </div>
         </div>
-        <div className={styles.card}>
-          <div className={styles.cardTitle}>Highest activity</div>
-          <div className={styles.cardValue}>
+        <div className="bg-white rounded-xl p-5 shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
+          <div className="text-[#777] text-[0.85rem] mb-2">Highest activity</div>
+          <div className="text-[1.25rem] font-bold text-[#333] flex items-center justify-between">
             Travel (45%)
           </div>
         </div>
-        <div className={styles.card}>
-          <div className={styles.cardTitle}>Remaining goal</div>
-          <div className={styles.cardValue}>
+        <div className="bg-white rounded-xl p-5 shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
+          <div className="text-[#777] text-[0.85rem] mb-2">Remaining goal</div>
+          <div className="text-[1.25rem] font-bold text-[#333] flex items-center justify-between">
             25 kg
           </div>
         </div>
-        <div className={styles.card}>
-          <div className={styles.cardTitle}>Score</div>
-          <div className={styles.cardValue}>
+        <div className="bg-white rounded-xl p-5 shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
+          <div className="text-[#777] text-[0.85rem] mb-2">Score</div>
+          <div className="text-[1.25rem] font-bold text-[#333] flex items-center justify-between">
             1,200 pts
-            <MdStar size={24} className={styles.starIcon} />
+            <MdStar size={24} className="text-[#f6ad55] bg-[#feebc8] rounded-full p-1" />
           </div>
         </div>
       </section>
 
-      <section className={styles.chartsGrid}>
-        <div className={styles.chartCard}>
-          <div className={styles.chartHeader}>
-            <h3>Line Chart</h3>
-            <p>30-day postpartum recovery trend</p>
+      <section className="grid grid-cols-[2fr_1fr] gap-6 mb-6">
+        <div className="bg-white rounded-xl p-6 shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
+          <div className="mb-6">
+            <h3 className="m-0 mb-1 text-[#333] text-[1.1rem]">Line Chart</h3>
+            <p className="m-0 text-[#777] text-[0.85rem]">30-day postpartum recovery trend</p>
           </div>
           <div style={{ width: '100%', height: 200 }}>
             <ResponsiveContainer width="100%" height="100%">
@@ -145,10 +131,10 @@ export default function HomePage() {
           </div>
         </div>
 
-        <div className={styles.chartCard}>
-          <div className={styles.chartHeader}>
-            <h3>Donut Chart</h3>
-            <p>Allocation of emission sources</p>
+        <div className="bg-white rounded-xl p-6 shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
+          <div className="mb-6">
+            <h3 className="m-0 mb-1 text-[#333] text-[1.1rem]">Donut Chart</h3>
+            <p className="m-0 text-[#777] text-[0.85rem]">Allocation of emission sources</p>
           </div>
           <div style={{ width: '100%', height: 200 }}>
             <ResponsiveContainer width="100%" height="100%">
@@ -178,45 +164,54 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className={styles.bottomGrid}>
-        <div className={styles.tableContainer}>
-          <h3>Recent Activities</h3>
-          <table className={styles.table}>
+      <section className="grid grid-cols-[2fr_1fr] gap-6">
+        <div className="bg-white rounded-xl p-6 shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
+          <h3 className="m-0 mb-6 text-[#333] text-[1.1rem]">Recent Activities</h3>
+          <table className="w-full border-collapse">
             <thead>
               <tr>
-                <th>Activity</th>
-                <th>Date</th>
-                <th>CO2/kg</th>
-                <th>Status</th>
+                <th className="text-left text-[#777] font-semibold text-[0.85rem] pb-4 border-b border-[#f0f0f0]">Activity</th>
+                <th className="text-left text-[#777] font-semibold text-[0.85rem] pb-4 border-b border-[#f0f0f0]">Date</th>
+                <th className="text-left text-[#777] font-semibold text-[0.85rem] pb-4 border-b border-[#f0f0f0]">CO2/kg</th>
+                <th className="text-left text-[#777] font-semibold text-[0.85rem] pb-4 border-b border-[#f0f0f0]">Status</th>
               </tr>
             </thead>
-            <tbody>
-              <tr>
-                <td>Motorbike (25km)</td>
-                <td>19/03/2026</td>
-                <td>1.8 kg</td>
-                <td><span className={styles.badgeHigh}>High</span></td>
-              </tr>
-              <tr>
-                <td>Veteran (for lunch)</td>
-                <td>18/03/2026</td>
-                <td>0.5 kg</td>
-                <td><span className={styles.badgeLow}>Low</span></td>
-              </tr>
+            <tbody className="[&>tr:last-child>td]:border-b-0">
+              {recentActivities.slice(0, 2).map((activity) => (
+                <tr key={activity.id}>
+                  <td className="py-4 border-b border-[#f0f0f0] text-[#555] text-[0.9rem] font-medium">{activity.activity} ({activity.detail})</td>
+                  <td className="py-4 border-b border-[#f0f0f0] text-[#555] text-[0.9rem] font-medium">{activity.date}</td>
+                  <td className="py-4 border-b border-[#f0f0f0] text-[#555] text-[0.9rem] font-medium">{activity.co2}</td>
+                  <td className="py-4 border-b border-[#f0f0f0] text-[#555] text-[0.9rem] font-medium">
+                    <span className={`py-1 px-3 rounded-xl text-[0.8rem] font-semibold ${
+                      activity.status === 'High' 
+                        ? 'bg-[#fed7d7] text-[#c53030]' 
+                        : 'bg-[#c6f6d5] text-[#276749]'
+                    }`}>
+                      {activity.status}
+                    </span>
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
 
-        <div className={styles.tipCard}>
-          <div className={styles.tipHeader}>
-            <MdLightbulb size={32} className={styles.tipIcon} />
-            <h3>Daily Tip</h3>
+        <div className="bg-white rounded-xl p-6 shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
+          <div className="flex items-center gap-3 mb-4">
+            <MdLightbulb size={32} className="text-[#2b9d5c] bg-[#e3f2e6] rounded-full p-2" />
+            <h3 className="m-0 text-[#333] text-[1.1rem]">Daily Tip</h3>
           </div>
-          <p>
+          <p className="text-[#666] text-[0.95rem] leading-relaxed m-0">
             Tip: Taking the bus instead of a motorbike helps you reduce 1.2kg of CO₂ for your commute!
           </p>
         </div>
       </section>
+
+      <LogActivityModal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+      />
     </div>
   );
 }

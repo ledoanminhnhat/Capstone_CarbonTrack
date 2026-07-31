@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import styles from "../form.module.css";
+import Input from "@/components/ui/Input";
+import Button from "@/components/ui/Button";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -14,29 +15,27 @@ export default function LoginPage() {
   };
 
   return (
-    <form className={styles.form} onSubmit={handleLogin}>
-      <div className={styles.inputGroup}>
-        <input
+    <form className="flex flex-col w-full" onSubmit={handleLogin}>
+      <div className="mb-4">
+        <Input
           type="email"
           placeholder="Email"
-          className={styles.input}
           required
         />
       </div>
-      <div className={styles.inputGroup}>
-        <input
+      <div className="mb-4">
+        <Input
           type="password"
           placeholder="Password"
-          className={styles.input}
           required
         />
       </div>
-      <button type="submit" className={styles.button}>
+      <Button type="submit" variant="secondary" size="full" className="mt-2">
         Login
-      </button>
+      </Button>
 
-      <div className={styles.footerText}>
-        Don't have an account? <Link href="/register" className={styles.link}>Register</Link>
+      <div className="text-center mt-6 text-sm text-[#666]">
+        Don't have an account? <Link href="/register" className="text-[#888] no-underline hover:underline">Register</Link>
       </div>
     </form>
   );

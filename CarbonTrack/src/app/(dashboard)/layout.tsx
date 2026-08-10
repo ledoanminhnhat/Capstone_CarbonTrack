@@ -3,14 +3,13 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
-import { 
-  MdDashboard, 
-  MdOutlineEditNote, 
-  MdHistory, 
-  MdEmojiEvents, 
-  MdPeopleOutline, 
-  MdOutlineSettings, 
-  MdLightbulbOutline 
+import {
+  MdDashboard,
+  MdHistory,
+  MdEmojiEvents,
+  MdPeopleOutline,
+  MdOutlineSettings,
+  MdLightbulbOutline
 } from "react-icons/md";
 
 export default function DashboardLayout({
@@ -28,10 +27,10 @@ export default function DashboardLayout({
   const navLinks = [
     { name: "Dashboard", href: "/home", icon: <MdDashboard size={24} /> },
     { name: "History", href: "/history", icon: <MdHistory size={24} /> },
-    { name: "Challenges", href: "#", icon: <MdEmojiEvents size={24} /> },
-    { name: "Community", href: "#", icon: <MdPeopleOutline size={24} /> },
-    { name: "Settings", href: "#", icon: <MdOutlineSettings size={24} /> },
-    { name: "Recommendations", href: "#", icon: <MdLightbulbOutline size={24} /> },
+    { name: "Challenges", href: "/challenges", icon: <MdEmojiEvents size={24} /> },
+    { name: "Community", href: "/community", icon: <MdPeopleOutline size={24} /> },
+    { name: "Recommendations", href: "/recommendations", icon: <MdLightbulbOutline size={24} /> },
+    { name: "Settings", href: "/settings", icon: <MdOutlineSettings size={24} /> },
   ];
 
   return (
@@ -51,14 +50,13 @@ export default function DashboardLayout({
           {navLinks.map((link) => {
             const isActive = pathname === link.href;
             return (
-              <Link 
-                key={link.name} 
-                href={link.href} 
-                className={`flex items-center gap-4 px-4 py-3 rounded-lg no-underline font-semibold transition-all duration-200 ${
-                  isActive 
-                    ? "text-[#333] bg-[#f5f9f5]" 
+              <Link
+                key={link.name}
+                href={link.href}
+                className={`flex items-center gap-4 px-4 py-3 rounded-lg no-underline font-semibold transition-all duration-200 ${isActive
+                    ? "text-[#333] bg-[#f5f9f5]"
                     : "text-[#666] hover:text-[#333] hover:bg-[#f5f9f5]"
-                }`}
+                  }`}
               >
                 {link.icon} {link.name}
               </Link>
@@ -69,7 +67,7 @@ export default function DashboardLayout({
         <div className="mt-auto pt-6 border-t border-[#eee]">
           <div className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10 rounded-full bg-[#aed9b8] flex items-center justify-center overflow-hidden">
-              <span style={{fontSize: "20px"}}>👨🏻</span>
+              <span style={{ fontSize: "20px" }}>👨🏻</span>
             </div>
             <span className="font-semibold text-[#333]">Nhat 👋</span>
           </div>
@@ -78,8 +76,8 @@ export default function DashboardLayout({
           </button>
         </div>
       </aside>
-      
-      <main className="flex-1 p-10 overflow-y-auto">
+
+      <main className={`flex-1 p-10 flex flex-col h-screen ${pathname === '/community' ? 'overflow-y-hidden' : 'overflow-y-auto'}`}>
         {children}
       </main>
     </div>

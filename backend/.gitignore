@@ -1,0 +1,13 @@
+# Secret - không bao giờ commit
+.env.properties
+
+# Maven build
+target/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+.settings/
+.project
+.classpath

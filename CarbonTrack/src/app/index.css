@@ -18,5 +18,31 @@
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 0, 0, 0.4); 
+  background: rgba(0, 0, 0, 0.4);
+}
+
+/* ===== Design system base ===== */
+@layer base {
+  body {
+    @apply text-ink;
+    background: linear-gradient(160deg, #f0fdf4 0%, #ecfeff 100%);
+    background-attachment: fixed;
+    -webkit-font-smoothing: antialiased;
+  }
+}
+
+@layer utilities {
+  /* Chữ tô bằng gradient */
+  .text-gradient-brand {
+    background: linear-gradient(135deg, #10b981 0%, #06b6d4 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .text-gradient-ocean {
+    background: linear-gradient(135deg, #0ea5e9 0%, #8b5cf6 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
 }

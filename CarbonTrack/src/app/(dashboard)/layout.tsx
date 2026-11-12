@@ -2,14 +2,17 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
+import { getUser, isLoggedIn, logout, type AuthUser } from "@/lib/auth";
 import {
   MdDashboard,
   MdHistory,
   MdEmojiEvents,
   MdPeopleOutline,
   MdOutlineSettings,
-  MdLightbulbOutline
+  MdLightbulbOutline,
+  MdAdminPanelSettings
 } from "react-icons/md";
 
 export default function DashboardLayout({
@@ -19,10 +22,26 @@ export default function DashboardLayout({
 }>) {
   const router = useRouter();
   const pathname = usePathname();
+  const [user, setUser] = useState<AuthUser | null>(null);
+  const [checked, setChecked] = useState(false);
+
+  // Chặn truy cập: chưa đăng nhập thì đá về /login
+  useEffect(() => {
+    if (!isLoggedIn()) {
+      router.replace("/login");
+      return;
+    }
+    setUser(getUser());
+    setChecked(true);
+  }, [router]);
 
   const handleLogout = () => {
-    router.push("/login");
+    logout();            // xóa token + thông tin user
+    router.replace("/login");
   };
+
+  // Trong lúc kiểm tra đăng nhập thì chưa vẽ dashboard (tránh nháy nội dung)
+  if (!checked) return null;
 
   const navLinks = [
     { name: "Dashboard", href: "/home", icon: <MdDashboard size={24} /> },
@@ -31,11 +50,15 @@ export default function DashboardLayout({
     { name: "Community", href: "/community", icon: <MdPeopleOutline size={24} /> },
     { name: "Recommendations", href: "/recommendations", icon: <MdLightbulbOutline size={24} /> },
     { name: "Settings", href: "/settings", icon: <MdOutlineSettings size={24} /> },
+    // Chỉ ADMIN mới thấy mục Admin
+    ...(user?.role === "ADMIN"
+      ? [{ name: "Admin", href: "/admin", icon: <MdAdminPanelSettings size={24} /> }]
+      : []),
   ];
 
   return (
-    <div className="flex min-h-screen bg-[#dcebdc]">
-      <aside className="w-[260px] bg-white flex flex-col py-8 px-6 shadow-[2px_0_10px_rgba(0,0,0,0.02)] sticky top-0 h-screen box-border">
+    <div className="flex min-h-screen">
+      <aside className="w-[260px] bg-white/80 backdrop-blur-sm flex flex-col py-8 px-6 shadow-soft sticky top-0 h-screen box-border">
         <div className="flex items-center gap-3 mb-12">
           <Image
             src="/assets/logo.png"
@@ -43,7 +66,7 @@ export default function DashboardLayout({
             width={32}
             height={32}
           />
-          <h1 className="text-xl font-bold text-[#333] m-0">CarbonTrack</h1>
+          <h1 className="text-xl font-extrabold text-gradient-brand m-0">CarbonTrack</h1>
         </div>
 
         <nav className="flex flex-col gap-2 flex-1">
@@ -53,9 +76,9 @@ export default function DashboardLayout({
               <Link
                 key={link.name}
                 href={link.href}
-                className={`flex items-center gap-4 px-4 py-3 rounded-lg no-underline font-semibold transition-all duration-200 ${isActive
-                    ? "text-[#333] bg-[#f5f9f5]"
-                    : "text-[#666] hover:text-[#333] hover:bg-[#f5f9f5]"
+                className={`flex items-center gap-4 px-4 py-3 rounded-xl no-underline font-semibold transition-all duration-200 ${isActive
+                    ? "text-white bg-gradient-brand shadow-glow-brand"
+                    : "text-[#666] hover:text-brand-700 hover:bg-brand-50"
                   }`}
               >
                 {link.icon} {link.name}
@@ -66,12 +89,12 @@ export default function DashboardLayout({
 
         <div className="mt-auto pt-6 border-t border-[#eee]">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-full bg-[#aed9b8] flex items-center justify-center overflow-hidden">
-              <span style={{ fontSize: "20px" }}>👨🏻</span>
+            <div className="w-10 h-10 rounded-full bg-gradient-brand text-white flex items-center justify-center font-bold">
+              {user?.name ? user.name.charAt(0).toUpperCase() : "U"}
             </div>
-            <span className="font-semibold text-[#333]">Nhat 👋</span>
+            <span className="font-semibold text-[#333]">{user?.name ?? "User"} 👋</span>
           </div>
-          <button className="w-full p-3 border border-[#e0e0e0] bg-white rounded-lg font-semibold text-[#555] cursor-pointer transition-all duration-200 hover:bg-[#f9f9f9]" onClick={handleLogout}>
+          <button className="w-full p-3 border border-[#e0e0e0] bg-white rounded-xl font-semibold text-[#555] cursor-pointer transition-all duration-200 hover:bg-brand-50 hover:text-brand-700 hover:border-brand-200" onClick={handleLogout}>
             Logout
           </button>
         </div>

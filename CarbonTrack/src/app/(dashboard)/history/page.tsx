@@ -5,7 +5,7 @@ import { MdSearch, MdKeyboardArrowLeft, MdKeyboardArrowRight, MdFirstPage, MdLas
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import Select from "@/components/ui/Select";
-import { recentActivities } from "@/lib/mockData";
+import { getActivities, type Activity } from "@/lib/activities";
 
 export default function HistoryPage() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -13,31 +13,31 @@ export default function HistoryPage() {
   const [filterStatus, setFilterStatus] = useState("Status");
   const [filterMonth, setFilterMonth] = useState("All Time");
 
+  const [activities, setActivities] = useState<Activity[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8;
+
+  // Tải dữ liệu thật khi mở trang
+  useEffect(() => {
+    getActivities()
+      .then(setActivities)
+      .catch(() => setActivities([]));
+  }, []);
 
   // Reset to page 1 when filters change
   useEffect(() => {
     setCurrentPage(1);
   }, [searchQuery, filterActivity, filterStatus, filterMonth]);
 
-  const filteredActivities = recentActivities.filter(activity => {
+  const filteredActivities = activities.filter(activity => {
     // 1. Search Query
     const matchesSearch = activity.activity.toLowerCase().includes(searchQuery.toLowerCase()) ||
       activity.detail.toLowerCase().includes(searchQuery.toLowerCase());
 
-    // 2. Filter Category
+    // 2. Filter Category (dùng trường category lưu sẵn)
     let matchesCategory = true;
     if (filterActivity !== "All Activity") {
-      if (filterActivity === "Transport") {
-        matchesCategory = ["Bus", "Plane", "Train", "Car"].includes(activity.activity);
-      } else if (filterActivity === "Food") {
-        matchesCategory = ["Lunch", "Dinner", "Breakfast"].includes(activity.activity);
-      } else if (filterActivity === "Shopping") {
-        matchesCategory = activity.activity.includes("Shopping");
-      } else if (filterActivity === "Energy") {
-        matchesCategory = ["Electricity", "Water", "Gas"].includes(activity.activity);
-      }
+      matchesCategory = activity.category === filterActivity;
     }
 
     // 3. Filter Status
@@ -55,6 +55,18 @@ export default function HistoryPage() {
 
     return matchesSearch && matchesCategory && matchesStatus && matchesMonth;
   });
+
+  // Tự sinh danh sách tháng từ dữ liệu thật (MM/YYYY), mới nhất lên đầu
+  const monthOptions = [
+    { label: "All Time", value: "All Time" },
+    ...Array.from(new Set(activities.map((a) => a.date.slice(3)))) // "MM/yyyy"
+      .sort((a, b) => {
+        const [ma, ya] = a.split("/").map(Number);
+        const [mb, yb] = b.split("/").map(Number);
+        return yb - ya || mb - ma;
+      })
+      .map((m) => ({ label: m, value: m })),
+  ];
 
   const totalPages = Math.ceil(filteredActivities.length / itemsPerPage) || 1;
 
@@ -81,8 +93,8 @@ export default function HistoryPage() {
   return (
     <div>
       <header className="flex justify-between items-center mb-8">
-        <h2 className="text-[2rem] font-bold text-[#333] m-0">History Activity</h2>
-        <Button>
+        <h2 className="text-[2rem] font-bold text-ink m-0">History Activity</h2>
+        <Button variant="gradient">
           Export (PDF/Excel)
         </Button>
       </header>
@@ -127,17 +139,12 @@ export default function HistoryPage() {
           <Select
             value={filterMonth}
             onChange={setFilterMonth}
-            options={[
-              { label: 'All Time', value: 'All Time' },
-              { label: '04/2026', value: '04/2026' },
-              { label: '03/2026', value: '03/2026' },
-              { label: '02/2026', value: '02/2026' },
-            ]}
+            options={monthOptions}
           />
         </div>
       </div>
 
-      <div className="bg-white rounded-xl shadow-[0_2px_10px_rgba(0,0,0,0.02)] p-6 mb-6">
+      <div className="bg-white rounded-2xl shadow-card p-6 mb-6">
         <table className="w-full border-collapse">
           <thead>
             <tr>
@@ -154,7 +161,7 @@ export default function HistoryPage() {
                 <td className="py-4 border-b border-[#f0f0f0] text-[#555] font-medium">{activity.date}</td>
                 <td className="py-4 border-b border-[#f0f0f0] text-[#555] font-medium">{activity.activity}</td>
                 <td className="py-4 border-b border-[#f0f0f0] text-[#555] font-medium">{activity.detail}</td>
-                <td className="py-4 border-b border-[#f0f0f0] text-[#555] font-medium">{activity.co2}</td>
+                <td className="py-4 border-b border-[#f0f0f0] text-[#555] font-medium">{activity.co2} kg</td>
                 <td className="py-4 border-b border-[#f0f0f0] text-[#555] font-medium">
                   <span className={`inline-flex items-center gap-1.5 py-1 px-3 rounded-full text-[0.85rem] font-medium ${activity.status === 'High'
                     ? 'bg-[#fed7d7] text-[#c53030]'
@@ -172,7 +179,7 @@ export default function HistoryPage() {
 
       <div className="flex justify-end items-center gap-4 text-[#555] font-medium">
         <span>Pages {currentPage}/{totalPages}</span>
-        <div className="flex gap-2 text-[#333]">
+        <div className="flex gap-2 text-ink">
           <MdFirstPage size={24} className={`cursor-pointer hover:text-[#2b9d5c] ${currentPage === 1 ? 'opacity-50 pointer-events-none' : ''}`} onClick={handleFirstPage} />
           <MdKeyboardArrowLeft size={24} className={`cursor-pointer hover:text-[#2b9d5c] ${currentPage === 1 ? 'opacity-50 pointer-events-none' : ''}`} onClick={handlePrevPage} />
           <MdKeyboardArrowRight size={24} className={`cursor-pointer hover:text-[#2b9d5c] ${currentPage === totalPages ? 'opacity-50 pointer-events-none' : ''}`} onClick={handleNextPage} />

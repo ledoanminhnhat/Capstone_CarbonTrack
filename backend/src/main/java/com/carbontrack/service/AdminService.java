@@ -1,0 +1,63 @@
+package com.carbontrack.service;
+
+import com.carbontrack.dto.AdminDtos.AdminUserView;
+import com.carbontrack.model.User;
+import com.carbontrack.repository.ActivityRepository;
+import com.carbontrack.repository.UserRepository;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
+
+import java.util.List;
+import java.util.Set;
+
+@Service
+public class AdminService {
+
+    private static final Set<String> VALID_ROLES = Set.of("USER", "ADMIN");
+
+    private final UserRepository userRepository;
+    private final ActivityRepository activityRepository;
+
+    public AdminService(UserRepository userRepository, ActivityRepository activityRepository) {
+        this.userRepository = userRepository;
+        this.activityRepository = activityRepository;
+    }
+
+    /** Danh sách tất cả user, kèm số hoạt động đã ghi. */
+    public List<AdminUserView> listUsers() {
+        return userRepository.findAll().stream()
+                .map(u -> new AdminUserView(
+                        u.getId(), u.getName(), u.getEmail(), u.getRole(),
+                        activityRepository.countByUserId(u.getId())))
+                .toList();
+    }
+
+    /** Đổi role của 1 user (không cho admin tự đổi role chính mình). */
+    public AdminUserView changeRole(String callerId, String targetId, String role) {
+        if (!VALID_ROLES.contains(role)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Role không hợp lệ");
+        }
+        if (callerId.equals(targetId)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Không thể tự đổi role của chính mình");
+        }
+        User target = userRepository.findById(targetId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+        target.setRole(role);
+        User saved = userRepository.save(target);
+        return new AdminUserView(saved.getId(), saved.getName(), saved.getEmail(), saved.getRole(),
+                activityRepository.countByUserId(saved.getId()));
+    }
+
+    /** Xóa 1 user + toàn bộ hoạt động của họ (không cho tự xóa chính mình). */
+    public void deleteUser(String callerId, String targetId) {
+        if (callerId.equals(targetId)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Không thể tự xóa chính mình");
+        }
+        if (!userRepository.existsById(targetId)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+        }
+        activityRepository.deleteByUserId(targetId);
+        userRepository.deleteById(targetId);
+    }
+}

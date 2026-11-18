@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { MdCloud, MdEco, MdLightbulb, MdTrendingDown } from "react-icons/md";
 import { getUser } from "@/lib/auth";
 import { getChallenges, type ChallengeView } from "@/lib/challenges";
 import {
@@ -10,22 +11,18 @@ import {
   type RecommendationResponse,
   type Recommendation,
 } from "@/lib/recommendations";
+import { categoryColor } from "@/lib/categories";
+import Select from "@/components/ui/Select";
+import Button from "@/components/ui/Button";
+import Badge from "@/components/ui/Badge";
+import PageHeader from "@/components/ui/PageHeader";
+import StatTile from "@/components/ui/StatTile";
 
-const CATEGORY_COLORS: Record<string, string> = {
-  Transport: "#0ea960",
-  Food: "#f97316",
-  Energy: "#6366f1",
-  Shopping: "#eab308",
-};
-
-const DIFFICULTY_STYLE: Record<Recommendation["difficulty"], string> = {
-  EASY: "bg-[#e6f7ee] text-[#0c9052]",
-  MEDIUM: "bg-[#fff4e0] text-[#b45309]",
-  HARD: "bg-[#fde8e8] text-[#b91c1c]",
-};
+const DIFFICULTY_TONE = { EASY: "success", MEDIUM: "warning", HARD: "danger" } as const;
+const DIFF_ORDER = { EASY: 0, MEDIUM: 1, HARD: 2 };
 
 type SortKey = "saving" | "difficulty";
-const DIFF_ORDER = { EASY: 0, MEDIUM: 1, HARD: 2 };
+type Period = "month" | "all";
 
 function currentMonth() {
   const d = new Date();
@@ -34,7 +31,7 @@ function currentMonth() {
 
 export default function RecommendationsPage() {
   const [userName, setUserName] = useState("");
-  const [period, setPeriod] = useState<"month" | "all">("month");
+  const [period, setPeriod] = useState<Period>("month");
   const [sortBy, setSortBy] = useState<SortKey>("saving");
   const [data, setData] = useState<RecommendationResponse | null>(null);
   const [challenges, setChallenges] = useState<ChallengeView[]>([]);
@@ -97,7 +94,7 @@ export default function RecommendationsPage() {
           b.estimatedSavingKg - a.estimatedSavingKg
       );
     }
-    return list; // backend đã sắp xếp theo saving
+    return list; // backend đã sắp theo saving
   }, [data, sortBy]);
 
   // Donut: conic-gradient từ breakdown
@@ -106,231 +103,246 @@ export default function RecommendationsPage() {
     const stops = (data?.breakdown ?? []).map((b) => {
       const start = acc;
       acc += b.percent * 3.6;
-      return `${CATEGORY_COLORS[b.category] ?? "#999"} ${start}deg ${acc}deg`;
+      return `${categoryColor(b.category)} ${start}deg ${acc}deg`;
     });
-    return stops.length ? `conic-gradient(${stops.join(", ")})` : "#eee";
+    return stops.length ? `conic-gradient(${stops.join(", ")})` : "#f3f4f6";
   }, [data]);
 
   const top = data?.breakdown[0];
   const savingPct =
     data && data.totalCo2 > 0 ? Math.round((data.totalPotentialSaving / data.totalCo2) * 100) : 0;
+  const after = data ? Math.round((data.totalCo2 - data.totalPotentialSaving) * 10) / 10 : 0;
+  const periodLabel = period === "month" ? "this month" : "all time";
 
   return (
-    <div className="flex flex-col gap-6 w-full">
-      <div className="flex flex-wrap justify-between items-center gap-3 mb-2">
-        <h2 className="text-3xl font-bold text-[#333]">Recommendation</h2>
-        <div className="flex gap-2">
-          <select
-            value={period}
-            onChange={(e) => setPeriod(e.target.value as "month" | "all")}
-            className="bg-white border border-[#ccc] rounded-md px-3 py-2 text-sm font-semibold text-[#555]"
-          >
-            <option value="month">This month</option>
-            <option value="all">All time</option>
-          </select>
-          <select
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value as SortKey)}
-            className="bg-white border border-[#ccc] rounded-md px-3 py-2 text-sm font-semibold text-[#555]"
-          >
-            <option value="saving">Sort by: Biggest saving</option>
-            <option value="difficulty">Sort by: Easiest first</option>
-          </select>
-        </div>
-      </div>
+    <div>
+      <PageHeader
+        title="Recommendations"
+        subtitle={`Personalized ways to cut your footprint, based on your activities ${periodLabel}.`}
+        actions={
+          <>
+            <div className="w-[150px]">
+              <Select
+                value={period}
+                onChange={(v) => setPeriod(v as Period)}
+                options={[
+                  { label: "This month", value: "month" },
+                  { label: "All time", value: "all" },
+                ]}
+              />
+            </div>
+            <div className="w-[190px]">
+              <Select
+                value={sortBy}
+                onChange={(v) => setSortBy(v as SortKey)}
+                options={[
+                  { label: "Biggest saving", value: "saving" },
+                  { label: "Easiest first", value: "difficulty" },
+                ]}
+              />
+            </div>
+          </>
+        }
+      />
 
       {error && (
-        <div className="bg-[#fde8e8] text-[#b91c1c] p-4 rounded-lg text-sm">{error}</div>
+        <p className="text-sm rounded-xl px-4 py-3 bg-rose-50 text-rose-600 mb-6">{error}</p>
       )}
 
       {loading ? (
-        <div className="text-[#888]">Loading...</div>
+        <p className="text-muted py-10 text-center">Loading recommendations...</p>
       ) : data && data.totalCo2 === 0 ? (
-        <div className="bg-white p-10 rounded-xl shadow-sm text-center flex flex-col items-center gap-4">
-          <div className="text-5xl">🌱</div>
-          <p className="text-[#555]">
-            No activities {period === "month" ? "this month" : "yet"}. Log some activities to get
-            personalized recommendations.
+        <div className="bg-white rounded-2xl shadow-card p-10 text-center flex flex-col items-center gap-4">
+          <div className="w-16 h-16 rounded-2xl bg-brand-50 flex items-center justify-center text-4xl">
+            🌱
+          </div>
+          <p className="text-muted m-0">
+            No activities {periodLabel}. Log some activities to get personalized recommendations.
           </p>
           {period === "month" && (
-            <button
-              onClick={() => setPeriod("all")}
-              className="py-2 px-4 border border-[#0ea960] text-[#0ea960] font-bold rounded-lg"
-            >
+            <Button variant="outline" size="sm" onClick={() => setPeriod("all")}>
               View all time
-            </button>
+            </Button>
           )}
         </div>
       ) : data ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Footprint Drivers */}
-          <div className="bg-white p-6 rounded-xl shadow-sm flex flex-col">
-            <h3 className="text-sm font-bold text-[#888] tracking-wider mb-4">
-              YOUR FOOTPRINT DRIVERS ({period === "month" ? "THIS MONTH" : "ALL TIME"})
-            </h3>
+        <>
+          <section className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+            <StatTile
+              variant="brand"
+              label={`Footprint ${periodLabel}`}
+              value={data.totalCo2.toFixed(1)}
+              unit="kg CO₂e"
+              icon={<MdCloud size={20} />}
+            />
+            <StatTile
+              label="Can be saved"
+              value={data.totalPotentialSaving.toFixed(1)}
+              unit={`kg CO₂e · ${savingPct}%`}
+              icon={<MdTrendingDown size={20} />}
+              iconCls="text-brand-600 bg-brand-50"
+            />
+            <StatTile
+              label="Biggest source"
+              value={top?.category ?? "—"}
+              unit={top ? `${top.percent}% · mostly ${top.topSub}` : undefined}
+              icon={<MdEco size={20} />}
+              iconCls="text-rose-500 bg-rose-50"
+            />
+            <StatTile
+              variant="ocean"
+              label="Actions for you"
+              value={data.recommendations.length}
+              unit="recommendations"
+              icon={<MdLightbulb size={20} />}
+            />
+          </section>
 
-            <div className="flex items-center gap-4 mb-6">
-              <div className="w-16 h-16 rounded-full bg-[#aed9b8] flex items-center justify-center text-2xl font-bold text-[#0c9052]">
-                {userName.charAt(0).toUpperCase() || "?"}
-              </div>
-              <div>
-                <h4 className="font-bold text-xl text-[#333]">{userName}</h4>
-                <p className="text-sm text-[#888]">{data.totalCo2} kg CO₂e total</p>
-              </div>
-            </div>
+          <section className="grid grid-cols-1 lg:grid-cols-[1fr_2fr] gap-6">
+            {/* Footprint drivers */}
+            <div className="bg-white rounded-2xl shadow-card p-6 flex flex-col self-start">
+              <h3 className="m-0 mb-1 text-ink text-[1.1rem] font-bold">Footprint Drivers</h3>
+              <p className="m-0 mb-6 text-muted text-[0.85rem]">
+                {userName ? `${userName}'s` : "Your"} emissions by category
+              </p>
 
-            <div className="flex gap-6 items-center mb-6">
-              <div className="w-28 h-28 relative shrink-0">
-                <div className="absolute inset-0 rounded-full" style={{ background: donut }} />
-                <div className="absolute inset-5 bg-white rounded-full" />
+              <div className="flex justify-center mb-6">
+                <div className="w-40 h-40 relative">
+                  <div className="absolute inset-0 rounded-full" style={{ background: donut }} />
+                  <div className="absolute inset-[22%] bg-white rounded-full flex flex-col items-center justify-center">
+                    <span className="text-xl font-extrabold text-ink">{data.totalCo2.toFixed(0)}</span>
+                    <span className="text-[0.7rem] text-muted">kg CO₂e</span>
+                  </div>
+                </div>
               </div>
-              <div className="flex-1 text-sm font-semibold flex flex-col gap-2">
+
+              <div className="flex flex-col gap-3">
                 {data.breakdown.map((b) => (
-                  <div key={b.category} className="flex flex-col gap-1">
-                    <div className="flex items-center justify-between">
-                      <span className="flex items-center gap-2">
+                  <div key={b.category}>
+                    <div className="flex items-center justify-between text-[0.9rem]">
+                      <span className="flex items-center gap-2 text-ink font-semibold">
                         <span
-                          className="text-lg leading-none"
-                          style={{ color: CATEGORY_COLORS[b.category] ?? "#999" }}
-                        >
-                          ■
-                        </span>
+                          className="w-2.5 h-2.5 rounded-full"
+                          style={{ backgroundColor: categoryColor(b.category) }}
+                        />
                         {b.category}
                       </span>
-                      <span className="text-[#888]">
-                        {b.co2} kg · {b.percent}%
+                      <span className="text-muted">
+                        {b.co2} kg · <span className="text-ink font-semibold">{b.percent}%</span>
                       </span>
                     </div>
-                    <div className="flex items-center justify-between pl-5 text-xs text-[#888]">
-                      <span>↳ {b.topSub}</span>
-                      <span>{b.topSubPercent}%</span>
+                    <div className="pl-[18px] text-[0.8rem] text-muted">
+                      ↳ {b.topSub} ({b.topSubPercent}%)
                     </div>
                   </div>
                 ))}
               </div>
+
+              {/* Hiện tại vs sau khi áp dụng */}
+              <div className="mt-6 pt-5 border-t border-gray-100">
+                <div className="flex justify-between text-[0.8rem] font-semibold mb-2">
+                  <span className="text-muted">Now {data.totalCo2.toFixed(1)} kg</span>
+                  <span className="text-brand-600">After plan {after} kg</span>
+                </div>
+                <div className="h-2.5 w-full bg-brand-100 rounded-full overflow-hidden">
+                  <div className="h-full bg-gradient-leaf" style={{ width: `${100 - savingPct}%` }} />
+                </div>
+              </div>
+
+              <Link
+                href="/history"
+                className="mt-6 text-brand-600 text-[0.85rem] font-semibold no-underline hover:underline text-center"
+              >
+                See all data →
+              </Link>
             </div>
 
-            {top && (
-              <p className="text-sm text-[#555] mb-6">
-                <b>{top.category}</b> is your biggest source ({top.percent}%), mostly from{" "}
-                <b>{top.topSub}</b>.
-              </p>
-            )}
-
-            <Link
-              href="/history"
-              className="w-full py-3 bg-[#0ea960] text-white font-bold rounded-lg hover:bg-[#0c9052] transition-colors mt-auto text-center block"
-            >
-              See Data
-            </Link>
-          </div>
-
-          {/* Potential saving summary */}
-          <div className="bg-white p-6 rounded-xl shadow-sm flex flex-col gap-4">
-            <h3 className="text-sm font-bold text-[#888] tracking-wider">POTENTIAL SAVINGS</h3>
-            <p className="text-sm text-[#555]">
-              Following the plan below could cut about{" "}
-              <b className="text-[#0c9052]">{data.totalPotentialSaving} kg CO₂e</b> (
-              {savingPct}% of your footprint).
-            </p>
-            <div className="flex flex-col gap-2">
-              <div className="flex justify-between text-xs font-semibold text-[#333]">
-                <span>Now: {data.totalCo2} kg</span>
-                <span>
-                  After: {Math.round((data.totalCo2 - data.totalPotentialSaving) * 100) / 100} kg
-                </span>
-              </div>
-              <div className="h-4 w-full bg-[#eee] rounded-full overflow-hidden flex">
-                <div
-                  className="h-full bg-[#0ea960]"
-                  style={{ width: `${100 - savingPct}%` }}
-                />
-                <div className="h-full bg-[#aed9b8]" style={{ width: `${savingPct}%` }} />
-              </div>
-              <div className="flex gap-4 text-xs text-[#888]">
-                <span className="flex items-center gap-1">
-                  <span className="w-3 h-3 rounded-sm bg-[#0ea960] inline-block" /> Remaining
-                </span>
-                <span className="flex items-center gap-1">
-                  <span className="w-3 h-3 rounded-sm bg-[#aed9b8] inline-block" /> Can be saved
-                </span>
-              </div>
-            </div>
-            <Link
-              href="/challenges"
-              className="w-full py-3 border border-[#0ea960] text-[#0ea960] font-bold rounded-lg hover:bg-[#e6f7ee] transition-colors mt-auto text-center block"
-            >
-              View My Challenges
-            </Link>
-          </div>
-
-          {/* Action plan */}
-          <div className="md:col-span-2 flex flex-col gap-4">
-            <h3 className="text-sm font-bold text-[#888] tracking-wider">
-              PERSONALIZED REDUCTION ACTION PLAN
-            </h3>
-            {sorted.map((rec) => {
-              const ch = challengeFor(rec);
-              return (
-                <div
-                  key={rec.id}
-                  className="bg-white p-5 rounded-xl shadow-sm flex flex-wrap items-center justify-between gap-4"
-                >
-                  <div className="flex items-center gap-4 flex-1 min-w-[240px]">
-                    <div className="text-4xl">{rec.emoji}</div>
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <h4 className="font-bold text-[#333]">{rec.title}</h4>
-                        <span
-                          className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${DIFFICULTY_STYLE[rec.difficulty]}`}
-                        >
-                          {rec.difficulty}
+            {/* Action plan */}
+            <div className="flex flex-col gap-4">
+              <h3 className="m-0 text-ink text-[1.1rem] font-bold">Your Action Plan</h3>
+              {sorted.map((rec, i) => {
+                const ch = challengeFor(rec);
+                const done = ch?.status === "COMPLETED";
+                const pct = ch ? Math.min(100, Math.round((ch.progress / ch.target) * 100)) : 0;
+                return (
+                  <div
+                    key={rec.id}
+                    className="bg-white rounded-2xl shadow-card p-5 flex flex-wrap items-center gap-5"
+                  >
+                    <div className="w-14 h-14 rounded-2xl bg-brand-50 flex items-center justify-center text-3xl shrink-0 relative">
+                      {rec.emoji}
+                      {sortBy === "saving" && i === 0 && (
+                        <span className="absolute -top-2 -right-2 bg-gradient-sunrise text-white text-[0.65rem] font-bold px-1.5 py-0.5 rounded-full">
+                          TOP
                         </span>
+                      )}
+                    </div>
+
+                    <div className="flex-1 min-w-[220px]">
+                      <div className="flex items-center gap-2 flex-wrap mb-1">
+                        <h4 className="m-0 font-bold text-ink text-[1rem]">{rec.title}</h4>
+                        <Badge tone={DIFFICULTY_TONE[rec.difficulty]} className="!text-[0.7rem] !py-0.5 !px-2">
+                          {rec.difficulty}
+                        </Badge>
                       </div>
-                      <p className="text-sm text-[#555] mt-1">{rec.description}</p>
+                      <p className="m-0 text-muted text-[0.85rem]">{rec.description}</p>
+                      <p className="m-0 mt-1 text-[0.8rem] flex items-center gap-1.5 text-muted">
+                        <span
+                          className="w-2 h-2 rounded-full"
+                          style={{ backgroundColor: categoryColor(rec.category) }}
+                        />
+                        Based on your {rec.source} activities
+                      </p>
                       {ch && (
-                        <div className="flex items-center gap-2 mt-2">
-                          <div className="flex-1 h-2 bg-[#eee] rounded-full overflow-hidden">
+                        <div className="mt-3">
+                          <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
                             <div
-                              className="h-full bg-[#0ea960]"
-                              style={{ width: `${(ch.progress / ch.target) * 100}%` }}
+                              className={`h-full rounded-full ${done ? "bg-gradient-sunrise" : "bg-gradient-leaf"}`}
+                              style={{ width: `${pct}%` }}
                             />
                           </div>
-                          <span className="text-xs text-[#888]">
-                            {ch.status === "COMPLETED"
-                              ? "Completed 🎉"
-                              : `${ch.progress}/${ch.target} ${rec.challengeMatch}`}
-                          </span>
+                          <p className="m-0 mt-1 text-[0.75rem] text-muted">
+                            {done
+                              ? "Challenge completed 🎉"
+                              : `Challenge: ${ch.progress}/${ch.target} ${rec.challengeMatch}`}
+                          </p>
                         </div>
                       )}
                     </div>
+
+                    <div className="flex flex-col items-end gap-2 ml-auto">
+                      <div className="text-right">
+                        <div className="text-[0.75rem] text-muted">Save up to</div>
+                        <div className="text-xl font-extrabold text-brand-600">
+                          {rec.estimatedSavingKg}
+                          <span className="text-[0.8rem] font-semibold text-muted"> kg CO₂e</span>
+                        </div>
+                      </div>
+                      {rec.challengeMatch &&
+                        (ch ? (
+                          <Link href="/challenges" className="no-underline">
+                            <Badge tone={done ? "warning" : "success"} dot>
+                              {done ? "Completed" : "In challenges"}
+                            </Badge>
+                          </Link>
+                        ) : (
+                          <Button
+                            variant="gradient"
+                            size="sm"
+                            onClick={() => handleApply(rec)}
+                            disabled={applyingId === rec.id}
+                            className="disabled:opacity-60"
+                          >
+                            {applyingId === rec.id ? "Starting..." : "Start Challenge"}
+                          </Button>
+                        ))}
+                    </div>
                   </div>
-                  <div className="flex flex-col items-end gap-2">
-                    <div className="text-xs text-[#888]">Save estimate</div>
-                    <div className="font-bold text-[#333]">{rec.estimatedSavingKg} kg CO₂e</div>
-                    {rec.challengeMatch &&
-                      (ch ? (
-                        <Link
-                          href="/challenges"
-                          className="py-2 px-4 border border-[#0ea960] text-[#0ea960] text-sm font-bold rounded-lg"
-                        >
-                          In Challenges
-                        </Link>
-                      ) : (
-                        <button
-                          onClick={() => handleApply(rec)}
-                          disabled={applyingId === rec.id}
-                          className="py-2 px-4 bg-[#0ea960] text-white text-sm font-bold rounded-lg hover:bg-[#0c9052] transition-colors disabled:opacity-60"
-                        >
-                          {applyingId === rec.id ? "Starting..." : "Start Challenge"}
-                        </button>
-                      ))}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
+                );
+              })}
+            </div>
+          </section>
+        </>
       ) : null}
     </div>
   );

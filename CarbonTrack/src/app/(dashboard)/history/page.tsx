@@ -1,11 +1,28 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { MdSearch, MdKeyboardArrowLeft, MdKeyboardArrowRight, MdFirstPage, MdLastPage } from "react-icons/md";
+import {
+  MdSearch,
+  MdKeyboardArrowLeft,
+  MdKeyboardArrowRight,
+  MdFirstPage,
+  MdLastPage,
+  MdCloud,
+  MdListAlt,
+  MdLocalFireDepartment,
+  MdShowChart,
+  MdFileDownload,
+} from "react-icons/md";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import Select from "@/components/ui/Select";
+import Badge from "@/components/ui/Badge";
+import PageHeader from "@/components/ui/PageHeader";
+import StatTile from "@/components/ui/StatTile";
 import { getActivities, type Activity } from "@/lib/activities";
+import { categoryColor } from "@/lib/categories";
+
+const ITEMS_PER_PAGE = 8;
 
 export default function HistoryPage() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -14,52 +31,35 @@ export default function HistoryPage() {
   const [filterMonth, setFilterMonth] = useState("All Time");
 
   const [activities, setActivities] = useState<Activity[]>([]);
+  const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 8;
 
   // Tải dữ liệu thật khi mở trang
   useEffect(() => {
     getActivities()
       .then(setActivities)
-      .catch(() => setActivities([]));
+      .catch(() => setActivities([]))
+      .finally(() => setLoading(false));
   }, []);
 
-  // Reset to page 1 when filters change
+  // Đổi bộ lọc thì về trang 1
   useEffect(() => {
     setCurrentPage(1);
   }, [searchQuery, filterActivity, filterStatus, filterMonth]);
 
-  const filteredActivities = activities.filter(activity => {
-    // 1. Search Query
-    const matchesSearch = activity.activity.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      activity.detail.toLowerCase().includes(searchQuery.toLowerCase());
+  const q = searchQuery.toLowerCase();
+  const filtered = activities.filter(
+    (a) =>
+      (a.activity.toLowerCase().includes(q) || a.detail.toLowerCase().includes(q)) &&
+      (filterActivity === "All Activity" || a.category === filterActivity) &&
+      (filterStatus === "Status" || a.status === filterStatus) &&
+      (filterMonth === "All Time" || a.date.endsWith(filterMonth)) // date dạng dd/MM/yyyy
+  );
 
-    // 2. Filter Category (dùng trường category lưu sẵn)
-    let matchesCategory = true;
-    if (filterActivity !== "All Activity") {
-      matchesCategory = activity.category === filterActivity;
-    }
-
-    // 3. Filter Status
-    let matchesStatus = true;
-    if (filterStatus !== "Status") {
-      matchesStatus = activity.status === filterStatus;
-    }
-
-    // 4. Filter Month
-    let matchesMonth = true;
-    if (filterMonth !== "All Time") {
-      // Check if the date string (DD/MM/YYYY) ends with the MM/YYYY
-      matchesMonth = activity.date.endsWith(filterMonth);
-    }
-
-    return matchesSearch && matchesCategory && matchesStatus && matchesMonth;
-  });
-
-  // Tự sinh danh sách tháng từ dữ liệu thật (MM/YYYY), mới nhất lên đầu
+  // Tự sinh danh sách tháng từ dữ liệu thật (MM/yyyy), mới nhất lên đầu
   const monthOptions = [
     { label: "All Time", value: "All Time" },
-    ...Array.from(new Set(activities.map((a) => a.date.slice(3)))) // "MM/yyyy"
+    ...Array.from(new Set(activities.map((a) => a.date.slice(3))))
       .sort((a, b) => {
         const [ma, ya] = a.split("/").map(Number);
         const [mb, yb] = b.split("/").map(Number);
@@ -68,122 +68,219 @@ export default function HistoryPage() {
       .map((m) => ({ label: m, value: m })),
   ];
 
-  const totalPages = Math.ceil(filteredActivities.length / itemsPerPage) || 1;
+  // Thống kê theo bộ lọc hiện tại
+  const totalCo2 = filtered.reduce((s, a) => s + a.co2, 0);
+  const highCount = filtered.filter((a) => a.status === "High").length;
+  const avgCo2 = filtered.length ? totalCo2 / filtered.length : 0;
 
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = filteredActivities.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE) || 1;
+  const currentItems = filtered.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
 
-  const handleNextPage = () => {
-    if (currentPage < totalPages) setCurrentPage(currentPage + 1);
+  // Xuất CSV đúng các dòng đang lọc (Excel mở được)
+  const handleExport = () => {
+    const header = ["Date", "Category", "Activity", "Detail", "CO2 (kg)", "Status"];
+    const rows = filtered.map((a) => [a.date, a.category, a.activity, a.detail, a.co2, a.status]);
+    const csv = [header, ...rows]
+      .map((r) => r.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(","))
+      .join("\r\n");
+    // BOM để Excel đọc đúng UTF-8
+    const blob = new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `carbontrack-history-${new Date().toISOString().slice(0, 10)}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
   };
 
-  const handlePrevPage = () => {
-    if (currentPage > 1) setCurrentPage(currentPage - 1);
-  };
+  const pageBtn = (disabled: boolean) =>
+    `w-9 h-9 rounded-lg flex items-center justify-center transition-colors ${
+      disabled
+        ? "text-gray-300 pointer-events-none"
+        : "text-ink hover:bg-brand-50 hover:text-brand-600 cursor-pointer"
+    }`;
 
-  const handleFirstPage = () => {
-    setCurrentPage(1);
-  };
-
-  const handleLastPage = () => {
-    setCurrentPage(totalPages);
-  };
+  const th = "text-left text-muted font-semibold text-[0.85rem] pb-4 border-b border-gray-100";
+  const td = "py-4 border-b border-gray-100 text-[0.9rem]";
 
   return (
     <div>
-      <header className="flex justify-between items-center mb-8">
-        <h2 className="text-[2rem] font-bold text-ink m-0">History Activity</h2>
-        <Button variant="gradient">
-          Export (PDF/Excel)
-        </Button>
-      </header>
+      <PageHeader
+        title="History Activity"
+        subtitle="Every activity you've logged, with its carbon footprint."
+        actions={
+          <Button variant="gradient" onClick={handleExport} disabled={filtered.length === 0}>
+            <MdFileDownload size={20} className="mr-2" /> Export CSV
+          </Button>
+        }
+      />
 
-      <div className="flex gap-4 mb-6">
-        <div className="w-[300px]">
-          <Input
-            type="text"
-            placeholder="Search...."
-            icon={<MdSearch size={20} />}
-            iconPosition="left"
-            className="py-3.5"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-        </div>
-        <div className="w-[200px]">
-          <Select
-            value={filterActivity}
-            onChange={setFilterActivity}
-            options={[
-              { label: 'All Activity', value: 'All Activity' },
-              { label: 'Transport', value: 'Transport' },
-              { label: 'Food', value: 'Food' },
-              { label: 'Energy', value: 'Energy' },
-              { label: 'Shopping', value: 'Shopping' },
-            ]}
-          />
-        </div>
-        <div className="w-[150px]">
-          <Select
-            value={filterStatus}
-            onChange={setFilterStatus}
-            options={[
-              { label: 'Status', value: 'Status' },
-              { label: 'High', value: 'High' },
-              { label: 'Low', value: 'Low' },
-            ]}
-          />
-        </div>
-        <div className="w-[150px]">
-          <Select
-            value={filterMonth}
-            onChange={setFilterMonth}
-            options={monthOptions}
-          />
-        </div>
-      </div>
+      <section className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+        <StatTile
+          variant="brand"
+          label="Total emissions"
+          value={totalCo2.toFixed(1)}
+          unit="kg CO₂e"
+          icon={<MdCloud size={20} />}
+        />
+        <StatTile
+          label="Activities"
+          value={filtered.length}
+          unit="logged"
+          icon={<MdListAlt size={20} />}
+          iconCls="text-sky-600 bg-sky-50"
+        />
+        <StatTile
+          label="Average"
+          value={avgCo2.toFixed(1)}
+          unit="kg per activity"
+          icon={<MdShowChart size={20} />}
+          iconCls="text-amber-500 bg-amber-50"
+        />
+        <StatTile
+          label="High emission"
+          value={highCount}
+          unit="activities ≥ 5 kg"
+          icon={<MdLocalFireDepartment size={20} />}
+          iconCls="text-rose-500 bg-rose-50"
+        />
+      </section>
 
-      <div className="bg-white rounded-2xl shadow-card p-6 mb-6">
-        <table className="w-full border-collapse">
-          <thead>
-            <tr>
-              <th className="text-left text-[#111] font-bold pb-4 border-b border-[#f0f0f0] w-[20%]">Date</th>
-              <th className="text-left text-[#111] font-bold pb-4 border-b border-[#f0f0f0] w-[20%]">Activity</th>
-              <th className="text-left text-[#111] font-bold pb-4 border-b border-[#f0f0f0] w-[20%]">Detail</th>
-              <th className="text-left text-[#111] font-bold pb-4 border-b border-[#f0f0f0] w-[20%]">Rate CO₂e</th>
-              <th className="text-left text-[#111] font-bold pb-4 border-b border-[#f0f0f0] w-[20%]">Status</th>
-            </tr>
-          </thead>
-          <tbody className="[&>tr:last-child>td]:border-b-0">
-            {currentItems.map((activity) => (
-              <tr key={activity.id}>
-                <td className="py-4 border-b border-[#f0f0f0] text-[#555] font-medium">{activity.date}</td>
-                <td className="py-4 border-b border-[#f0f0f0] text-[#555] font-medium">{activity.activity}</td>
-                <td className="py-4 border-b border-[#f0f0f0] text-[#555] font-medium">{activity.detail}</td>
-                <td className="py-4 border-b border-[#f0f0f0] text-[#555] font-medium">{activity.co2} kg</td>
-                <td className="py-4 border-b border-[#f0f0f0] text-[#555] font-medium">
-                  <span className={`inline-flex items-center gap-1.5 py-1 px-3 rounded-full text-[0.85rem] font-medium ${activity.status === 'High'
-                    ? 'bg-[#fed7d7] text-[#c53030]'
-                    : 'bg-[#c6f6d5] text-[#276749]'
-                    }`}>
-                    <span className={`w-2 h-2 rounded-full ${activity.status === 'High' ? 'bg-[#c53030]' : 'bg-[#276749]'}`}></span>
-                    {activity.status}
-                  </span>
-                </td>
+      <div className="bg-white rounded-2xl shadow-card p-6">
+        {/* Bộ lọc */}
+        <div className="flex flex-wrap gap-3 mb-6">
+          <div className="w-full md:w-[280px]">
+            <Input
+              type="text"
+              placeholder="Search activity or detail..."
+              icon={<MdSearch size={20} />}
+              iconPosition="left"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+          <div className="w-[180px]">
+            <Select
+              value={filterActivity}
+              onChange={setFilterActivity}
+              options={[
+                { label: "All Activity", value: "All Activity" },
+                { label: "Transport", value: "Transport" },
+                { label: "Food", value: "Food" },
+                { label: "Energy", value: "Energy" },
+                { label: "Shopping", value: "Shopping" },
+              ]}
+            />
+          </div>
+          <div className="w-[140px]">
+            <Select
+              value={filterStatus}
+              onChange={setFilterStatus}
+              options={[
+                { label: "All Status", value: "Status" },
+                { label: "High", value: "High" },
+                { label: "Low", value: "Low" },
+              ]}
+            />
+          </div>
+          <div className="w-[140px]">
+            <Select value={filterMonth} onChange={setFilterMonth} options={monthOptions} />
+          </div>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse min-w-[600px]">
+            <thead>
+              <tr>
+                <th className={th}>Date</th>
+                <th className={th}>Activity</th>
+                <th className={th}>Detail</th>
+                <th className={th}>CO₂</th>
+                <th className={th}>Status</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody className="[&>tr:last-child>td]:border-b-0">
+              {loading ? (
+                <tr>
+                  <td colSpan={5} className="py-10 text-center text-muted">
+                    Loading...
+                  </td>
+                </tr>
+              ) : currentItems.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="py-10 text-center text-muted">
+                    {activities.length === 0
+                      ? "No activities yet. Log your first one from the Dashboard!"
+                      : "No activities match these filters."}
+                  </td>
+                </tr>
+              ) : (
+                currentItems.map((a) => (
+                  <tr key={a.id} className="hover:bg-gray-50/60">
+                    <td className={`${td} text-muted`}>{a.date}</td>
+                    <td className={`${td} text-ink font-medium`}>
+                      <span className="flex items-center gap-2">
+                        <span
+                          className="w-2.5 h-2.5 rounded-full shrink-0"
+                          style={{ backgroundColor: categoryColor(a.category) }}
+                        />
+                        {a.activity}
+                        <span className="text-muted text-xs font-normal">{a.category}</span>
+                      </span>
+                    </td>
+                    <td className={`${td} text-muted`}>{a.detail}</td>
+                    <td className={`${td} text-ink font-semibold`}>{a.co2} kg</td>
+                    <td className={td}>
+                      <Badge tone={a.status === "High" ? "danger" : "success"} dot>
+                        {a.status}
+                      </Badge>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
 
-      <div className="flex justify-end items-center gap-4 text-[#555] font-medium">
-        <span>Pages {currentPage}/{totalPages}</span>
-        <div className="flex gap-2 text-ink">
-          <MdFirstPage size={24} className={`cursor-pointer hover:text-[#2b9d5c] ${currentPage === 1 ? 'opacity-50 pointer-events-none' : ''}`} onClick={handleFirstPage} />
-          <MdKeyboardArrowLeft size={24} className={`cursor-pointer hover:text-[#2b9d5c] ${currentPage === 1 ? 'opacity-50 pointer-events-none' : ''}`} onClick={handlePrevPage} />
-          <MdKeyboardArrowRight size={24} className={`cursor-pointer hover:text-[#2b9d5c] ${currentPage === totalPages ? 'opacity-50 pointer-events-none' : ''}`} onClick={handleNextPage} />
-          <MdLastPage size={24} className={`cursor-pointer hover:text-[#2b9d5c] ${currentPage === totalPages ? 'opacity-50 pointer-events-none' : ''}`} onClick={handleLastPage} />
+        {/* Phân trang */}
+        <div className="flex justify-between items-center mt-6 pt-4 border-t border-gray-100 text-muted text-[0.85rem]">
+          <span>
+            {filtered.length === 0
+              ? "0 results"
+              : `${(currentPage - 1) * ITEMS_PER_PAGE + 1}–${Math.min(
+                  currentPage * ITEMS_PER_PAGE,
+                  filtered.length
+                )} of ${filtered.length}`}
+          </span>
+          <div className="flex items-center gap-1">
+            <span className={pageBtn(currentPage === 1)} onClick={() => setCurrentPage(1)}>
+              <MdFirstPage size={22} />
+            </span>
+            <span
+              className={pageBtn(currentPage === 1)}
+              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+            >
+              <MdKeyboardArrowLeft size={22} />
+            </span>
+            <span className="px-2 text-ink font-semibold">
+              {currentPage} / {totalPages}
+            </span>
+            <span
+              className={pageBtn(currentPage === totalPages)}
+              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+            >
+              <MdKeyboardArrowRight size={22} />
+            </span>
+            <span
+              className={pageBtn(currentPage === totalPages)}
+              onClick={() => setCurrentPage(totalPages)}
+            >
+              <MdLastPage size={22} />
+            </span>
+          </div>
         </div>
       </div>
     </div>

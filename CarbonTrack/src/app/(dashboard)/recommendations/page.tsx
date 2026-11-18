@@ -1,179 +1,337 @@
-import React from "react";
+"use client";
+
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { getUser } from "@/lib/auth";
+import { getChallenges, type ChallengeView } from "@/lib/challenges";
+import {
+  getRecommendations,
+  applyRecommendation,
+  type RecommendationResponse,
+  type Recommendation,
+} from "@/lib/recommendations";
+
+const CATEGORY_COLORS: Record<string, string> = {
+  Transport: "#0ea960",
+  Food: "#f97316",
+  Energy: "#6366f1",
+  Shopping: "#eab308",
+};
+
+const DIFFICULTY_STYLE: Record<Recommendation["difficulty"], string> = {
+  EASY: "bg-[#e6f7ee] text-[#0c9052]",
+  MEDIUM: "bg-[#fff4e0] text-[#b45309]",
+  HARD: "bg-[#fde8e8] text-[#b91c1c]",
+};
+
+type SortKey = "saving" | "difficulty";
+const DIFF_ORDER = { EASY: 0, MEDIUM: 1, HARD: 2 };
+
+function currentMonth() {
+  const d = new Date();
+  return `${String(d.getMonth() + 1).padStart(2, "0")}/${d.getFullYear()}`;
+}
 
 export default function RecommendationsPage() {
+  const [userName, setUserName] = useState("");
+  const [period, setPeriod] = useState<"month" | "all">("month");
+  const [sortBy, setSortBy] = useState<SortKey>("saving");
+  const [data, setData] = useState<RecommendationResponse | null>(null);
+  const [challenges, setChallenges] = useState<ChallengeView[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [applyingId, setApplyingId] = useState("");
+
+  useEffect(() => {
+    setUserName(getUser()?.name ?? "");
+  }, []);
+
+  const load = async () => {
+    setLoading(true);
+    setError("");
+    try {
+      const [rec, chs] = await Promise.all([
+        getRecommendations(period === "month" ? currentMonth() : undefined),
+        getChallenges(),
+      ]);
+      setData(rec);
+      setChallenges(chs);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Failed to load recommendations");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [period]);
+
+  const handleApply = async (rec: Recommendation) => {
+    setApplyingId(rec.id);
+    try {
+      await applyRecommendation(rec.id);
+      setChallenges(await getChallenges());
+    } catch (e) {
+      alert(e instanceof Error ? e.message : "Failed to start challenge");
+    } finally {
+      setApplyingId("");
+    }
+  };
+
+  // Challenge đang tham gia, khớp theo sub-category đếm
+  const challengeFor = (rec: Recommendation) =>
+    rec.challengeMatch
+      ? challenges.find(
+          (c) => c.joined && c.matchType === "SUBCATEGORY" && c.matchValue === rec.challengeMatch
+        )
+      : undefined;
+
+  const sorted = useMemo(() => {
+    const list = [...(data?.recommendations ?? [])];
+    if (sortBy === "difficulty") {
+      list.sort(
+        (a, b) =>
+          DIFF_ORDER[a.difficulty] - DIFF_ORDER[b.difficulty] ||
+          b.estimatedSavingKg - a.estimatedSavingKg
+      );
+    }
+    return list; // backend đã sắp xếp theo saving
+  }, [data, sortBy]);
+
+  // Donut: conic-gradient từ breakdown
+  const donut = useMemo(() => {
+    let acc = 0;
+    const stops = (data?.breakdown ?? []).map((b) => {
+      const start = acc;
+      acc += b.percent * 3.6;
+      return `${CATEGORY_COLORS[b.category] ?? "#999"} ${start}deg ${acc}deg`;
+    });
+    return stops.length ? `conic-gradient(${stops.join(", ")})` : "#eee";
+  }, [data]);
+
+  const top = data?.breakdown[0];
+  const savingPct =
+    data && data.totalCo2 > 0 ? Math.round((data.totalPotentialSaving / data.totalCo2) * 100) : 0;
+
   return (
     <div className="flex flex-col gap-6 w-full">
-      <div className="flex justify-between items-center mb-2">
+      <div className="flex flex-wrap justify-between items-center gap-3 mb-2">
         <h2 className="text-3xl font-bold text-[#333]">Recommendation</h2>
-        <div className="bg-white border border-[#ccc] rounded-md px-4 py-2 text-sm font-semibold text-[#555] flex items-center gap-2 cursor-pointer">
-          Sort By
-          <span className="text-xs">▼</span>
+        <div className="flex gap-2">
+          <select
+            value={period}
+            onChange={(e) => setPeriod(e.target.value as "month" | "all")}
+            className="bg-white border border-[#ccc] rounded-md px-3 py-2 text-sm font-semibold text-[#555]"
+          >
+            <option value="month">This month</option>
+            <option value="all">All time</option>
+          </select>
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value as SortKey)}
+            className="bg-white border border-[#ccc] rounded-md px-3 py-2 text-sm font-semibold text-[#555]"
+          >
+            <option value="saving">Sort by: Biggest saving</option>
+            <option value="difficulty">Sort by: Easiest first</option>
+          </select>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        
-        {/* Top Left: Footprint Drivers */}
-        <div className="bg-white p-6 rounded-xl shadow-sm flex flex-col">
-          <h3 className="text-sm font-bold text-[#888] tracking-wider mb-4">YOUR FOOTPRINT DRIVERS (THIS MONTH)</h3>
-          
-          <div className="flex items-center gap-4 mb-6">
-            <div className="w-16 h-16 rounded-full bg-[#aed9b8] flex items-center justify-center text-3xl">👨🏻</div>
-            <h4 className="font-bold text-xl text-[#333]">Nhat Le</h4>
-          </div>
+      {error && (
+        <div className="bg-[#fde8e8] text-[#b91c1c] p-4 rounded-lg text-sm">{error}</div>
+      )}
 
-          <div className="flex gap-4 items-center mb-6">
-            <div className="w-32 h-16 relative overflow-hidden flex shrink-0">
-               {/* Proper semi-circle chart using conic-gradient */}
-               <div 
-                 className="absolute top-0 left-0 w-32 h-32 rounded-full" 
-                 style={{ background: "conic-gradient(from 270deg, #0ea960 0deg 90deg, #fde047 90deg 135deg, #6366f1 135deg 180deg, transparent 180deg 360deg)" }}
-               ></div>
-               {/* Inner cut-out for donut effect */}
-               <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-16 h-8 bg-white rounded-t-full"></div>
-            </div>
-            <div className="flex-1 text-sm font-semibold flex flex-col gap-2">
-              <div className="flex flex-col gap-1">
-                <div className="flex items-center justify-between">
-                  <span className="flex items-center gap-2"><span className="text-[#0ea960] text-lg leading-none">■</span> Transport</span>
-                  <span className="text-[#888]">900 kg CO₂e</span>
-                </div>
-                <div className="flex items-center justify-between pl-5 text-xs text-[#888]">
-                  <span>↳ Motorbike</span>
-                  <span>45%</span>
-                </div>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="flex items-center gap-2"><span className="text-[#6366f1] text-lg leading-none">■</span> Energy</span>
-                <span className="text-[#888]">13%</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="flex items-center gap-2"><span className="text-[#fde047] text-lg leading-none">■</span> Consumption</span>
-                <span className="text-[#888]">10%</span>
-              </div>
-            </div>
-          </div>
-
-          <p className="text-sm text-[#555] mb-6">
-            Motorbike commute: 45% of transport emissions. You set a target of 1.2 tons CO2e
+      {loading ? (
+        <div className="text-[#888]">Loading...</div>
+      ) : data && data.totalCo2 === 0 ? (
+        <div className="bg-white p-10 rounded-xl shadow-sm text-center flex flex-col items-center gap-4">
+          <div className="text-5xl">🌱</div>
+          <p className="text-[#555]">
+            No activities {period === "month" ? "this month" : "yet"}. Log some activities to get
+            personalized recommendations.
           </p>
-
-          <Link href="/history" className="w-full py-3 bg-[#0ea960] text-white font-bold rounded-lg hover:bg-[#0c9052] transition-colors mt-auto text-center block">
-            See Data
-          </Link>
+          {period === "month" && (
+            <button
+              onClick={() => setPeriod("all")}
+              className="py-2 px-4 border border-[#0ea960] text-[#0ea960] font-bold rounded-lg"
+            >
+              View all time
+            </button>
+          )}
         </div>
+      ) : data ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Footprint Drivers */}
+          <div className="bg-white p-6 rounded-xl shadow-sm flex flex-col">
+            <h3 className="text-sm font-bold text-[#888] tracking-wider mb-4">
+              YOUR FOOTPRINT DRIVERS ({period === "month" ? "THIS MONTH" : "ALL TIME"})
+            </h3>
 
-        {/* Top Right: Personalized Plan */}
-        <div className="flex flex-col gap-4">
-          <h3 className="text-sm font-bold text-[#888] tracking-wider mb-2">PERSONALIZED REDUCTION ACTION PLAN</h3>
-          
-          <div className="bg-white p-5 rounded-xl shadow-sm flex items-center justify-between gap-4">
-            <div className="flex items-center gap-4 flex-1">
-              <div className="text-4xl">🚲</div>
-              <div className="flex-1">
-                <h4 className="font-bold text-[#333]">Commute by Biking</h4>
-                <p className="text-sm text-[#555] mb-2">2 days/week</p>
-                <div className="flex items-center gap-2">
-                  <div className="flex-1 h-2 bg-[#eee] rounded-full overflow-hidden">
-                    <div className="w-1/4 h-full bg-[#0ea960]"></div>
+            <div className="flex items-center gap-4 mb-6">
+              <div className="w-16 h-16 rounded-full bg-[#aed9b8] flex items-center justify-center text-2xl font-bold text-[#0c9052]">
+                {userName.charAt(0).toUpperCase() || "?"}
+              </div>
+              <div>
+                <h4 className="font-bold text-xl text-[#333]">{userName}</h4>
+                <p className="text-sm text-[#888]">{data.totalCo2} kg CO₂e total</p>
+              </div>
+            </div>
+
+            <div className="flex gap-6 items-center mb-6">
+              <div className="w-28 h-28 relative shrink-0">
+                <div className="absolute inset-0 rounded-full" style={{ background: donut }} />
+                <div className="absolute inset-5 bg-white rounded-full" />
+              </div>
+              <div className="flex-1 text-sm font-semibold flex flex-col gap-2">
+                {data.breakdown.map((b) => (
+                  <div key={b.category} className="flex flex-col gap-1">
+                    <div className="flex items-center justify-between">
+                      <span className="flex items-center gap-2">
+                        <span
+                          className="text-lg leading-none"
+                          style={{ color: CATEGORY_COLORS[b.category] ?? "#999" }}
+                        >
+                          ■
+                        </span>
+                        {b.category}
+                      </span>
+                      <span className="text-[#888]">
+                        {b.co2} kg · {b.percent}%
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between pl-5 text-xs text-[#888]">
+                      <span>↳ {b.topSub}</span>
+                      <span>{b.topSubPercent}%</span>
+                    </div>
                   </div>
-                  <span className="text-xs text-[#888]">2/8 days</span>
-                </div>
+                ))}
               </div>
             </div>
-            <div className="flex flex-col items-end gap-2">
-              <div className="text-xs text-[#888]">Save estimate</div>
-              <div className="font-bold text-[#333]">15kg CO2e</div>
-              <button className="py-2 px-4 bg-[#0ea960] text-white text-sm font-bold rounded-lg hover:bg-[#0c9052] transition-colors">
-                Start Challenge
-              </button>
-            </div>
+
+            {top && (
+              <p className="text-sm text-[#555] mb-6">
+                <b>{top.category}</b> is your biggest source ({top.percent}%), mostly from{" "}
+                <b>{top.topSub}</b>.
+              </p>
+            )}
+
+            <Link
+              href="/history"
+              className="w-full py-3 bg-[#0ea960] text-white font-bold rounded-lg hover:bg-[#0c9052] transition-colors mt-auto text-center block"
+            >
+              See Data
+            </Link>
           </div>
 
-          <div className="bg-white p-5 rounded-xl shadow-sm flex items-center justify-between gap-4">
-            <div className="flex items-center gap-4 flex-1">
-              <div className="text-4xl">🚗</div>
-              <div className="flex-1">
-                <h4 className="font-bold text-[#333]">Join a local Carpool Group</h4>
-                <div className="h-2 mt-4 bg-[#eee] rounded-full overflow-hidden">
-                    <div className="w-3/4 h-full bg-[#0ea960]"></div>
-                </div>
-              </div>
-            </div>
-            <div className="flex flex-col items-end gap-2">
-              <div className="text-xs text-[#888]">Save estimate</div>
-              <div className="font-bold text-[#333]">1.5kg CO2e</div>
-              <button className="py-2 px-4 bg-[#0ea960] text-white text-sm font-bold rounded-lg hover:bg-[#0c9052] transition-colors">
-                Start Challenge
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Bottom Left: Community Challenges */}
-        <div className="bg-white p-6 rounded-xl shadow-sm flex flex-col gap-6">
-          <h3 className="text-sm font-bold text-[#888] tracking-wider mb-2">CARBONTRACK COMMUNITY CHALLENGES</h3>
-          
-          <div className="flex flex-col gap-2">
-            <h4 className="font-bold text-[#333]">Global Challenge: Plant 10 Trees Together</h4>
-            <div className="flex justify-between text-xs text-[#555]">
-              <span>Progress</span>
-              <span>100/500</span>
-            </div>
-            <div className="h-2 w-full bg-[#eee] rounded-full overflow-hidden">
-              <div className="w-1/5 h-full bg-[#0ea960]"></div>
-            </div>
-            <p className="text-sm text-[#666] mt-2">
-              User can contribute to mask them to but your community challenges.
+          {/* Potential saving summary */}
+          <div className="bg-white p-6 rounded-xl shadow-sm flex flex-col gap-4">
+            <h3 className="text-sm font-bold text-[#888] tracking-wider">POTENTIAL SAVINGS</h3>
+            <p className="text-sm text-[#555]">
+              Following the plan below could cut about{" "}
+              <b className="text-[#0c9052]">{data.totalPotentialSaving} kg CO₂e</b> (
+              {savingPct}% of your footprint).
             </p>
+            <div className="flex flex-col gap-2">
+              <div className="flex justify-between text-xs font-semibold text-[#333]">
+                <span>Now: {data.totalCo2} kg</span>
+                <span>
+                  After: {Math.round((data.totalCo2 - data.totalPotentialSaving) * 100) / 100} kg
+                </span>
+              </div>
+              <div className="h-4 w-full bg-[#eee] rounded-full overflow-hidden flex">
+                <div
+                  className="h-full bg-[#0ea960]"
+                  style={{ width: `${100 - savingPct}%` }}
+                />
+                <div className="h-full bg-[#aed9b8]" style={{ width: `${savingPct}%` }} />
+              </div>
+              <div className="flex gap-4 text-xs text-[#888]">
+                <span className="flex items-center gap-1">
+                  <span className="w-3 h-3 rounded-sm bg-[#0ea960] inline-block" /> Remaining
+                </span>
+                <span className="flex items-center gap-1">
+                  <span className="w-3 h-3 rounded-sm bg-[#aed9b8] inline-block" /> Can be saved
+                </span>
+              </div>
+            </div>
+            <Link
+              href="/challenges"
+              className="w-full py-3 border border-[#0ea960] text-[#0ea960] font-bold rounded-lg hover:bg-[#e6f7ee] transition-colors mt-auto text-center block"
+            >
+              View My Challenges
+            </Link>
           </div>
 
-          <div className="border-t border-[#eee] pt-4 flex items-center justify-between">
-            <h4 className="font-bold text-[#333] text-sm">Join 'Bike to Work' Day on May 15th</h4>
-            <div className="flex items-center gap-4">
-              <div className="flex -space-x-2">
-                 <div className="w-8 h-8 rounded-full bg-[#aed9b8] flex items-center justify-center text-xs border-2 border-white">👨🏻</div>
-                 <div className="w-8 h-8 rounded-full bg-[#f0d6e3] flex items-center justify-center text-xs border-2 border-white">👩🏻</div>
-                 <div className="w-8 h-8 rounded-full bg-[#d4ebd8] flex items-center justify-center text-xs border-2 border-white">👩🏽</div>
-              </div>
-              <button className="py-1.5 px-4 bg-[#0ea960] text-white text-xs font-bold rounded-lg hover:bg-[#0c9052] transition-colors">
-                Join Event
-              </button>
-            </div>
+          {/* Action plan */}
+          <div className="md:col-span-2 flex flex-col gap-4">
+            <h3 className="text-sm font-bold text-[#888] tracking-wider">
+              PERSONALIZED REDUCTION ACTION PLAN
+            </h3>
+            {sorted.map((rec) => {
+              const ch = challengeFor(rec);
+              return (
+                <div
+                  key={rec.id}
+                  className="bg-white p-5 rounded-xl shadow-sm flex flex-wrap items-center justify-between gap-4"
+                >
+                  <div className="flex items-center gap-4 flex-1 min-w-[240px]">
+                    <div className="text-4xl">{rec.emoji}</div>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <h4 className="font-bold text-[#333]">{rec.title}</h4>
+                        <span
+                          className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${DIFFICULTY_STYLE[rec.difficulty]}`}
+                        >
+                          {rec.difficulty}
+                        </span>
+                      </div>
+                      <p className="text-sm text-[#555] mt-1">{rec.description}</p>
+                      {ch && (
+                        <div className="flex items-center gap-2 mt-2">
+                          <div className="flex-1 h-2 bg-[#eee] rounded-full overflow-hidden">
+                            <div
+                              className="h-full bg-[#0ea960]"
+                              style={{ width: `${(ch.progress / ch.target) * 100}%` }}
+                            />
+                          </div>
+                          <span className="text-xs text-[#888]">
+                            {ch.status === "COMPLETED"
+                              ? "Completed 🎉"
+                              : `${ch.progress}/${ch.target} ${rec.challengeMatch}`}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex flex-col items-end gap-2">
+                    <div className="text-xs text-[#888]">Save estimate</div>
+                    <div className="font-bold text-[#333]">{rec.estimatedSavingKg} kg CO₂e</div>
+                    {rec.challengeMatch &&
+                      (ch ? (
+                        <Link
+                          href="/challenges"
+                          className="py-2 px-4 border border-[#0ea960] text-[#0ea960] text-sm font-bold rounded-lg"
+                        >
+                          In Challenges
+                        </Link>
+                      ) : (
+                        <button
+                          onClick={() => handleApply(rec)}
+                          disabled={applyingId === rec.id}
+                          className="py-2 px-4 bg-[#0ea960] text-white text-sm font-bold rounded-lg hover:bg-[#0c9052] transition-colors disabled:opacity-60"
+                        >
+                          {applyingId === rec.id ? "Starting..." : "Start Challenge"}
+                        </button>
+                      ))}
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
-
-        {/* Bottom Right: Goal Progress */}
-        <div className="bg-white p-6 rounded-xl shadow-sm flex flex-col gap-6">
-          <h3 className="text-sm font-bold text-[#888] tracking-wider mb-2">GOAL PROGRESS AND NEXT STEPS</h3>
-          <p className="text-sm font-semibold text-[#555]">Year target: 1.2 ton CO2e</p>
-
-          <div className="flex items-center gap-6 mt-4">
-            <div className="w-16 h-16 rounded-full border-4 border-[#0ea960] border-r-[#eee] flex items-center justify-center shrink-0">
-               {/* Circular progress */}
-            </div>
-            <div className="flex-1 flex flex-col gap-2">
-              <div className="flex justify-between text-xs font-semibold">
-                <span className="text-[#333]">1.2 ton target</span>
-                <span className="text-[#333]">0.4 tons saved</span>
-              </div>
-              <div className="h-4 w-full bg-[#eee] rounded-full overflow-hidden">
-                 <div className="w-3/4 h-full bg-[#0ea960]"></div>
-              </div>
-              <div className="flex justify-between text-xs text-[#888]">
-                <span>Monthly Progress: 75%</span>
-                <span>450 kg CO2e left to save</span>
-              </div>
-            </div>
-          </div>
-
-          <Link href="/history" className="w-full py-3 bg-[#0ea960] text-white font-bold rounded-lg hover:bg-[#0c9052] transition-colors mt-auto text-center block">
-            View All Stats
-          </Link>
-        </div>
-
-      </div>
+      ) : null}
     </div>
   );
 }

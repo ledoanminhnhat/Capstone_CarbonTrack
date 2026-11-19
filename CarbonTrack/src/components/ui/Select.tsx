@@ -1,6 +1,8 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
+import { FaChevronDown } from "react-icons/fa6";
+import { useClickOutside } from '@/hooks/useClickOutside';
 
 export interface SelectOption {
   label: string;
@@ -27,46 +29,48 @@ export default function Select({
 
   const selectedOption = options.find((opt) => opt.value === value);
 
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
-      }
-    }
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, []);
+  const close = useCallback(() => setIsOpen(false), []);
+  useClickOutside(containerRef, close, isOpen);
 
   return (
     <div className={`relative ${className}`} ref={containerRef}>
       <button
         type="button"
-        className="w-full appearance-none bg-[#ededed] border-none py-3.5 px-4 text-[1.1rem] text-[#444] rounded-sm outline-none cursor-pointer flex justify-between items-center"
         onClick={() => setIsOpen(!isOpen)}
+        className={`w-full bg-surface border rounded-xl py-2.5 px-3.5 text-sm text-ink cursor-pointer flex justify-between items-center gap-2 transition-colors ${
+          isOpen ? 'border-brand-500 ring-2 ring-brand-500/20' : 'border-line-strong hover:border-line-strong'
+        }`}
       >
-        <span>{selectedOption ? selectedOption.label : placeholder}</span>
-        <span className="text-[0.8rem] text-black">▼</span>
+        <span className={selectedOption ? 'text-ink truncate' : 'text-muted truncate'}>
+          {selectedOption ? selectedOption.label : placeholder}
+        </span>
+        <FaChevronDown
+          size={20}
+          className={`text-muted shrink-0 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
+        />
       </button>
 
       {isOpen && (
-        <ul className="absolute z-50 w-full mt-1 bg-white border border-[#ddd] rounded-md shadow-lg max-h-60 overflow-y-auto m-0 p-0 list-none">
-          {options.map((option) => (
-            <li
-              key={option.value}
-              className={`py-2.5 px-4 text-[1.05rem] cursor-pointer hover:bg-[#ebf3eb] hover:text-[#178a48] transition-colors ${
-                option.value === value ? 'bg-[#ebf3eb] text-[#178a48] font-medium' : 'text-[#444]'
-              }`}
-              onClick={() => {
-                onChange(option.value);
-                setIsOpen(false);
-              }}
-            >
-              {option.label}
-            </li>
-          ))}
+        <ul className="absolute z-50 w-full mt-2 bg-surface border border-line rounded-xl shadow-card max-h-60 overflow-y-auto m-0 p-1 list-none">
+          {options.map((option) => {
+            const active = option.value === value;
+            return (
+              <li
+                key={option.value}
+                onClick={() => {
+                  onChange(option.value);
+                  setIsOpen(false);
+                }}
+                className={`py-2 px-3 text-sm rounded-lg cursor-pointer transition-colors ${
+                  active
+                    ? 'bg-brand-50 text-brand-700 font-semibold'
+                    : 'text-ink hover:bg-brand-50 hover:text-brand-700'
+                }`}
+              >
+                {option.label}
+              </li>
+            );
+          })}
         </ul>
       )}
     </div>

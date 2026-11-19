@@ -1,63 +1,76 @@
+"use client";
+
 import Link from "next/link";
-import { FaFacebook } from "react-icons/fa";
-import { FcGoogle } from "react-icons/fc";
-import { FaXTwitter } from "react-icons/fa6";
 import Input from "@/components/ui/Input";
+import PasswordInput from "@/components/ui/PasswordInput";
 import Button from "@/components/ui/Button";
+import Alert from "@/components/ui/Alert";
+import SocialLogin from "@/features/auth/components/SocialLogin";
+import { useRegisterForm } from "@/features/auth/hooks/useRegisterForm";
+import { FaSeedling } from "react-icons/fa6";
 
 export default function RegisterPage() {
+  const f = useRegisterForm();
+
   return (
-    <form className="flex flex-col w-full">
-      <div className="mb-4">
-        <Input
-          type="text"
-          placeholder="Name"
-          required
-        />
-      </div>
-      <div className="mb-4">
-        <Input
-          type="email"
-          placeholder="Email"
-          required
-        />
-      </div>
-      <div className="mb-4">
-        <Input
-          type="password"
-          placeholder="Password"
-          required
-        />
-      </div>
-      <div className="mb-4">
-        <Input
-          type="password"
-          placeholder="Confirm Password"
-          required
-        />
-      </div>
-      <Button type="submit" variant="secondary" size="full" className="mt-2">
-        Register
-      </Button>
+    <div className="w-full">
+      <h1 className="text-3xl font-extrabold text-ink mb-1 flex items-center gap-3">
+        Create account <FaSeedling className="text-brand-500" size={26} />
+      </h1>
+      <p className="text-muted mb-8">Start your journey to a smaller footprint.</p>
 
-      <div className="mt-8 text-center">
-        <div className="text-sm text-[#666] mb-4">Create account using...</div>
-        <div className="flex justify-center gap-6">
-          <Link href="#" className="flex items-center justify-center w-10 h-10 rounded-full bg-white no-underline transition-transform hover:scale-110">
-            <FaFacebook size={32} color="#1877F2" />
-          </Link>
-          <Link href="#" className="flex items-center justify-center w-10 h-10 rounded-full bg-white no-underline transition-transform hover:scale-110">
-            <FcGoogle size={32} />
-          </Link>
-          <Link href="#" className="flex items-center justify-center w-10 h-10 rounded-full bg-white no-underline transition-transform hover:scale-110">
-            <FaXTwitter size={32} color="#000000" />
-          </Link>
+      <form className="flex flex-col" onSubmit={f.submit}>
+        <label className="text-sm font-medium text-ink mb-1">Name</label>
+        <div className="mb-4">
+          <Input type="text" placeholder="Your name" value={f.name} onChange={(e) => f.setName(e.target.value)} required />
         </div>
-      </div>
 
-      <div className="text-center mt-6 text-sm text-[#666]">
-        Already have an account? <Link href="/login" className="text-[#888] no-underline hover:underline">Log in</Link>
-      </div>
-    </form>
+        <label className="text-sm font-medium text-ink mb-1">Email</label>
+        <div className="mb-4">
+          <Input
+            type="email"
+            placeholder="you@example.com"
+            value={f.email}
+            onChange={(e) => f.setEmail(e.target.value)}
+            required
+          />
+        </div>
+
+        <label className="text-sm font-medium text-ink mb-1">Password</label>
+        <div className="mb-4">
+          <PasswordInput
+            placeholder="••••••••"
+            value={f.password}
+            onChange={(e) => f.setPassword(e.target.value)}
+            required
+          />
+        </div>
+
+        <label className="text-sm font-medium text-ink mb-1">Confirm Password</label>
+        <div className="mb-5">
+          <PasswordInput
+            placeholder="••••••••"
+            value={f.confirm}
+            onChange={(e) => f.setConfirm(e.target.value)}
+            required
+          />
+        </div>
+
+        <Alert className="mb-3">{f.error}</Alert>
+
+        <Button type="submit" variant="gradient" size="full" disabled={f.loading}>
+          {f.loading ? "Creating account..." : "Register"}
+        </Button>
+      </form>
+
+      <SocialLogin label="Sign up with Google" />
+
+      <p className="text-center mt-8 text-sm text-muted">
+        Already have an account?{" "}
+        <Link href="/login" className="text-brand-600 font-semibold hover:underline">
+          Log in
+        </Link>
+      </p>
+    </div>
   );
 }

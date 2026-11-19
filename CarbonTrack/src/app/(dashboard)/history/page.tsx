@@ -1,6 +1,6 @@
 "use client";
 
-import { MdFileDownload } from "react-icons/md";
+import { FaFileArrowDown } from "react-icons/fa6";
 import Button from "@/components/ui/Button";
 import PageHeader from "@/components/ui/PageHeader";
 import Pagination from "@/components/ui/Pagination";
@@ -32,7 +32,7 @@ export default function HistoryPage() {
         subtitle="Every activity you've logged, with its carbon footprint."
         actions={
           <Button variant="gradient" onClick={handleExport} disabled={filtered.length === 0}>
-            <MdFileDownload size={20} className="mr-2" /> Export CSV
+            <FaFileArrowDown size={16} className="mr-2" /> Export CSV
           </Button>
         }
       />

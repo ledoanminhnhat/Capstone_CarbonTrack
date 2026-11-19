@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { MdSearch, MdAdd } from "react-icons/md";
+import { FaMagnifyingGlass, FaPlus } from "react-icons/fa6";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
@@ -39,10 +39,10 @@ export default function HomePage() {
         </div>
         <div className="flex gap-4 items-center">
           <div className="w-[250px]">
-            <Input type="text" placeholder="Search" icon={<MdSearch size={20} />} iconPosition="left" />
+            <Input type="text" placeholder="Search" icon={<FaMagnifyingGlass size={16} />} iconPosition="left" />
           </div>
           <Button variant="gradient" onClick={() => setIsModalOpen(true)}>
-            <MdAdd size={20} className="mr-2" /> Log New Activity
+            <FaPlus size={16} className="mr-2" /> Log New Activity
           </Button>
         </div>
       </header>

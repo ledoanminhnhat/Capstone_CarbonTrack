@@ -7,13 +7,16 @@ import Button from "@/components/ui/Button";
 import Alert from "@/components/ui/Alert";
 import SocialLogin from "@/features/auth/components/SocialLogin";
 import { useLoginForm } from "@/features/auth/hooks/useLoginForm";
+import { FaHand } from "react-icons/fa6";
 
 export default function LoginPage() {
   const f = useLoginForm();
 
   return (
     <div className="w-full">
-      <h1 className="text-3xl font-extrabold text-ink mb-1">Welcome back 👋</h1>
+      <h1 className="text-3xl font-extrabold text-ink mb-1 flex items-center gap-3">
+        Welcome back <FaHand className="text-amber-400" size={26} />
+      </h1>
       <p className="text-muted mb-8">Sign in to continue tracking your footprint.</p>
 
       <form className="flex flex-col" onSubmit={f.submit}>

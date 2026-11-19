@@ -47,7 +47,7 @@ public class ChallengeService {
             var ucOpt = userChallengeRepo.findByUserIdAndChallengeId(userId, ch.getId());
             if (ucOpt.isEmpty()) {
                 return new ChallengeView(ch.getId(), ch.getTitle(), ch.getDescription(),
-                        ch.getEmoji(), ch.getPoints(), ch.getTarget(), false, 0, null,
+                        ch.getPoints(), ch.getTarget(), false, 0, null,
                         ch.getMatchType(), ch.getMatchValue());
             }
 
@@ -67,7 +67,7 @@ public class ChallengeService {
             }
 
             return new ChallengeView(ch.getId(), ch.getTitle(), ch.getDescription(),
-                    ch.getEmoji(), ch.getPoints(), ch.getTarget(), true,
+                    ch.getPoints(), ch.getTarget(), true,
                     Math.min(progress, ch.getTarget()), status,
                     ch.getMatchType(), ch.getMatchValue());
         }).toList();
@@ -107,7 +107,7 @@ public class ChallengeService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "matchType phải là SUBCATEGORY hoặc CATEGORY");
         }
-        Challenge ch = new Challenge(null, r.title(), r.description(), r.emoji(),
+        Challenge ch = new Challenge(null, r.title(), r.description(),
                 r.points(), r.matchType(), r.matchValue(), r.target(), true);
         return challengeRepo.save(ch);
     }

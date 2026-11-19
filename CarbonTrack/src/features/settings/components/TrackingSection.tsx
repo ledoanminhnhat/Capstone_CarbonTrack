@@ -1,6 +1,6 @@
 "use client";
 
-import { MdTrackChanges } from "react-icons/md";
+import { FaBullseye } from "react-icons/fa6";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import Alert from "@/components/ui/Alert";
@@ -22,7 +22,7 @@ export default function TrackingSection({
   const t = useTrackingSettings(profile, onUpdated);
 
   return (
-    <SettingsSection icon={<MdTrackChanges size={22} />} iconCls="text-amber-500 bg-amber-50" title="Tracking">
+    <SettingsSection icon={<FaBullseye size={18} />} iconCls="text-amber-500 bg-amber-50" title="Tracking">
       <FormField label="Yearly emission goal">
         <div className="relative">
           <Input

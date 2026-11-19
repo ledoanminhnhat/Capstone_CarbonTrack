@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useCallback, useRef, useState } from 'react';
-import { MdKeyboardArrowDown } from 'react-icons/md';
+import { FaChevronDown } from "react-icons/fa6";
 import { useClickOutside } from '@/hooks/useClickOutside';
 
 export interface SelectOption {
@@ -44,7 +44,7 @@ export default function Select({
         <span className={selectedOption ? 'text-ink truncate' : 'text-muted truncate'}>
           {selectedOption ? selectedOption.label : placeholder}
         </span>
-        <MdKeyboardArrowDown
+        <FaChevronDown
           size={20}
           className={`text-muted shrink-0 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
         />

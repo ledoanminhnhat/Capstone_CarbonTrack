@@ -10,7 +10,6 @@ public class ChallengeDtos {
             String id,
             String title,
             String description,
-            String emoji,
             int points,
             int target,
             boolean joined,
@@ -24,7 +23,6 @@ public class ChallengeDtos {
     public record CreateChallengeRequest(
             @NotBlank String title,
             @NotBlank String description,
-            @NotBlank String emoji,
             @Min(1) int points,
             @NotBlank String matchType,   // "SUBCATEGORY" | "CATEGORY"
             @NotBlank String matchValue,

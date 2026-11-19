@@ -1,4 +1,4 @@
-import { MdAdminPanelSettings, MdDelete } from "react-icons/md";
+import { FaTrashCan, FaUserShield } from "react-icons/fa6";
 import PresenceAvatar from "@/components/ui/PresenceAvatar";
 import Badge from "@/components/ui/Badge";
 import Select from "@/components/ui/Select";
@@ -16,7 +16,7 @@ const ROLE_OPTIONS = [
 function RoleBadge({ role }: { role: Role }) {
   return (
     role === "ADMIN" ? (
-      <Badge tone="brand" variant="solid" icon={<MdAdminPanelSettings size={14} />}>
+      <Badge tone="brand" variant="solid" icon={<FaUserShield size={14} />}>
         Admin
       </Badge>
     ) : (
@@ -108,7 +108,7 @@ export default function UserTable({
                     className="inline-flex items-center gap-1 text-rose-500 hover:text-rose-700 text-[0.85rem] font-semibold disabled:text-gray-300 disabled:cursor-not-allowed"
                     title={isSelf ? "You cannot delete yourself" : "Delete user"}
                   >
-                    <MdDelete size={18} /> Delete
+                    <FaTrashCan size={18} /> Delete
                   </button>
                 </Td>
               </tr>

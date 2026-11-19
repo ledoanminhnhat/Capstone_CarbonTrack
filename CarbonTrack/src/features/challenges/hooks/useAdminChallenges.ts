@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useAsync } from "@/hooks/useAsync";
 import { useToast } from "@/components/ui/Toast";
 import { useConfirm } from "@/components/ui/ConfirmDialog";
-import { CATEGORIES, SUBCATEGORIES, emojiFor } from "@/constants/categories";
+import { CATEGORIES, SUBCATEGORIES } from "@/constants/categories";
 import { errorMessage } from "@/utils/error";
 import type { AdminChallenge, MatchType } from "../types";
 import { createChallenge, deleteChallenge, getAdminChallenges } from "../services/challenge.service";
@@ -43,7 +43,7 @@ export function useAdminChallenges() {
     setCreating(true);
     setFormError("");
     try {
-      const created = await createChallenge({ ...form, emoji: emojiFor(form.matchValue) });
+      const created = await createChallenge(form);
       setData((prev) => [...(prev ?? []), created]);
       setForm(EMPTY_FORM);
       toast.success(`Created "${created.title}"`);

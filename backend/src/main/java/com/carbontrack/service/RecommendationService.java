@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 public class RecommendationService {
 
     private record Rule(
-            String id, String source, String title, String description, String emoji,
+            String id, String source, String title, String description,
             double reduction,        // phần CO2 của source tiết kiệm được (0..1)
             String difficulty,
             String challengeMatch,   // sub-category để đếm challenge (null = không có)
@@ -33,43 +33,43 @@ public class RecommendationService {
             // Transport
             new Rule("car-to-bus", "Car", "Take the bus instead of driving",
                     "Bus emits 0.08 kg/km vs 0.20 kg/km by car. Switch half of your car trips.",
-                    "🚌", 0.5 * (1 - 0.08 / 0.20), "MEDIUM", "Bus", 5, 50),
+                    0.5 * (1 - 0.08 / 0.20), "MEDIUM", "Bus", 5, 50),
             new Rule("motorbike-to-bus", "Motorbike", "Ride the bus for some commutes",
                     "Bus emits 0.08 kg/km vs 0.10 kg/km by motorbike. Try it for half your trips.",
-                    "🚍", 0.5 * (1 - 0.08 / 0.10), "EASY", "Bus", 5, 30),
+                    0.5 * (1 - 0.08 / 0.10), "EASY", "Bus", 5, 30),
             new Rule("fewer-flights", "Plane", "Cut one short-haul flight",
                     "Flying is the most carbon-intensive way to travel. Replace short flights with coach or train.",
-                    "✈️", 0.3 * (1 - 0.08 / 0.25), "HARD", "Bus", 3, 40),
+                    0.3 * (1 - 0.08 / 0.25), "HARD", "Bus", 3, 40),
             // Food
             new Rule("red-to-veg", "Red Meat", "Swap red meat for vegetarian meals",
                     "Red meat emits 27 kg CO₂ per kg, vegetarian food only 2 kg. Swap half of it.",
-                    "🥗", 0.5 * (1 - 2.0 / 27.0), "MEDIUM", "Vegetarian", 5, 50),
+                    0.5 * (1 - 2.0 / 27.0), "MEDIUM", "Vegetarian", 5, 50),
             new Rule("red-to-white", "Red Meat", "Choose chicken or fish over beef",
                     "White meat emits 6 kg CO₂ per kg vs 27 kg for red meat.",
-                    "🍗", 0.5 * (1 - 6.0 / 27.0), "EASY", "White Meat", 5, 30),
+                    0.5 * (1 - 6.0 / 27.0), "EASY", "White Meat", 5, 30),
             new Rule("white-to-veg", "White Meat", "Add meat-free days",
                     "Vegetarian food emits 2 kg CO₂ per kg vs 6 kg for white meat.",
-                    "🥦", 0.5 * (1 - 2.0 / 6.0), "EASY", "Vegetarian", 5, 30),
+                    0.5 * (1 - 2.0 / 6.0), "EASY", "Vegetarian", 5, 30),
             // Energy
             new Rule("save-electricity", "Electricity", "Cut standby power & switch to LED",
                     "Unplug idle devices, use LED bulbs and set the AC to 26°C to save ~15% electricity.",
-                    "💡", 0.15, "EASY", null, 0, 0),
+                    0.15, "EASY", null, 0, 0),
             new Rule("save-gas", "Gas", "Cook and heat more efficiently",
                     "Use lids on pots and turn down heating 1°C to save ~10% gas.",
-                    "🔥", 0.10, "EASY", null, 0, 0),
+                    0.10, "EASY", null, 0, 0),
             new Rule("save-water", "Water", "Take shorter showers",
                     "Cutting shower time by a few minutes saves ~20% water and the energy to pump it.",
-                    "🚿", 0.20, "EASY", null, 0, 0),
+                    0.20, "EASY", null, 0, 0),
             // Shopping
             new Rule("secondhand-clothes", "Clothing", "Buy second-hand clothes",
                     "Second-hand or repaired clothing avoids most of the production emissions.",
-                    "👕", 0.5, "EASY", null, 0, 0),
+                    0.5, "EASY", null, 0, 0),
             new Rule("repair-electronics", "Electronics", "Repair or buy refurbished electronics",
                     "Making a new device emits ~60 kg CO₂. Keeping it longer is the biggest win.",
-                    "🔧", 0.5, "MEDIUM", null, 0, 0),
+                    0.5, "MEDIUM", null, 0, 0),
             new Rule("secondhand-furniture", "Furniture", "Choose second-hand furniture",
                     "Pre-owned furniture avoids ~40 kg CO₂ per item.",
-                    "🪑", 0.5, "MEDIUM", null, 0, 0)
+                    0.5, "MEDIUM", null, 0, 0)
     );
 
     private final ActivityRepository activityRepo;
@@ -139,7 +139,7 @@ public class RecommendationService {
                 .findFirstByActiveTrueAndMatchTypeAndMatchValue("SUBCATEGORY", r.challengeMatch())
                 .orElseGet(() -> challengeRepo.save(new Challenge(null,
                         "Log " + r.challengeTarget() + " " + r.challengeMatch() + " activities",
-                        r.title(), r.emoji(), r.challengePoints(),
+                        r.title(), r.challengePoints(),
                         "SUBCATEGORY", r.challengeMatch(), r.challengeTarget(), true)));
 
         challengeService.join(userId, ch.getId()); // idempotent
@@ -147,7 +147,7 @@ public class RecommendationService {
     }
 
     private Recommendation toDto(Rule r, double saving) {
-        return new Recommendation(r.id(), r.title(), r.description(), r.emoji(),
+        return new Recommendation(r.id(), r.title(), r.description(),
                 categoryOf(r.source()), r.source(), round(saving), r.difficulty(),
                 r.challengeMatch(), r.challengeTarget());
     }

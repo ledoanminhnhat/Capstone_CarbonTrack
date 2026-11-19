@@ -1,4 +1,4 @@
-import { MdGroup, MdAdminPanelSettings, MdTrendingUp, MdListAlt } from "react-icons/md";
+import { FaArrowTrendUp, FaListUl, FaUserGroup, FaUserShield } from "react-icons/fa6";
 import StatTile from "@/components/ui/StatTile";
 import { percent } from "@/utils/emission";
 
@@ -15,19 +15,19 @@ export default function AdminStats({
 }) {
   return (
     <section className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-      <StatTile variant="brand" label="Total users" value={total} unit="accounts" icon={<MdGroup size={20} />} />
+      <StatTile variant="brand" label="Total users" value={total} unit="accounts" icon={<FaUserGroup size={16} />} />
       <StatTile
         label="Admins"
         value={admins}
         unit={`${total - admins} regular users`}
-        icon={<MdAdminPanelSettings size={20} />}
+        icon={<FaUserShield size={16} />}
         iconCls="text-violet-600 bg-violet-50"
       />
       <StatTile
         label="Active users"
         value={active}
         unit={`${percent(active, total)}% have logged activities`}
-        icon={<MdTrendingUp size={20} />}
+        icon={<FaArrowTrendUp size={16} />}
         iconCls="text-amber-500 bg-amber-50"
       />
       <StatTile
@@ -35,7 +35,7 @@ export default function AdminStats({
         label="Activities logged"
         value={activities.toLocaleString()}
         unit="across all users"
-        icon={<MdListAlt size={20} />}
+        icon={<FaListUl size={16} />}
       />
     </section>
   );

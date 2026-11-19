@@ -34,53 +34,48 @@ export const CATEGORY_TAB_STYLE: Record<Category, { active: string; icon: string
 export interface SubCategory {
   value: string; // khớp với backend EmissionService
   label: string;
-  emoji: string;
 }
 
 /** Sub-category theo từng category + nhãn ô nhập + đơn vị. */
 export const CATEGORY_CONFIG: Record<
   Category,
-  { amountLabel: string; unit: string; emoji: string; subCategories: SubCategory[] }
+  { amountLabel: string; unit: string; subCategories: SubCategory[] }
 > = {
   Transport: {
     amountLabel: "Distance (km)",
     unit: "km",
-    emoji: "🚌",
     subCategories: [
-      { value: "Motorbike", label: "Motorbike", emoji: "🏍️" },
-      { value: "Car", label: "Car", emoji: "🚗" },
-      { value: "Bus", label: "Bus", emoji: "🚌" },
-      { value: "Plane", label: "Plane", emoji: "✈️" },
+      { value: "Motorbike", label: "Motorbike" },
+      { value: "Car", label: "Car" },
+      { value: "Bus", label: "Bus" },
+      { value: "Plane", label: "Plane" },
     ],
   },
   Food: {
     amountLabel: "Amount (kg)",
     unit: "kg",
-    emoji: "🍽️",
     subCategories: [
-      { value: "Red Meat", label: "Red Meat", emoji: "🥩" },
-      { value: "White Meat", label: "White Meat / Seafood", emoji: "🍗" },
-      { value: "Vegetarian", label: "Vegetarian / Vegan", emoji: "🥗" },
+      { value: "Red Meat", label: "Red Meat" },
+      { value: "White Meat", label: "White Meat / Seafood" },
+      { value: "Vegetarian", label: "Vegetarian / Vegan" },
     ],
   },
   Energy: {
     amountLabel: "Amount (kWh / m³)",
     unit: "kWh / m³",
-    emoji: "⚡",
     subCategories: [
-      { value: "Electricity", label: "Electricity", emoji: "⚡" },
-      { value: "Gas", label: "Natural Gas", emoji: "🔥" },
-      { value: "Water", label: "Water", emoji: "💧" },
+      { value: "Electricity", label: "Electricity" },
+      { value: "Gas", label: "Natural Gas" },
+      { value: "Water", label: "Water" },
     ],
   },
   Shopping: {
     amountLabel: "Amount (items)",
     unit: "items",
-    emoji: "🛍️",
     subCategories: [
-      { value: "Clothing", label: "Clothing & Footwear", emoji: "👕" },
-      { value: "Electronics", label: "Electronics", emoji: "📱" },
-      { value: "Furniture", label: "Furniture", emoji: "🪑" },
+      { value: "Clothing", label: "Clothing & Footwear" },
+      { value: "Electronics", label: "Electronics" },
+      { value: "Furniture", label: "Furniture" },
     ],
   },
 };
@@ -90,12 +85,9 @@ export const SUBCATEGORIES: string[] = CATEGORIES.flatMap((c) =>
   CATEGORY_CONFIG[c].subCategories.map((s) => s.value)
 );
 
-/** Emoji cho 1 category hoặc sub-category. */
-export function emojiFor(value: string): string {
-  if (value in CATEGORY_CONFIG) return CATEGORY_CONFIG[value as Category].emoji;
-  for (const c of CATEGORIES) {
-    const sub = CATEGORY_CONFIG[c].subCategories.find((s) => s.value === value);
-    if (sub) return sub.emoji;
-  }
-  return "🌱";
+/** Category chứa 1 sub-category (hoặc chính nó nếu đã là category). */
+export function categoryOf(value: string): Category | undefined {
+  if (value in CATEGORY_CONFIG) return value as Category;
+  return CATEGORIES.find((c) => CATEGORY_CONFIG[c].subCategories.some((s) => s.value === value));
 }
+

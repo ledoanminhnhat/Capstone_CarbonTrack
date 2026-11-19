@@ -3,8 +3,7 @@ import Card from "@/components/ui/Card";
 import Badge from "@/components/ui/Badge";
 import Avatar from "@/components/ui/Avatar";
 import AvatarGroup from "@/components/ui/AvatarGroup";
-import { MdAdminPanelSettings, MdStar } from "react-icons/md";
-
+import { FaStar, FaUserShield } from "react-icons/fa6";
 // Dùng chuỗi class đầy đủ để Tailwind quét được (không ghép động)
 const brandScale = [
   { s: 50, cls: "bg-brand-50" },
@@ -145,8 +144,8 @@ export default function DesignSystemPage() {
           <Badge tone="brand">Brand</Badge>
         </div>
         <div className="flex flex-wrap gap-3 mt-3">
-          <Badge tone="brand" variant="solid" icon={<MdAdminPanelSettings size={14} />}>Admin</Badge>
-          <Badge tone="brand" icon={<MdStar size={14} />}>+50</Badge>
+          <Badge tone="brand" variant="solid" icon={<FaUserShield size={14} />}>Admin</Badge>
+          <Badge tone="brand" icon={<FaStar size={14} />}>+50</Badge>
           <Badge tone="warning" variant="outline" size="sm">MEDIUM</Badge>
           <Badge tone="neutral" variant="outline" size="sm">Coming soon</Badge>
           <Badge tone="danger" variant="solid" size="sm">HARD</Badge>

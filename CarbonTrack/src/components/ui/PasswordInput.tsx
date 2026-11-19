@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { FiEye, FiEyeOff } from "react-icons/fi";
+import { FaEye, FaEyeSlash } from "react-icons/fa6";
 import Input, { type InputProps } from "./Input";
 
 /** Ô mật khẩu có nút hiện / ẩn. */
@@ -19,7 +19,7 @@ export default function PasswordInput(props: Omit<InputProps, "type" | "icon" | 
           className="text-muted hover:text-ink flex items-center"
           aria-label={show ? "Hide password" : "Show password"}
         >
-          {show ? <FiEyeOff size={18} /> : <FiEye size={18} />}
+          {show ? <FaEyeSlash size={18} /> : <FaEye size={18} />}
         </button>
       }
     />

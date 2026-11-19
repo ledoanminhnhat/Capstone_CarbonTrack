@@ -1,4 +1,4 @@
-import { MdCloud, MdEco, MdLightbulb, MdTrendingDown } from "react-icons/md";
+import { FaArrowTrendDown, FaCloud, FaLeaf, FaLightbulb } from "react-icons/fa6";
 import StatTile from "@/components/ui/StatTile";
 import type { CategoryBreakdown, RecommendationResponse } from "../types";
 
@@ -20,19 +20,19 @@ export default function RecommendationStats({
         label={`Footprint ${periodLabel}`}
         value={rec.totalCo2.toFixed(1)}
         unit="kg CO₂e"
-        icon={<MdCloud size={20} />}
+        icon={<FaCloud size={16} />}
       />
       <StatTile
         label="Can be saved"
         value={rec.totalPotentialSaving.toFixed(1)}
         unit={`kg CO₂e · ${savingPct}%`}
-        icon={<MdTrendingDown size={20} />}
+        icon={<FaArrowTrendDown size={16} />}
       />
       <StatTile
         label="Biggest source"
         value={top?.category ?? "—"}
         unit={top ? `${top.percent}% · mostly ${top.topSub}` : undefined}
-        icon={<MdEco size={20} />}
+        icon={<FaLeaf size={16} />}
         iconCls="text-rose-500 bg-rose-50"
       />
       <StatTile
@@ -40,7 +40,7 @@ export default function RecommendationStats({
         label="Actions for you"
         value={rec.recommendations.length}
         unit="recommendations"
-        icon={<MdLightbulb size={20} />}
+        icon={<FaLightbulb size={16} />}
       />
     </section>
   );

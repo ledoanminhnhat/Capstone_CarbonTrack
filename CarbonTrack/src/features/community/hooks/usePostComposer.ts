@@ -27,7 +27,8 @@ export function usePostComposer(onPosted: (p: Post) => void) {
   // dọn preview khi rời trang
   useEffect(() => () => filesRef.current.forEach((f) => URL.revokeObjectURL(f.preview)), []);
 
-  const addFiles = (list: FileList | null) => {
+  /** Thêm ảnh (từ input hoặc kéo thả); bỏ qua file không phải ảnh hợp lệ. */
+  const addFiles = (list: FileList | File[] | null) => {
     if (!list) return;
     setError("");
     const picked = Array.from(list);
@@ -51,8 +52,17 @@ export function usePostComposer(onPosted: (p: Post) => void) {
   const tooLong = content.length > MAX_POST_CONTENT;
   const canPost = !posting && !tooLong && (!!content.trim() || files.length > 0);
 
-  const submit = async () => {
-    if (!canPost) return;
+  /** Xóa nháp (đóng modal). */
+  const reset = () => {
+    files.forEach((f) => URL.revokeObjectURL(f.preview));
+    setFiles([]);
+    setContent("");
+    setError("");
+  };
+
+  /** Trả về true nếu đăng thành công. */
+  const submit = async (): Promise<boolean> => {
+    if (!canPost) return false;
     setPosting(true);
     setError("");
     try {
@@ -63,8 +73,10 @@ export function usePostComposer(onPosted: (p: Post) => void) {
       setContent("");
       onPosted(post);
       toast.success("Posted!");
+      return true;
     } catch (e) {
       setError(errorMessage(e, "Failed to post"));
+      return false;
     } finally {
       setPosting(false);
     }
@@ -82,5 +94,6 @@ export function usePostComposer(onPosted: (p: Post) => void) {
     tooLong,
     canPost,
     submit,
+    reset,
   };
 }

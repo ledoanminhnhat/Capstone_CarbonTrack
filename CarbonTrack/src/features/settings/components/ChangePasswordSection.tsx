@@ -1,6 +1,6 @@
 "use client";
 
-import { MdLock } from "react-icons/md";
+import { FaLock } from "react-icons/fa6";
 import PasswordInput from "@/components/ui/PasswordInput";
 import Button from "@/components/ui/Button";
 import Alert from "@/components/ui/Alert";
@@ -11,7 +11,7 @@ import SettingsSection from "./SettingsSection";
 export default function ChangePasswordSection() {
   const f = useChangePassword();
   return (
-    <SettingsSection icon={<MdLock size={22} />} iconCls="text-sky-600 bg-sky-50" title="Change Password">
+    <SettingsSection icon={<FaLock size={18} />} iconCls="text-sky-600 bg-sky-50" title="Change Password">
       <FormField label="Current password">
         <PasswordInput value={f.current} onChange={(e) => f.setCurrent(e.target.value)} />
       </FormField>

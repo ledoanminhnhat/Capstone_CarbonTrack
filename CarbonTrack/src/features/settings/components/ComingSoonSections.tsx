@@ -1,4 +1,4 @@
-import { MdNotifications } from "react-icons/md";
+import { FaBell } from "react-icons/fa6";
 import Badge from "@/components/ui/Badge";
 import SettingsSection from "./SettingsSection";
 
@@ -13,7 +13,7 @@ const REMINDERS: [string, boolean][] = [
 /** Reminder (chưa nối backend). */
 export function ReminderSection() {
   return (
-    <SettingsSection icon={<MdNotifications size={22} />} iconCls="text-rose-500 bg-rose-50" title="Reminders" badge={comingSoon}>
+    <SettingsSection icon={<FaBell size={18} />} iconCls="text-rose-500 bg-rose-50" title="Reminders" badge={comingSoon}>
       <div className="flex flex-col gap-4 opacity-60 pointer-events-none">
         {REMINDERS.map(([label, checked]) => (
           <label key={label} className="flex items-center gap-3">

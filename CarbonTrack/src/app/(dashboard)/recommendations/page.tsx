@@ -11,6 +11,7 @@ import { useRecommendations, type Period, type SortKey } from "@/features/recomm
 import RecommendationStats from "@/features/recommendations/components/RecommendationStats";
 import FootprintDrivers from "@/features/recommendations/components/FootprintDrivers";
 import RecommendationCard from "@/features/recommendations/components/RecommendationCard";
+import { FaSeedling } from "react-icons/fa6";
 
 const PERIOD_OPTIONS = [
   { label: "This month", value: "month" },
@@ -48,7 +49,7 @@ export default function RecommendationsPage() {
         <Loading text="Loading recommendations..." />
       ) : r.rec && r.summary && r.rec.totalCo2 === 0 ? (
         <EmptyState
-          icon="🌱"
+          icon={<FaSeedling size={28} className="text-brand-600" />}
           action={
             r.period === "month" && (
               <Button variant="outline" size="sm" onClick={() => r.setPeriod("all")}>

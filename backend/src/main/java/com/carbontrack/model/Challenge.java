@@ -20,7 +20,6 @@ public class Challenge implements HasId {
 
     private String title;
     private String description;
-    private String emoji;       // biểu tượng hiển thị, vd "🚌"
     private int points;         // điểm thưởng khi hoàn thành
 
     // Luật auto-đếm

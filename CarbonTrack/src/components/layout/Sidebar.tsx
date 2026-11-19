@@ -3,28 +3,20 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import {
-  MdDashboard,
-  MdHistory,
-  MdEmojiEvents,
-  MdPeopleOutline,
-  MdOutlineSettings,
-  MdLightbulbOutline,
-  MdAdminPanelSettings,
-} from "react-icons/md";
+import { FaChartPie, FaClockRotateLeft, FaGear, FaRegLightbulb, FaTrophy, FaUserShield, FaUsers } from "react-icons/fa6";
 import Avatar from "@/components/ui/Avatar";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { logout } from "@/features/auth/services/auth.service";
 
 const NAV_LINKS = [
-  { name: "Dashboard", href: "/home", icon: <MdDashboard size={24} /> },
-  { name: "History", href: "/history", icon: <MdHistory size={24} /> },
-  { name: "Challenges", href: "/challenges", icon: <MdEmojiEvents size={24} /> },
-  { name: "Community", href: "/community", icon: <MdPeopleOutline size={24} /> },
-  { name: "Recommendations", href: "/recommendations", icon: <MdLightbulbOutline size={24} /> },
-  { name: "Settings", href: "/settings", icon: <MdOutlineSettings size={24} /> },
+  { name: "Dashboard", href: "/home", icon: <FaChartPie size={18} /> },
+  { name: "History", href: "/history", icon: <FaClockRotateLeft size={18} /> },
+  { name: "Challenges", href: "/challenges", icon: <FaTrophy size={18} /> },
+  { name: "Community", href: "/community", icon: <FaUsers size={18} /> },
+  { name: "Recommendations", href: "/recommendations", icon: <FaRegLightbulb size={18} /> },
+  { name: "Settings", href: "/settings", icon: <FaGear size={18} /> },
 ];
-const ADMIN_LINK = { name: "Admin", href: "/admin", icon: <MdAdminPanelSettings size={24} /> };
+const ADMIN_LINK = { name: "Admin", href: "/admin", icon: <FaUserShield size={18} /> };
 
 export default function Sidebar() {
   const router = useRouter();
@@ -66,7 +58,7 @@ export default function Sidebar() {
           <Link href="/settings" title="Change avatar">
             <Avatar id={user?.id} name={user?.name ?? "User"} avatarUrl={user?.avatarUrl} size="md" />
           </Link>
-          <span className="font-semibold text-ink truncate">{user?.name ?? "User"} 👋</span>
+          <span className="font-semibold text-ink truncate">{user?.name ?? "User"}</span>
         </div>
         <button
           className="w-full p-3 border border-gray-200 bg-white rounded-xl font-semibold text-muted cursor-pointer transition-all duration-200 hover:bg-brand-50 hover:text-brand-700 hover:border-brand-200"

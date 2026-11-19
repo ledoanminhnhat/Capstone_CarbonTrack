@@ -1,4 +1,4 @@
-import { MdEmojiEvents } from "react-icons/md";
+import { FaLeaf, FaTrophy } from "react-icons/fa6";
 import SectionTitle from "@/components/ui/SectionTitle";
 import type { Author, LeaderboardEntry } from "../types";
 import PresenceAvatar from "@/components/ui/PresenceAvatar";
@@ -9,7 +9,7 @@ export function LeaderboardCard({ leaders, meId }: { leaders: LeaderboardEntry[]
   return (
     <div className="bg-white rounded-2xl shadow-card p-6">
       <h3 className="m-0 mb-4 text-ink text-[1.1rem] font-bold flex items-center gap-2">
-        <MdEmojiEvents className="text-amber-500" size={22} /> Leaderboard
+        <FaTrophy className="text-amber-500" size={22} /> Leaderboard
       </h3>
       {leaders.length === 0 ? (
         <p className="text-muted text-sm m-0">No points yet. Complete challenges to rank!</p>
@@ -35,7 +35,9 @@ export function LeaderboardCard({ leaders, meId }: { leaders: LeaderboardEntry[]
 export function GuidelinesCard() {
   return (
     <div className="bg-gradient-ocean text-white rounded-2xl p-6 shadow-glow-ocean">
-      <h3 className="m-0 mb-2 text-[1.05rem] font-bold">Community guidelines 🌿</h3>
+      <h3 className="m-0 mb-2 text-[1.05rem] font-bold flex items-center gap-2">
+        <FaLeaf size={16} /> Community guidelines
+      </h3>
       <p className="m-0 text-white/90 text-[0.9rem] leading-relaxed">
         Be kind, share real experiences, and help each other live greener. Don&apos;t want to see someone? Use{" "}
         <b>Hide user</b> from the ••• menu.

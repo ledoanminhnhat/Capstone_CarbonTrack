@@ -1,8 +1,9 @@
-import { MdDelete } from "react-icons/md";
+import { FaTrashCan } from "react-icons/fa6";
 import Badge from "@/components/ui/Badge";
 import SectionTitle from "@/components/ui/SectionTitle";
 import { Table, Th, Td, Tr, TableMessage } from "@/components/ui/Table";
 import type { AdminChallenge } from "../types";
+import ActivityIconBox from "@/features/activities/components/ActivityIconBox";
 
 export default function AdminChallengeTable({
   challenges,
@@ -38,7 +39,7 @@ export default function AdminChallengeTable({
               <Tr key={c.id}>
                 <Td className="text-ink font-medium">
                   <span className="flex items-center gap-3">
-                    <span className="w-9 h-9 bg-brand-50 rounded-xl flex items-center justify-center text-lg">{c.emoji}</span>
+                    <ActivityIconBox value={c.matchValue} size="sm" />
                     {c.title}
                   </span>
                 </Td>
@@ -54,7 +55,7 @@ export default function AdminChallengeTable({
                     onClick={() => onDelete(c)}
                     className="inline-flex items-center gap-1 text-rose-500 hover:text-rose-700 text-[0.85rem] font-semibold"
                   >
-                    <MdDelete size={18} /> Delete
+                    <FaTrashCan size={18} /> Delete
                   </button>
                 </Td>
               </Tr>

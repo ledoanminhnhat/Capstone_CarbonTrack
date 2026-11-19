@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { MdCloud, MdLocalFireDepartment, MdFlag, MdStar, MdWarning } from "react-icons/md";
+import { FaCloud, FaFire, FaFlag, FaStar, FaTriangleExclamation } from "react-icons/fa6";
 import StatTile from "@/components/ui/StatTile";
 import ProgressBar from "@/components/ui/ProgressBar";
 import { round1 } from "@/utils/emission";
@@ -34,7 +34,7 @@ function GoalTile({
             over ? "text-rose-600 bg-rose-100" : "text-amber-500 bg-amber-50"
           }`}
         >
-          {over ? <MdWarning size={20} /> : <MdFlag size={20} />}
+          {over ? <FaTriangleExclamation size={16} /> : <FaFlag size={16} />}
         </span>
       </div>
       <div className={`text-2xl font-extrabold ${over ? "text-rose-600" : "text-ink"}`}>
@@ -67,11 +67,11 @@ export default function DashboardStats({
 }) {
   return (
     <section className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-      <StatTile variant="brand" label="Total this month" value={totalThisMonth.toFixed(1)} unit="kg CO₂e" icon={<MdCloud size={20} />} />
+      <StatTile variant="brand" label="Total this month" value={totalThisMonth.toFixed(1)} unit="kg CO₂e" icon={<FaCloud size={16} />} />
       <StatTile
         label="Highest activity"
         value={highestLabel}
-        icon={<MdLocalFireDepartment size={20} />}
+        icon={<FaFire size={16} />}
         iconCls="text-rose-500 bg-rose-50"
       />
       <GoalTile
@@ -80,7 +80,7 @@ export default function DashboardStats({
         monthlyGoalKg={monthlyGoalKg}
         yearlyGoalKg={yearlyGoalKg}
       />
-      <StatTile variant="ocean" label="Score" value={points.toLocaleString()} unit="points" icon={<MdStar size={20} />} />
+      <StatTile variant="ocean" label="Score" value={points.toLocaleString()} unit="points" icon={<FaStar size={16} />} />
     </section>
   );
 }

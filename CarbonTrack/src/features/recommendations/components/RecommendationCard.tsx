@@ -5,6 +5,7 @@ import ProgressBar from "@/components/ui/ProgressBar";
 import { categoryColor } from "@/constants/categories";
 import type { ChallengeView } from "@/features/challenges/types";
 import type { Recommendation } from "../types";
+import ActivityIconBox from "@/features/activities/components/ActivityIconBox";
 
 const DIFFICULTY_TONE = { EASY: "success", MEDIUM: "warning", HARD: "danger" } as const;
 
@@ -25,8 +26,9 @@ export default function RecommendationCard({
 
   return (
     <div className="bg-white rounded-2xl shadow-card p-5 flex flex-wrap items-center gap-5">
-      <div className="w-14 h-14 rounded-2xl bg-brand-50 flex items-center justify-center text-3xl shrink-0 relative">
-        {rec.emoji}
+      <div className="relative shrink-0">
+        {/* icon theo hoạt động gợi ý chuyển sang (vd Bus), không có thì theo nguồn phát thải */}
+        <ActivityIconBox value={rec.challengeMatch ?? rec.source} size="lg" />
         {isTop && (
           <span className="absolute -top-2 -right-2 bg-gradient-sunrise text-white text-[0.65rem] font-bold px-1.5 py-0.5 rounded-full">
             TOP
@@ -50,7 +52,7 @@ export default function RecommendationCard({
           <div className="mt-3">
             <ProgressBar value={challenge.progress} max={challenge.target} done={done} />
             <p className="m-0 mt-1 text-[0.75rem] text-muted">
-              {done ? "Challenge completed 🎉" : `Challenge: ${challenge.progress}/${challenge.target} ${rec.challengeMatch}`}
+              {done ? "Challenge completed" : `Challenge: ${challenge.progress}/${challenge.target} ${rec.challengeMatch}`}
             </p>
           </div>
         )}

@@ -1,5 +1,4 @@
-import { MdFirstPage, MdKeyboardArrowLeft, MdKeyboardArrowRight, MdLastPage } from "react-icons/md";
-
+import { FaAngleLeft, FaAngleRight, FaAnglesLeft, FaAnglesRight } from "react-icons/fa6";
 interface PaginationProps {
   page: number;
   totalPages: number;
@@ -26,19 +25,19 @@ export default function Pagination({ page, totalPages, from, to, total, first, p
       <span>{total === 0 ? "0 results" : `${from}–${to} of ${total}`}</span>
       <div className="flex items-center gap-1">
         <button className={btn(atStart)} onClick={first} aria-label="First page">
-          <MdFirstPage size={22} />
+          <FaAnglesLeft size={18} />
         </button>
         <button className={btn(atStart)} onClick={prev} aria-label="Previous page">
-          <MdKeyboardArrowLeft size={22} />
+          <FaAngleLeft size={18} />
         </button>
         <span className="px-2 text-ink font-semibold">
           {page} / {totalPages}
         </span>
         <button className={btn(atEnd)} onClick={next} aria-label="Next page">
-          <MdKeyboardArrowRight size={22} />
+          <FaAngleRight size={18} />
         </button>
         <button className={btn(atEnd)} onClick={last} aria-label="Last page">
-          <MdLastPage size={22} />
+          <FaAnglesRight size={18} />
         </button>
       </div>
     </div>

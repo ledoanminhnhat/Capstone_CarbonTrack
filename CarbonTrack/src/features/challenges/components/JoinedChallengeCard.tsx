@@ -2,6 +2,7 @@ import Badge from "@/components/ui/Badge";
 import ProgressBar from "@/components/ui/ProgressBar";
 import type { ChallengeView } from "../types";
 import { isCompleted, progressPercent } from "../utils";
+import ActivityIconBox from "@/features/activities/components/ActivityIconBox";
 
 /** Thẻ challenge đã tham gia (đang làm / đã xong). */
 export default function JoinedChallengeCard({ c, onClick }: { c: ChallengeView; onClick?: () => void }) {
@@ -14,8 +15,8 @@ export default function JoinedChallengeCard({ c, onClick }: { c: ChallengeView; 
       className="bg-white rounded-2xl overflow-hidden shadow-card flex flex-col cursor-pointer transition-all duration-200 hover:shadow-glow-brand hover:-translate-y-0.5"
     >
       <div className={`h-20 relative flex justify-center ${done ? "bg-gradient-sunrise" : "bg-gradient-leaf"}`}>
-        <div className="absolute -bottom-7 w-14 h-14 bg-white rounded-2xl flex items-center justify-center shadow-card text-2xl">
-          {c.emoji}
+        <div className="absolute -bottom-7 bg-white rounded-2xl p-1 shadow-card">
+          <ActivityIconBox value={c.matchValue} size="md" />
         </div>
       </div>
       <div className="pt-10 pb-6 px-6 flex flex-col flex-1">

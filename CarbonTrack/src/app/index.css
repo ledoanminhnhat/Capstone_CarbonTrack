@@ -52,3 +52,18 @@
     color: transparent;
   }
 }
+
+/* Tim bật lên khi double-click ảnh để like (Community) */
+@keyframes heart-pop {
+  0% { opacity: 0; transform: scale(0.3); }
+  15% { opacity: 0.95; transform: scale(1.2); }
+  30% { transform: scale(0.95); }
+  45%, 80% { opacity: 0.95; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1); }
+}
+/* Nút like nảy nhẹ khi bấm */
+@keyframes like-bounce {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.25); }
+  100% { transform: scale(1); }
+}

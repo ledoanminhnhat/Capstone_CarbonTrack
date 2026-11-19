@@ -1,8 +1,7 @@
 "use client";
 
 import React, { createContext, useCallback, useContext, useRef, useState } from "react";
-import { MdCheckCircle, MdError, MdInfo, MdClose } from "react-icons/md";
-
+import { FaCircleCheck, FaCircleExclamation, FaCircleInfo, FaXmark } from "react-icons/fa6";
 type ToastType = "success" | "error" | "info";
 
 interface ToastItem {
@@ -20,9 +19,9 @@ interface ToastApi {
 const ToastContext = createContext<ToastApi | null>(null);
 
 const STYLE: Record<ToastType, { icon: React.ReactNode; cls: string }> = {
-  success: { icon: <MdCheckCircle size={20} />, cls: "text-emerald-600" },
-  error: { icon: <MdError size={20} />, cls: "text-rose-600" },
-  info: { icon: <MdInfo size={20} />, cls: "text-sky-600" },
+  success: { icon: <FaCircleCheck size={16} />, cls: "text-emerald-600" },
+  error: { icon: <FaCircleExclamation size={16} />, cls: "text-rose-600" },
+  info: { icon: <FaCircleInfo size={16} />, cls: "text-sky-600" },
 };
 
 const DURATION = 3000;
@@ -62,7 +61,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
             <span className={STYLE[t.type].cls}>{STYLE[t.type].icon}</span>
             <span className="flex-1 text-ink text-[0.9rem]">{t.message}</span>
             <button onClick={() => dismiss(t.id)} className="text-muted hover:text-ink" aria-label="Dismiss">
-              <MdClose size={18} />
+              <FaXmark size={18} />
             </button>
           </div>
         ))}

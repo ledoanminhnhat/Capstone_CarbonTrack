@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef } from "react";
-import { MdPhotoCamera } from "react-icons/md";
+import { FaCamera } from "react-icons/fa6";
 import Avatar from "@/components/ui/Avatar";
 import { IMAGE_ACCEPT } from "@/constants/app";
 import type { UserProfile } from "@/types";
@@ -36,7 +36,7 @@ export default function ProfileHeader({
               avatar.busy ? "opacity-100" : "opacity-0 group-hover:opacity-100"
             }`}
           >
-            {avatar.busy ? <span className="text-xs font-semibold">Uploading...</span> : <MdPhotoCamera size={28} />}
+            {avatar.busy ? <span className="text-xs font-semibold">Uploading...</span> : <FaCamera size={28} />}
           </span>
         </button>
         <input
@@ -51,7 +51,7 @@ export default function ProfileHeader({
         />
 
         <div className="min-w-0 flex-1">
-          <h3 className="m-0 text-xl font-extrabold truncate">{profile?.name || "User"} 👋</h3>
+          <h3 className="m-0 text-xl font-extrabold truncate">{profile?.name || "User"}</h3>
           <p className="m-0 text-white/80 text-sm truncate">{profile?.email}</p>
           <div className="flex gap-2 mt-3">
             <button

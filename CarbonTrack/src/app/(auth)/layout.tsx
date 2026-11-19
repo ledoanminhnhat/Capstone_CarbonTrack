@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { FaEarthAsia, FaTrophy } from "react-icons/fa6";
 
 export default function AuthLayout({
   children,
@@ -51,11 +52,11 @@ export default function AuthLayout({
               <div className="text-white/80 text-sm">categories</div>
             </div>
             <div>
-              <div className="text-3xl font-extrabold">🌍</div>
+              <FaEarthAsia size={30} className="mb-1" />
               <div className="text-white/80 text-sm">lower CO₂</div>
             </div>
             <div>
-              <div className="text-3xl font-extrabold">🏆</div>
+              <FaTrophy size={30} className="mb-1" />
               <div className="text-white/80 text-sm">challenges</div>
             </div>
           </div>

@@ -6,7 +6,6 @@ export interface ChallengeView {
   id: string;
   title: string;
   description: string;
-  emoji: string;
   points: number;
   target: number;
   joined: boolean;
@@ -20,7 +19,6 @@ export interface AdminChallenge {
   id: string;
   title: string;
   description: string;
-  emoji: string;
   points: number;
   matchType: MatchType;
   matchValue: string;
@@ -31,7 +29,6 @@ export interface AdminChallenge {
 export interface NewChallenge {
   title: string;
   description: string;
-  emoji: string;
   points: number;
   matchType: MatchType;
   matchValue: string;

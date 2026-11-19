@@ -1,7 +1,7 @@
 "use client";
 /* eslint-disable @next/next/no-img-element */
 
-import { MdLightbulb, MdArrowForward } from "react-icons/md";
+import { FaArrowRight, FaLightbulb } from "react-icons/fa6";
 import Badge from "@/components/ui/Badge";
 import { UNSPLASH_UTM, tipImageUrl } from "../constants/dailyTips";
 import { useDailyTip } from "../hooks/useDailyTip";
@@ -21,7 +21,7 @@ export default function DailyTip() {
           loading="lazy"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
-        <Badge tone="brand" variant="solid" size="sm" icon={<MdLightbulb size={12} />} className="absolute top-3 left-3">
+        <Badge tone="brand" variant="solid" size="sm" icon={<FaLightbulb size={12} />} className="absolute top-3 left-3">
           Daily Tip
         </Badge>
         <a
@@ -45,7 +45,7 @@ export default function DailyTip() {
             onClick={next}
             className="flex items-center gap-1 text-brand-600 text-[0.85rem] font-semibold hover:underline"
           >
-            Another tip <MdArrowForward size={16} />
+            Another tip <FaArrowRight size={16} />
           </button>
         </div>
       </div>

@@ -3,7 +3,6 @@ import Select from "@/components/ui/Select";
 import Button from "@/components/ui/Button";
 import Alert from "@/components/ui/Alert";
 import FormField from "@/components/ui/FormField";
-import { emojiFor } from "@/constants/categories";
 import type { MatchType } from "../types";
 import { matchValuesFor, type ChallengeForm } from "../hooks/useAdminChallenges";
 
@@ -48,7 +47,7 @@ export default function CreateChallengeForm({
           <Select
             value={form.matchValue}
             onChange={(v) => onChange({ matchValue: v })}
-            options={matchValuesFor(form.matchType).map((v) => ({ label: `${emojiFor(v)} ${v}`, value: v }))}
+            options={matchValuesFor(form.matchType).map((v) => ({ label: v, value: v }))}
           />
         </FormField>
         <FormField label="Target (times)">

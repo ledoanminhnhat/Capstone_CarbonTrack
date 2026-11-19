@@ -14,6 +14,8 @@ export interface Post {
   likedByMe: boolean;
   /** tối đa 3 người like gần nhất */
   recentLikers: Author[];
+  /** 2 comment mới nhất (cũ -> mới), hiện sẵn dưới bài */
+  previewComments: Comment[];
   commentCount: number;
   shareCount: number;
   createdAt: string;

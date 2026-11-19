@@ -10,6 +10,7 @@ import ChallengeStats from "./ChallengeStats";
 import JoinedChallengeCard from "./JoinedChallengeCard";
 import AvailableChallengeCard from "./AvailableChallengeCard";
 import ChallengeDetailModal from "./ChallengeDetailModal";
+import { FaTrophy } from "react-icons/fa6";
 
 /** Trang Challenges của user thường. */
 export default function UserChallenges() {
@@ -48,7 +49,9 @@ export default function UserChallenges() {
 
       {completed.length > 0 && (
         <section>
-          <SectionTitle count={completed.length}>Completed 🎉</SectionTitle>
+          <SectionTitle count={completed.length}>
+            <FaTrophy className="text-amber-500" size={16} /> Completed
+          </SectionTitle>
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
             {completed.map((c) => (
               <JoinedChallengeCard key={c.id} c={c} onClick={() => setSelected(c)} />

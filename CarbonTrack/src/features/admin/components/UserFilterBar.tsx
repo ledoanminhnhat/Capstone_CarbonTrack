@@ -1,4 +1,4 @@
-import { MdSearch } from "react-icons/md";
+import { FaMagnifyingGlass } from "react-icons/fa6";
 import Input from "@/components/ui/Input";
 import Select from "@/components/ui/Select";
 import type { RoleFilter } from "../types";
@@ -30,7 +30,7 @@ export default function UserFilterBar({
         <Input
           type="text"
           placeholder="Search name or email..."
-          icon={<MdSearch size={20} />}
+          icon={<FaMagnifyingGlass size={16} />}
           value={search}
           onChange={(e) => onSearch(e.target.value)}
         />

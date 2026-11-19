@@ -32,6 +32,7 @@ public class CommunityDtos {
             int likeCount,
             boolean likedByMe,
             List<Author> recentLikers,  // tối đa 3 người like gần nhất (AvatarGroup)
+            List<CommentView> previewComments, // 2 comment mới nhất (cũ -> mới), kiểu Instagram
             int commentCount,
             int shareCount,
             Instant createdAt,

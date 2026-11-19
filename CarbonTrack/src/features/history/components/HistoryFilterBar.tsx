@@ -1,4 +1,4 @@
-import { MdSearch } from "react-icons/md";
+import { FaMagnifyingGlass } from "react-icons/fa6";
 import Input from "@/components/ui/Input";
 import Select, { type SelectOption } from "@/components/ui/Select";
 import { CATEGORIES } from "@/constants/categories";
@@ -26,7 +26,7 @@ export default function HistoryFilterBar({
         <Input
           type="text"
           placeholder="Search activity or detail..."
-          icon={<MdSearch size={20} />}
+          icon={<FaMagnifyingGlass size={16} />}
           value={filters.search}
           onChange={(e) => onChange("search", e.target.value)}
         />

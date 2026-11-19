@@ -1,7 +1,7 @@
 "use client";
 /* eslint-disable @next/next/no-img-element */
 
-import { MdZoomIn, MdZoomOut } from "react-icons/md";
+import { FaMagnifyingGlassMinus, FaMagnifyingGlassPlus } from "react-icons/fa6";
 import Modal from "@/components/ui/Modal";
 import Button from "@/components/ui/Button";
 import { useObjectUrl } from "@/hooks/useObjectUrl";
@@ -56,7 +56,7 @@ export default function AvatarCropper({
       </div>
 
       <div className="flex items-center gap-3 mt-5">
-        <MdZoomOut size={20} className="text-muted" />
+        <FaMagnifyingGlassMinus size={16} className="text-muted" />
         <input
           type="range"
           min={MIN_ZOOM}
@@ -67,7 +67,7 @@ export default function AvatarCropper({
           className="flex-1 accent-brand-500"
           aria-label="Zoom"
         />
-        <MdZoomIn size={20} className="text-muted" />
+        <FaMagnifyingGlassPlus size={16} className="text-muted" />
       </div>
       <p className="text-muted text-xs text-center mt-2 mb-5">Drag to reposition · scroll or slide to zoom</p>
 

@@ -9,9 +9,10 @@ import type { Author } from "@/features/community/types";
 import { useFeed } from "@/features/community/hooks/useFeed";
 import { useMutedUsers } from "@/features/community/hooks/useMutedUsers";
 import { useLeaderboard } from "@/features/community/hooks/useLeaderboard";
-import Composer from "@/features/community/components/Composer";
+import CreatePostPrompt from "@/features/community/components/CreatePostPrompt";
 import PostCard from "@/features/community/components/PostCard";
 import { GuidelinesCard, HiddenUsersCard, LeaderboardCard } from "@/features/community/components/CommunitySidebar";
+import { FaEarthAsia } from "react-icons/fa6";
 
 export default function CommunityPage() {
   const me = useCurrentUser();
@@ -33,16 +34,17 @@ export default function CommunityPage() {
         subtitle="Share your eco wins, tips and photos with other CarbonTrack members."
       />
 
-      <div className="grid grid-cols-1 xl:grid-cols-[1fr_320px] gap-6 items-start">
-        <div className="flex flex-col gap-6 min-w-0">
-          {me && <Composer me={me} onPosted={feed.addPost} />}
+      <div className="grid grid-cols-1 xl:grid-cols-[1fr_300px] gap-8 items-start">
+        {/* Feed hẹp ở giữa như Instagram */}
+        <div className="flex flex-col gap-6 min-w-0 w-full max-w-[680px] mx-auto">
+          {me && <CreatePostPrompt me={me} onPosted={feed.addPost} />}
 
           <Alert>{feed.error}</Alert>
 
           {feed.loading ? (
             <Loading text="Loading feed..." />
           ) : feed.posts.length === 0 ? (
-            <EmptyState icon="🌍">No posts yet. Be the first to share something!</EmptyState>
+            <EmptyState icon={<FaEarthAsia size={28} className="text-brand-600" />}>No posts yet. Be the first to share something!</EmptyState>
           ) : (
             feed.posts.map((p) => (
               <PostCard

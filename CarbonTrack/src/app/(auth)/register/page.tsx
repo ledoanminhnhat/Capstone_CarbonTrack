@@ -7,13 +7,16 @@ import Button from "@/components/ui/Button";
 import Alert from "@/components/ui/Alert";
 import SocialLogin from "@/features/auth/components/SocialLogin";
 import { useRegisterForm } from "@/features/auth/hooks/useRegisterForm";
+import { FaSeedling } from "react-icons/fa6";
 
 export default function RegisterPage() {
   const f = useRegisterForm();
 
   return (
     <div className="w-full">
-      <h1 className="text-3xl font-extrabold text-ink mb-1">Create account 🌱</h1>
+      <h1 className="text-3xl font-extrabold text-ink mb-1 flex items-center gap-3">
+        Create account <FaSeedling className="text-brand-500" size={26} />
+      </h1>
       <p className="text-muted mb-8">Start your journey to a smaller footprint.</p>
 
       <form className="flex flex-col" onSubmit={f.submit}>

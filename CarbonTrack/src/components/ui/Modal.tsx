@@ -1,8 +1,7 @@
 "use client";
 
 import React, { useEffect } from "react";
-import { MdClose } from "react-icons/md";
-
+import { FaXmark } from "react-icons/fa6";
 interface ModalProps {
   open: boolean;
   onClose: () => void;
@@ -58,14 +57,14 @@ export default function Modal({
               {subtitle && <p className="text-white/80 text-sm m-0">{subtitle}</p>}
             </div>
             <button onClick={close} className="text-white/80 hover:text-white" aria-label="Close">
-              <MdClose size={24} />
+              <FaXmark size={18} />
             </button>
           </div>
         ) : (
           <>
             <div className={`h-2 ${gradient}`} />
             <button onClick={close} className="absolute top-5 right-5 text-muted hover:text-ink z-10" aria-label="Close">
-              <MdClose size={24} />
+              <FaXmark size={18} />
             </button>
             {title && (
               <div className="px-6 pt-5">

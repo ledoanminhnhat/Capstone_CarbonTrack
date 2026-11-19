@@ -52,12 +52,17 @@ public class CommunityService {
         Page<Post> result = postRepo.findByUserIdNotInOrderByCreatedAtDesc(
                 mutedOf(viewer), PageRequest.of(Math.max(page, 0), PAGE_SIZE));
         // tải 1 lần: tác giả + vài người like gần nhất của mọi bài trong trang
+        Set<String> muted = new HashSet<>(mutedOf(viewer));
+        Map<String, List<Comment>> previews = new HashMap<>();
+        result.getContent().forEach(p -> previews.put(p.getId(), previewOf(p.getId(), muted)));
+        // tải 1 lần: tác giả + người like gần nhất + người viết comment xem trước
         Map<String, User> users = usersById(result.getContent().stream()
                 .flatMap(p -> java.util.stream.Stream.concat(
-                        java.util.stream.Stream.of(p.getUserId()), recentLikerIds(p).stream()))
+                        java.util.stream.Stream.concat(java.util.stream.Stream.of(p.getUserId()), recentLikerIds(p).stream()),
+                        previews.get(p.getId()).stream().map(Comment::getUserId)))
                 .toList());
         List<PostView> posts = result.getContent().stream()
-                .map(p -> toView(p, viewer, users))
+                .map(p -> toView(p, viewer, users, previews.get(p.getId())))
                 .toList();
         return new FeedPage(posts, result.getNumber(), result.hasNext());
     }
@@ -65,9 +70,11 @@ public class CommunityService {
     public PostView getPost(String viewerId, String postId) {
         User viewer = loadUser(viewerId);
         Post p = loadPost(postId);
+        List<Comment> preview = previewOf(p.getId(), new HashSet<>(mutedOf(viewer)));
         List<String> ids = new ArrayList<>(recentLikerIds(p));
         ids.add(p.getUserId());
-        return toView(p, viewer, usersById(ids));
+        preview.forEach(c -> ids.add(c.getUserId()));
+        return toView(p, viewer, usersById(ids), preview);
     }
 
     public PostView create(String userId, CreatePostRequest req) {
@@ -87,7 +94,7 @@ public class CommunityService {
         p.setCreatedAt(Instant.now());
         Post saved = postRepo.save(p);
         User me = loadUser(userId);
-        return toView(saved, me, Map.of(me.getId(), me));
+        return toView(saved, me, Map.of(me.getId(), me), List.of());
     }
 
     /** Tác giả hoặc admin mới được xóa. */
@@ -236,11 +243,27 @@ public class CommunityService {
                 .map(id -> authorOf(id, users.get(id))).toList();
     }
 
-    /** `users` cần chứa tác giả + người like gần nhất. */
-    private PostView toView(Post p, User viewer, Map<String, User> users) {
+    private static final int PREVIEW_COMMENTS = 2;
+
+    /** 2 comment mới nhất không thuộc người bị ẩn, xếp cũ -> mới. */
+    private List<Comment> previewOf(String postId, Set<String> muted) {
+        List<Comment> latest = new ArrayList<>(commentRepo.findTop10ByPostIdOrderByCreatedAtDesc(postId).stream()
+                .filter(c -> !muted.contains(c.getUserId()))
+                .limit(PREVIEW_COMMENTS)
+                .toList());
+        Collections.reverse(latest);
+        return latest;
+    }
+
+    /**  cần chứa tác giả, người like gần nhất và người viết comment xem trước. */
+    private PostView toView(Post p, User viewer, Map<String, User> users, List<Comment> preview) {
+        boolean viewerOwnsPost = p.getUserId().equals(viewer.getId());
+        List<CommentView> previewViews = preview.stream()
+                .map(c -> toView(c, viewer, users.get(c.getUserId()), viewerOwnsPost))
+                .toList();
         return new PostView(p.getId(), authorOf(p.getUserId(), users.get(p.getUserId())), p.getContent(),
                 p.getImageUrls(), p.getLikedBy().size(), p.getLikedBy().contains(viewer.getId()),
-                likersOf(p, users), p.getCommentCount(), p.getShareCount(), p.getCreatedAt(),
+                likersOf(p, users), previewViews, p.getCommentCount(), p.getShareCount(), p.getCreatedAt(),
                 p.getUserId().equals(viewer.getId()) || isAdmin(viewer));
     }
 

@@ -1,7 +1,8 @@
-import { MdStar } from "react-icons/md";
+import { FaStar } from "react-icons/fa6";
 import Badge from "@/components/ui/Badge";
 import Button from "@/components/ui/Button";
 import type { ChallengeView } from "../types";
+import ActivityIconBox from "@/features/activities/components/ActivityIconBox";
 
 /** Thẻ challenge chưa tham gia. */
 export default function AvailableChallengeCard({
@@ -21,14 +22,14 @@ export default function AvailableChallengeCard({
       className="bg-white p-6 rounded-2xl shadow-card flex flex-col cursor-pointer transition-all duration-200 hover:shadow-glow-brand hover:-translate-y-0.5"
     >
       <div className="flex items-start gap-4 mb-4">
-        <div className="w-12 h-12 bg-brand-50 rounded-xl flex items-center justify-center text-2xl shrink-0">{c.emoji}</div>
+        <ActivityIconBox value={c.matchValue} size="md" />
         <div className="flex-1 min-w-0">
           <h4 className="m-0 font-bold text-[1.05rem] text-ink">{c.title}</h4>
           <p className="m-0 mt-1 text-muted text-[0.85rem]">
             Goal: {c.target}× {c.matchValue}
           </p>
         </div>
-        <Badge tone="brand" icon={<MdStar size={14} />}>
+        <Badge tone="brand" icon={<FaStar size={14} />}>
           +{c.points}
         </Badge>
       </div>

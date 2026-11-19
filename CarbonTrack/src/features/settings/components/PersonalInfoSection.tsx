@@ -1,4 +1,4 @@
-import { MdPerson } from "react-icons/md";
+import { FaUser } from "react-icons/fa6";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import Alert from "@/components/ui/Alert";
@@ -21,7 +21,7 @@ export default function PersonalInfoSection({
   onSave: () => void;
 }) {
   return (
-    <SettingsSection icon={<MdPerson size={22} />} iconCls="text-brand-600 bg-brand-50" title="Personal Information">
+    <SettingsSection icon={<FaUser size={18} />} iconCls="text-brand-600 bg-brand-50" title="Personal Information">
       <FormField label="Name">
         <Input type="text" value={name} onChange={(e) => onNameChange(e.target.value)} />
       </FormField>

@@ -18,7 +18,6 @@ public class RecommendationDtos {
             String id,               // id của luật, vd "car-to-bus"
             String title,
             String description,
-            String emoji,
             String category,
             String source,           // sub-category đang phát thải, vd "Car"
             double estimatedSavingKg,

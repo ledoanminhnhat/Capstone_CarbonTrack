@@ -4,6 +4,7 @@ import ActivityName from "@/features/activities/components/ActivityName";
 import StatusBadge from "@/features/activities/components/StatusBadge";
 import CategoryBadge from "@/features/activities/components/CategoryBadge";
 import type { Activity } from "@/features/activities/types";
+import ActivityCardList from "@/features/activities/components/ActivityCardList";
 
 export default function RecentActivities({ activities }: { activities: Activity[] }) {
   return (
@@ -14,6 +15,10 @@ export default function RecentActivities({ activities }: { activities: Activity[
           View all →
         </Link>
       </div>
+      <div className="md:hidden">
+        <ActivityCardList rows={activities} emptyText="No activities yet. Log your first one!" />
+      </div>
+      <div className="hidden md:block">
       <Table minWidth={520}>
         <thead>
           <tr>
@@ -46,6 +51,7 @@ export default function RecentActivities({ activities }: { activities: Activity[
           )}
         </tbody>
       </Table>
+      </div>
     </div>
   );
 }

@@ -79,7 +79,12 @@ export default function AppearanceSection() {
           );
         })}
       </div>
-      <p className="m-0 text-muted text-xs">Your choice is saved on this device.</p>
+      <div className="flex flex-col gap-1 text-muted text-xs">
+        <p className="m-0">Your choice is saved on this device.</p>
+        <p className="m-0 text-muted/80">
+          Note: Auto follows your operating system or browser app color scheme.
+        </p>
+      </div>
     </SettingsSection>
   );
 }

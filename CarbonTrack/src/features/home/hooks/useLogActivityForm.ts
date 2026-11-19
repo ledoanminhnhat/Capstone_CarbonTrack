@@ -5,11 +5,12 @@ import { CATEGORY_CONFIG } from "@/constants/categories";
 import { errorMessage } from "@/utils/error";
 import type { Category } from "@/features/activities/types";
 import { logActivity } from "@/features/activities/services/activity.service";
+import { notifyActivityLogged } from "@/features/activities/events";
 
 const firstSub = (c: Category) => CATEGORY_CONFIG[c].subCategories[0].value;
 
 /** State + lưu cho modal Log Activity. */
-export function useLogActivityForm(onSaved: () => void) {
+export function useLogActivityForm(onSaved?: () => void) {
   const [category, setCategoryState] = useState<Category>("Transport");
   const [subCategory, setSubCategory] = useState(firstSub("Transport"));
   const [amount, setAmount] = useState("10");
@@ -33,7 +34,8 @@ export function useLogActivityForm(onSaved: () => void) {
     setSaving(true);
     try {
       await logActivity({ category, subCategory, amount: value });
-      onSaved();
+      notifyActivityLogged(); // Dashboard / History tự tải lại
+      onSaved?.();
       return true;
     } catch (e) {
       setError(errorMessage(e, "Save failed"));

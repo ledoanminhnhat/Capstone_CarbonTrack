@@ -40,14 +40,15 @@ export default function Modal({
   const close = () => !locked && onClose();
 
   return (
+    // Mobile: tấm trượt lên từ đáy (bottom sheet). md trở lên: hộp ở giữa màn hình.
     <div
-      className="fixed inset-0 bg-black/40 backdrop-blur-sm flex justify-center items-center z-[1000] p-4"
+      className="fixed inset-0 bg-black/40 backdrop-blur-sm flex justify-center items-end md:items-center z-[1000] p-0 md:p-4"
       onClick={close}
     >
       <div
         role="dialog"
         aria-modal="true"
-        className={`bg-surface rounded-3xl w-full ${maxWidth} overflow-hidden relative shadow-card`}
+        className={`bg-surface w-full ${maxWidth} max-h-[92vh] overflow-y-auto relative shadow-card rounded-t-3xl md:rounded-3xl animate-[sheet-up_0.25s_ease-out] md:animate-none pb-[env(safe-area-inset-bottom)]`}
         onClick={(e) => e.stopPropagation()}
       >
         {variant === "header" ? (

@@ -3,6 +3,7 @@ import ActivityName from "@/features/activities/components/ActivityName";
 import StatusBadge from "@/features/activities/components/StatusBadge";
 import CategoryBadge from "@/features/activities/components/CategoryBadge";
 import type { Activity } from "@/features/activities/types";
+import ActivityCardList from "@/features/activities/components/ActivityCardList";
 
 export default function HistoryTable({
   rows,
@@ -14,6 +15,11 @@ export default function HistoryTable({
   emptyText: string;
 }) {
   return (
+    <>
+    <div className="md:hidden">
+      <ActivityCardList rows={rows} loading={loading} emptyText={emptyText} />
+    </div>
+    <div className="hidden md:block">
     <Table>
       <thead>
         <tr>
@@ -50,5 +56,7 @@ export default function HistoryTable({
         )}
       </tbody>
     </Table>
+    </div>
+    </>
   );
 }

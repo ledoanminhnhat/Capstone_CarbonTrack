@@ -4,11 +4,11 @@ import React from "react";
 const GRADIENTS = ["bg-gradient-brand", "bg-gradient-ocean", "bg-gradient-sunrise", "bg-gradient-berry", "bg-gradient-leaf"];
 
 export const AVATAR_SIZES = {
-  xs: { box: "w-7 h-7 text-xs", dot: "w-2 h-2" },
-  sm: { box: "w-8 h-8 text-sm", dot: "w-2.5 h-2.5" },
-  md: { box: "w-11 h-11 text-lg", dot: "w-3 h-3" },
-  lg: { box: "w-16 h-16 text-2xl", dot: "w-4 h-4" },
-  xl: { box: "w-24 h-24 text-4xl", dot: "w-5 h-5" },
+  xs: { box: "w-7 h-7 min-w-[28px] min-h-[28px] max-w-[28px] max-h-[28px] text-xs aspect-square", dot: "w-2 h-2" },
+  sm: { box: "w-8 h-8 min-w-[32px] min-h-[32px] max-w-[32px] max-h-[32px] text-sm aspect-square", dot: "w-2.5 h-2.5" },
+  md: { box: "w-11 h-11 min-w-[44px] min-h-[44px] max-w-[44px] max-h-[44px] text-lg aspect-square", dot: "w-3 h-3" },
+  lg: { box: "w-16 h-16 min-w-[64px] min-h-[64px] max-w-[64px] max-h-[64px] text-2xl aspect-square", dot: "w-4 h-4" },
+  xl: { box: "w-24 h-24 min-w-[96px] min-h-[96px] max-w-[96px] max-h-[96px] text-4xl aspect-square", dot: "w-5 h-5" },
 };
 export type AvatarSize = keyof typeof AVATAR_SIZES;
 
@@ -51,16 +51,16 @@ export default function Avatar({
   const idx = [...(id || name)].reduce((sum, ch) => sum + ch.charCodeAt(0), 0) % GRADIENTS.length;
 
   const face = avatarUrl ? (
-    <img src={avatarUrl} alt={name} className={`${base} object-cover bg-soft`} />
+    <img src={avatarUrl} alt={name} className={`${base} object-cover bg-soft block overflow-hidden`} />
   ) : (
-    <div className={`${base} ${GRADIENTS[idx]} flex items-center justify-center text-white font-bold`}>
+    <div className={`${base} ${GRADIENTS[idx]} flex items-center justify-center text-white font-bold overflow-hidden`}>
       {name ? name.charAt(0).toUpperCase() : "?"}
     </div>
   );
 
-  if (!status) return <span className={`inline-flex ${className}`}>{face}</span>;
+  if (!status) return <span className={`inline-flex shrink-0 rounded-full overflow-hidden ${className}`}>{face}</span>;
   return (
-    <span className={`relative inline-flex shrink-0 ${className}`}>
+    <span className={`relative inline-flex shrink-0 rounded-full ${className}`}>
       {face}
       <span
         title={statusLabel}

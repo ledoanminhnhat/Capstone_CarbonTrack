@@ -37,20 +37,33 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [resolved, setResolved] = useState<"light" | "dark">("light");
 
   // đọc lựa chọn đã lưu khi mở app
-  useEffect(() => setThemeState(readPref()), []);
+  useEffect(() => {
+    setThemeState(readPref());
+  }, []);
 
-  // áp dụng + theo dõi hệ điều hành khi chọn "system"
+  // áp dụng + theo dõi hệ điều hành
   useEffect(() => {
     const update = () => {
       const r = theme === "system" ? (systemDark() ? "dark" : "light") : theme;
       setResolved(r);
       apply(r);
     };
+
     update();
+
     if (theme !== "system") return;
+
     const mq = window.matchMedia("(prefers-color-scheme: dark)");
-    mq.addEventListener("change", update);
-    return () => mq.removeEventListener("change", update);
+    const handler = () => update();
+
+    // Hỗ trợ cả addEventListener và addListener (cho tương thích trình duyệt cũ hơn)
+    if (mq.addEventListener) {
+      mq.addEventListener("change", handler);
+      return () => mq.removeEventListener("change", handler);
+    } else if ("addListener" in mq) {
+      (mq as any).addListener(handler);
+      return () => (mq as any).removeListener(handler);
+    }
   }, [theme]);
 
   const setTheme = useCallback((t: ThemePref) => {
@@ -60,6 +73,9 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     } catch {
       /* bỏ qua */
     }
+    const r = t === "system" ? (systemDark() ? "dark" : "light") : t;
+    setResolved(r);
+    apply(r);
   }, []);
 
   return <ThemeContext.Provider value={{ theme, resolved, setTheme }}>{children}</ThemeContext.Provider>;

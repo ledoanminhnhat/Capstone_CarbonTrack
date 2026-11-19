@@ -27,7 +27,7 @@ export default function ProfileHeader({
           type="button"
           onClick={openPicker}
           disabled={avatar.busy}
-          className="relative group rounded-full ring-4 ring-white/30 shrink-0"
+          className="relative group rounded-full ring-4 ring-white/30 shrink-0 overflow-hidden w-24 h-24 p-0 border-0 flex items-center justify-center cursor-pointer"
           aria-label="Change avatar"
         >
           <Avatar id={profile?.id} name={profile?.name} avatarUrl={profile?.avatarUrl} size="xl" />

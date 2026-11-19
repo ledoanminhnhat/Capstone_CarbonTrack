@@ -3,32 +3,13 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import {
-  FaAnglesLeft,
-  FaAnglesRight,
-  FaArrowRightFromBracket,
-  FaChartPie,
-  FaClockRotateLeft,
-  FaGear,
-  FaRegLightbulb,
-  FaTrophy,
-  FaUserShield,
-  FaUsers,
-} from "react-icons/fa6";
+import { FaAnglesLeft, FaAnglesRight, FaArrowRightFromBracket } from "react-icons/fa6";
 import Avatar from "@/components/ui/Avatar";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useLocalStorageState } from "@/hooks/useLocalStorageState";
 import { logout } from "@/features/auth/services/auth.service";
+import { isActive, sidebarLinks } from "./navLinks";
 
-const NAV_LINKS = [
-  { name: "Dashboard", href: "/home", icon: <FaChartPie size={18} /> },
-  { name: "History", href: "/history", icon: <FaClockRotateLeft size={18} /> },
-  { name: "Challenges", href: "/challenges", icon: <FaTrophy size={18} /> },
-  { name: "Community", href: "/community", icon: <FaUsers size={18} /> },
-  { name: "Recommendations", href: "/recommendations", icon: <FaRegLightbulb size={18} /> },
-  { name: "Settings", href: "/settings", icon: <FaGear size={18} /> },
-];
-const ADMIN_LINK = { name: "Admin", href: "/admin", icon: <FaUserShield size={18} /> };
 
 /** Nhãn nổi bên phải khi sidebar đang thu gọn (rê chuột vào icon). */
 function Tip({ show, children }: { show: boolean; children: React.ReactNode }) {
@@ -45,7 +26,7 @@ export default function Sidebar() {
   const pathname = usePathname();
   const user = useCurrentUser();
   const [collapsed, setCollapsed] = useLocalStorageState("ct_sidebar_collapsed", false);
-  const links = user?.role === "ADMIN" ? [...NAV_LINKS, ADMIN_LINK] : NAV_LINKS;
+  const links = sidebarLinks(user?.role === "ADMIN");
 
   const handleLogout = () => {
     logout();
@@ -55,18 +36,18 @@ export default function Sidebar() {
   return (
     <aside
       className={`${
-        collapsed ? "w-[76px] px-3" : "w-[260px] px-6"
+        collapsed ? "w-[76px] px-3" : "w-[280px] px-5"
       } bg-surface/80 backdrop-blur-sm flex flex-col py-8 shadow-soft sticky top-0 h-screen box-border shrink-0 transition-[width,padding] duration-200`}
     >
       {/* Logo + nút thu gọn */}
       <div className={`flex items-center mb-10 ${collapsed ? "flex-col gap-4" : "gap-3"}`}>
-        <Image src="/assets/logo.png" alt="CarbonTrack" width={32} height={32} />
-        {!collapsed && <h1 className="text-xl font-extrabold text-gradient-brand m-0 flex-1 truncate">CarbonTrack</h1>}
+        <Image src="/assets/logo.png" alt="CarbonTrack" width={32} height={32} className="shrink-0" />
+        {!collapsed && <h1 className="text-xl font-extrabold text-gradient-brand m-0 flex-1 whitespace-nowrap">CarbonTrack</h1>}
         <button
           onClick={() => setCollapsed((c) => !c)}
           aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
           title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-          className="w-8 h-8 rounded-lg flex items-center justify-center text-muted hover:bg-soft hover:text-ink transition-colors"
+          className="w-8 h-8 shrink-0 rounded-lg flex items-center justify-center text-muted hover:bg-soft hover:text-ink transition-colors"
         >
           {collapsed ? <FaAnglesRight size={13} /> : <FaAnglesLeft size={13} />}
         </button>
@@ -74,7 +55,7 @@ export default function Sidebar() {
 
       <nav className="flex flex-col gap-2 flex-1">
         {links.map((link) => {
-          const active = pathname === link.href;
+          const active = isActive(pathname, link.href);
           return (
             <Link
               key={link.name}

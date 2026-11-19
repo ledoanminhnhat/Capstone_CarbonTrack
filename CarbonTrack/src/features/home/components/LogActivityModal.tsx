@@ -12,7 +12,7 @@ import CategoryIcon from "@/features/activities/components/CategoryIcon";
 interface LogActivityModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSaved: () => void;
+  onSaved?: () => void;
 }
 
 export default function LogActivityModal({ isOpen, onClose, onSaved }: LogActivityModalProps) {

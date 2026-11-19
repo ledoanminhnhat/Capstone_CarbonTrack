@@ -148,3 +148,15 @@
   40% { transform: scale(1.25); }
   100% { transform: scale(1); }
 }
+
+/* Bottom sheet trượt lên (Modal trên mobile) */
+@keyframes sheet-up {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+/* Drawer trượt từ mép phải ra (Mobile Drawer) */
+@keyframes slide-left {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}

@@ -12,6 +12,7 @@ import { useUserFilters } from "@/features/admin/hooks/useUserFilters";
 import AdminStats from "@/features/admin/components/AdminStats";
 import UserFilterBar from "@/features/admin/components/UserFilterBar";
 import UserTable from "@/features/admin/components/UserTable";
+import UserCardList from "@/features/admin/components/UserCardList";
 
 function AdminUsers() {
   const me = useCurrentUser();
@@ -34,14 +35,27 @@ function AdminUsers() {
           shown={f.filtered.length}
           total={users.length}
         />
-        <UserTable
-          users={pager.pageItems}
-          loading={loading}
-          myId={me?.id}
-          emptyText={users.length === 0 ? "No users yet." : "No users match your search."}
-          onRoleChange={setRole}
-          onDelete={remove}
-        />
+        {/* bảng trên desktop, thẻ trên mobile */}
+        <div className="hidden md:block">
+          <UserTable
+            users={pager.pageItems}
+            loading={loading}
+            myId={me?.id}
+            emptyText={users.length === 0 ? "No users yet." : "No users match your search."}
+            onRoleChange={setRole}
+            onDelete={remove}
+          />
+        </div>
+        <div className="md:hidden">
+          <UserCardList
+            users={pager.pageItems}
+            loading={loading}
+            myId={me?.id}
+            emptyText={users.length === 0 ? "No users yet." : "No users match your search."}
+            onRoleChange={setRole}
+            onDelete={remove}
+          />
+        </div>
         <Pagination {...pager} />
       </div>
     </div>

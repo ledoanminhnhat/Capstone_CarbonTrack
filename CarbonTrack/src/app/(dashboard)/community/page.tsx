@@ -1,11 +1,9 @@
 "use client";
 
-import { useState } from "react";
-import { FaEarthAsia, FaTrophy } from "react-icons/fa6";
+import { FaEarthAsia } from "react-icons/fa6";
 import Button from "@/components/ui/Button";
 import Alert from "@/components/ui/Alert";
 import PageHeader from "@/components/ui/PageHeader";
-import Modal from "@/components/ui/Modal";
 import EmptyState, { Loading } from "@/components/ui/EmptyState";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import type { Author } from "@/features/community/types";
@@ -21,7 +19,6 @@ export default function CommunityPage() {
   const feed = useFeed();
   const { muted, mute, unmute } = useMutedUsers();
   const leaders = useLeaderboard();
-  const [leaderboardOpen, setLeaderboardOpen] = useState(false);
 
   const handleHide = async (author: Author) => {
     if (await mute(author)) feed.removeByAuthor(author.id);
@@ -35,17 +32,6 @@ export default function CommunityPage() {
       <PageHeader
         title="Green Community"
         subtitle="Share your eco wins, tips and photos with other CarbonTrack members."
-        actions={
-          /* Nút mở Leaderboard tiện lợi trên mobile/tablet (ẩn trên desktop lớn xl vì đã có cột bên phải) */
-          <button
-            type="button"
-            onClick={() => setLeaderboardOpen(true)}
-            className="xl:hidden flex items-center gap-2 px-3.5 py-2 rounded-xl bg-surface border border-line-strong text-ink hover:bg-subtle text-sm font-semibold shadow-soft active:scale-95 transition-all"
-          >
-            <FaTrophy className="text-amber-500" size={15} />
-            <span>Leaderboard</span>
-          </button>
-        }
       />
 
       <div className="grid grid-cols-1 xl:grid-cols-[1fr_360px] gap-8 items-start">
@@ -91,19 +77,6 @@ export default function CommunityPage() {
           <HiddenUsersCard muted={muted} onUnhide={handleUnhide} />
         </aside>
       </div>
-
-      {/* Modal/Bottom-sheet xem Leaderboard trên mobile khi bấm nút cúp */}
-      <Modal
-        open={leaderboardOpen}
-        onClose={() => setLeaderboardOpen(false)}
-        title="Community Leaderboard"
-        subtitle="Ranked by total points earned from completed challenges"
-        variant="header"
-      >
-        <div className="py-2">
-          <LeaderboardCard leaders={leaders} meId={me?.id} />
-        </div>
-      </Modal>
     </div>
   );
 }

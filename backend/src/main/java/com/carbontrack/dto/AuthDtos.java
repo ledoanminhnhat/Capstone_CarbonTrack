@@ -28,6 +28,7 @@ public class AuthDtos {
             String id,
             String name,
             String email,
-            String role
+            String role,
+            String avatarUrl
     ) {}
 }

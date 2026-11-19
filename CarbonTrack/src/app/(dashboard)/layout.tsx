@@ -4,7 +4,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { getUser, isLoggedIn, logout, type AuthUser } from "@/lib/auth";
+import { getUser, isLoggedIn, logout, USER_UPDATED_EVENT, type AuthUser } from "@/lib/auth";
+import Avatar from "@/components/ui/Avatar";
+import { getProfile } from "@/lib/user";
 import {
   MdDashboard,
   MdHistory,
@@ -33,7 +35,15 @@ export default function DashboardLayout({
     }
     setUser(getUser());
     setChecked(true);
+    getProfile().catch(() => {}); // đồng bộ tên/avatar mới nhất (bắn USER_UPDATED_EVENT)
   }, [router]);
+
+  // Đổi tên / avatar ở Settings -> sidebar cập nhật ngay
+  useEffect(() => {
+    const refresh = () => setUser(getUser());
+    window.addEventListener(USER_UPDATED_EVENT, refresh);
+    return () => window.removeEventListener(USER_UPDATED_EVENT, refresh);
+  }, []);
 
   const handleLogout = () => {
     logout();            // xóa token + thông tin user
@@ -89,10 +99,10 @@ export default function DashboardLayout({
 
         <div className="mt-auto pt-6 border-t border-[#eee]">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-full bg-gradient-brand text-white flex items-center justify-center font-bold">
-              {user?.name ? user.name.charAt(0).toUpperCase() : "U"}
-            </div>
-            <span className="font-semibold text-[#333]">{user?.name ?? "User"} 👋</span>
+            <Link href="/settings" title="Change avatar">
+              <Avatar id={user?.id} name={user?.name ?? "User"} avatarUrl={user?.avatarUrl} size="md" />
+            </Link>
+            <span className="font-semibold text-[#333] truncate">{user?.name ?? "User"} 👋</span>
           </div>
           <button className="w-full p-3 border border-[#e0e0e0] bg-white rounded-xl font-semibold text-[#555] cursor-pointer transition-all duration-200 hover:bg-brand-50 hover:text-brand-700 hover:border-brand-200" onClick={handleLogout}>
             Logout
@@ -100,7 +110,7 @@ export default function DashboardLayout({
         </div>
       </aside>
 
-      <main className={`flex-1 p-10 flex flex-col h-screen ${pathname === '/community' ? 'overflow-y-hidden' : 'overflow-y-auto'}`}>
+      <main className="flex-1 p-10 flex flex-col h-screen overflow-y-auto">
         {children}
       </main>
     </div>

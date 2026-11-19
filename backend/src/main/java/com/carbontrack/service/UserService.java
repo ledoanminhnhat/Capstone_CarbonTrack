@@ -14,9 +14,13 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    private final UploadService uploadService;
+
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder,
+                       UploadService uploadService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.uploadService = uploadService;
     }
 
     private User findOrThrow(String userId) {
@@ -49,7 +53,18 @@ public class UserService {
         userRepository.save(user);
     }
 
+    /** Đặt avatar mới (phải là ảnh trong folder avatars của mình) hoặc null để xóa. */
+    public UserProfile updateAvatar(String userId, String avatarUrl) {
+        if (avatarUrl != null && !uploadService.isOwnImage(avatarUrl, UploadService.Kind.AVATAR)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid avatar URL");
+        }
+        User user = findOrThrow(userId);
+        user.setAvatarUrl(avatarUrl);
+        return toProfile(userRepository.save(user));
+    }
+
     private UserProfile toProfile(User u) {
-        return new UserProfile(u.getId(), u.getName(), u.getEmail(), u.getRole(), u.getPoints());
+        return new UserProfile(u.getId(), u.getName(), u.getEmail(), u.getRole(), u.getPoints(),
+                u.getAvatarUrl());
     }
 }

@@ -14,8 +14,12 @@ public class UserDtos {
             String name,
             String email,
             String role,
-            int points
+            int points,
+            String avatarUrl
     ) {}
+
+    // Đổi / xóa avatar (avatarUrl = null để xóa)
+    public record UpdateAvatarRequest(String avatarUrl) {}
 
     // Đổi tên hiển thị
     public record UpdateProfileRequest(

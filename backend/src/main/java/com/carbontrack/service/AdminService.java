@@ -19,9 +19,13 @@ public class AdminService {
     private final UserRepository userRepository;
     private final ActivityRepository activityRepository;
 
-    public AdminService(UserRepository userRepository, ActivityRepository activityRepository) {
+    private final CommunityService communityService;
+
+    public AdminService(UserRepository userRepository, ActivityRepository activityRepository,
+                        CommunityService communityService) {
         this.userRepository = userRepository;
         this.activityRepository = activityRepository;
+        this.communityService = communityService;
     }
 
     /** Danh sách tất cả user, kèm số hoạt động đã ghi. */
@@ -58,6 +62,7 @@ public class AdminService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
         }
         activityRepository.deleteByUserId(targetId);
+        communityService.deleteAllOfUser(targetId); // bài viết, comment, like, mute
         userRepository.deleteById(targetId);
     }
 }

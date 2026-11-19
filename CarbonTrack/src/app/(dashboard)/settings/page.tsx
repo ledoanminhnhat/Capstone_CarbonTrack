@@ -1,13 +1,16 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { FiEye, FiEyeOff } from "react-icons/fi";
-import { MdPerson, MdLock, MdTrackChanges, MdNotifications } from "react-icons/md";
+import { MdPerson, MdLock, MdTrackChanges, MdNotifications, MdPhotoCamera } from "react-icons/md";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import Badge from "@/components/ui/Badge";
+import Avatar from "@/components/ui/Avatar";
+import AvatarCropper from "@/components/ui/AvatarCropper";
 import PageHeader from "@/components/ui/PageHeader";
-import { getProfile, updateName, changePassword } from "@/lib/user";
+import { getProfile, updateName, updateAvatar, changePassword } from "@/lib/user";
+import { uploadImage, validateImage } from "@/lib/community";
 
 type Msg = { ok: boolean; text: string } | null;
 
@@ -78,14 +81,66 @@ export default function SettingsPage() {
   const [showNew, setShowNew] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
 
+  // ----- Avatar -----
+  const [userId, setUserId] = useState("");
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [avatarBusy, setAvatarBusy] = useState(false);
+  const [avatarMsg, setAvatarMsg] = useState("");
+  const fileRef = useRef<HTMLInputElement>(null);
+
   useEffect(() => {
     getProfile()
       .then((p) => {
+        setUserId(p.id);
         setName(p.name);
         setEmail(p.email);
+        setAvatarUrl(p.avatarUrl);
       })
       .catch(() => {});
   }, []);
+
+  // Chọn ảnh -> mở khung crop; crop xong mới upload
+  const [cropFile, setCropFile] = useState<File | null>(null);
+
+  const handleAvatarFile = (file: File | undefined) => {
+    if (fileRef.current) fileRef.current.value = "";
+    if (!file) return;
+    const err = validateImage(file);
+    if (err) {
+      setAvatarMsg(err);
+      return;
+    }
+    setAvatarMsg("");
+    setCropFile(file);
+  };
+
+  const handleCropped = async (cropped: File) => {
+    setAvatarBusy(true);
+    setAvatarMsg("");
+    try {
+      const url = await uploadImage(cropped, "avatar");
+      setAvatarUrl((await updateAvatar(url)).avatarUrl);
+      setCropFile(null);
+    } catch (e) {
+      setAvatarMsg(e instanceof Error ? e.message : "Upload failed");
+      setCropFile(null);
+    } finally {
+      setAvatarBusy(false);
+    }
+  };
+
+  const handleRemoveAvatar = async () => {
+    setAvatarBusy(true);
+    setAvatarMsg("");
+    try {
+      await updateAvatar(null);
+      setAvatarUrl(null);
+    } catch (e) {
+      setAvatarMsg(e instanceof Error ? e.message : "Failed");
+    } finally {
+      setAvatarBusy(false);
+    }
+  };
 
   const handleSaveName = async () => {
     if (!name.trim()) {
@@ -163,15 +218,75 @@ export default function SettingsPage() {
       <PageHeader title="Settings" subtitle="Manage your profile and account." />
 
       {/* Thẻ hồ sơ */}
-      <div className="bg-gradient-brand text-white rounded-2xl p-6 shadow-glow-brand flex items-center gap-5 mb-6">
-        <div className="w-16 h-16 rounded-2xl bg-white/20 flex items-center justify-center text-3xl font-extrabold">
-          {name ? name.charAt(0).toUpperCase() : "?"}
-        </div>
-        <div className="min-w-0">
+      <div className="bg-gradient-brand text-white rounded-2xl p-6 shadow-glow-brand flex flex-wrap items-center gap-5 mb-6">
+        {/* Bấm vào avatar để đổi ảnh */}
+        <button
+          type="button"
+          onClick={() => fileRef.current?.click()}
+          disabled={avatarBusy}
+          className="relative group rounded-full ring-4 ring-white/30 shrink-0"
+          aria-label="Change avatar"
+        >
+          <Avatar id={userId} name={name} avatarUrl={avatarUrl} size="xl" />
+          <span
+            className={`absolute inset-0 rounded-full bg-black/40 flex items-center justify-center transition-opacity ${
+              avatarBusy ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+            }`}
+          >
+            {avatarBusy ? (
+              <span className="text-xs font-semibold">Uploading...</span>
+            ) : (
+              <MdPhotoCamera size={28} />
+            )}
+          </span>
+        </button>
+        <input
+          ref={fileRef}
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          hidden
+          onChange={(e) => handleAvatarFile(e.target.files?.[0])}
+        />
+        <div className="min-w-0 flex-1">
           <h3 className="m-0 text-xl font-extrabold truncate">{name || "User"} 👋</h3>
           <p className="m-0 text-white/80 text-sm truncate">{email}</p>
+          <div className="flex gap-2 mt-3">
+            <button
+              type="button"
+              onClick={() => fileRef.current?.click()}
+              disabled={avatarBusy}
+              className="px-3 py-1.5 rounded-lg bg-white/20 hover:bg-white/30 text-sm font-semibold disabled:opacity-60"
+            >
+              {avatarUrl ? "Change photo" : "Upload photo"}
+            </button>
+            {avatarUrl && (
+              <button
+                type="button"
+                onClick={handleRemoveAvatar}
+                disabled={avatarBusy}
+                className="px-3 py-1.5 rounded-lg hover:bg-white/15 text-sm font-semibold text-white/90 disabled:opacity-60"
+              >
+                Remove
+              </button>
+            )}
+          </div>
+          {avatarMsg && (
+            <p className="m-0 mt-2 text-sm bg-white/90 text-rose-600 rounded-lg px-3 py-1.5 inline-block">
+              {avatarMsg}
+            </p>
+          )}
         </div>
+        <p className="m-0 text-white/70 text-xs basis-full md:basis-auto">JPG, PNG or WEBP · max 5MB</p>
       </div>
+
+      {cropFile && (
+        <AvatarCropper
+          file={cropFile}
+          busy={avatarBusy}
+          onCancel={() => setCropFile(null)}
+          onDone={handleCropped}
+        />
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Section

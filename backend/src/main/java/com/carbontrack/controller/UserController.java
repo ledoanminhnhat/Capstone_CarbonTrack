@@ -1,6 +1,7 @@
 package com.carbontrack.controller;
 
 import com.carbontrack.dto.UserDtos.ChangePasswordRequest;
+import com.carbontrack.dto.UserDtos.UpdateAvatarRequest;
 import com.carbontrack.dto.UserDtos.UpdateProfileRequest;
 import com.carbontrack.dto.UserDtos.UserProfile;
 import com.carbontrack.service.UserService;
@@ -34,6 +35,13 @@ public class UserController {
     public UserProfile updateProfile(@AuthenticationPrincipal String userId,
                                      @Valid @RequestBody UpdateProfileRequest request) {
         return userService.updateName(userId, request.name());
+    }
+
+    // PUT /api/users/me/avatar -> đổi / xóa avatar
+    @PutMapping("/me/avatar")
+    public UserProfile updateAvatar(@AuthenticationPrincipal String userId,
+                                    @RequestBody UpdateAvatarRequest request) {
+        return userService.updateAvatar(userId, request.avatarUrl());
     }
 
     // PUT /api/users/me/password -> đổi mật khẩu

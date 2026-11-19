@@ -7,6 +7,9 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Người dùng hệ thống. Ánh xạ tới collection "users" trong MongoDB.
  */
@@ -29,4 +32,9 @@ public class User implements HasId {
     private String role;      // "USER" hoặc "ADMIN"
 
     private int points;       // điểm thưởng tích lũy từ challenge
+
+    private String avatarUrl; // ảnh đại diện (Cloudinary), null = dùng chữ cái đầu tên
+
+    // Community: id những user mình đã ẩn (mute) -> không thấy bài/comment của họ
+    private List<String> mutedUserIds = new ArrayList<>();
 }

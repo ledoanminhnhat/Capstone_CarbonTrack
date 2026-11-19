@@ -11,7 +11,10 @@ export interface AuthUser {
   name: string;
   email: string;
   role: "USER" | "ADMIN";
+  avatarUrl?: string | null;
 }
+
+export const USER_UPDATED_EVENT = "ct-user-updated";
 
 interface AuthResponse extends AuthUser {
   token: string;
@@ -44,6 +47,16 @@ export function getUser(): AuthUser | null {
   if (typeof window === "undefined") return null;
   const raw = localStorage.getItem(USER_KEY) ?? sessionStorage.getItem(USER_KEY);
   return raw ? (JSON.parse(raw) as AuthUser) : null;
+}
+
+/** Sửa thông tin user đang lưu (giữ nguyên nơi lưu local/session) và báo cho sidebar cập nhật. */
+export function updateStoredUser(patch: Partial<AuthUser>) {
+  if (typeof window === "undefined") return;
+  const store = localStorage.getItem(USER_KEY) ? localStorage : sessionStorage;
+  const current = getUser();
+  if (!current) return;
+  store.setItem(USER_KEY, JSON.stringify({ ...current, ...patch }));
+  window.dispatchEvent(new Event(USER_UPDATED_EVENT));
 }
 
 export function isLoggedIn(): boolean {

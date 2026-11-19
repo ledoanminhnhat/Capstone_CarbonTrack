@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { FaClock, FaMagnifyingGlass, FaMoon, FaPlus, FaSun } from "react-icons/fa6";
+import { FaCloudSun, FaMagnifyingGlass, FaMoon, FaPlus, FaSun, FaSunPlantWilt } from "react-icons/fa6";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
-import { formatLongDate, greeting, monthKeyOf } from "@/utils/date";
+import { formatLongDate, getTimeOfDay, greeting, monthKeyOf, type TimeOfDay } from "@/utils/date";
 import { useActivities } from "@/features/activities/hooks/useActivities";
 import { useDashboardStats } from "@/features/home/hooks/useDashboardStats";
 import { useUserGoal } from "@/features/home/hooks/useUserGoal";
@@ -24,8 +24,13 @@ export default function HomePage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const stats = useDashboardStats(activities, chartMonth, goal.monthlyGoalKg);
 
-  // Ngày + Giờ thời gian thực + lời chào (chỉ tính ở client)
-  const [today, setToday] = useState({ date: "", time: "", isPm: false, greet: "Hello" });
+  // Ngày + Giờ thời gian thực + trạng thái buổi + lời chào (chỉ tính ở client)
+  const [today, setToday] = useState<{ date: string; time: string; period: TimeOfDay; greet: string }>({
+    date: "",
+    time: "",
+    period: "morning",
+    greet: "Hello",
+  });
 
   useEffect(() => {
     const update = () => {
@@ -33,7 +38,7 @@ export default function HomePage() {
       setToday({
         date: formatLongDate(now),
         time: now.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: true }),
-        isPm: now.getHours() >= 12,
+        period: getTimeOfDay(now),
         greet: greeting(now),
       });
     };
@@ -54,20 +59,36 @@ export default function HomePage() {
             {today.time && (
               <>
                 <span className="w-1 h-1 rounded-full bg-muted/60" />
-                <span
-                  className={`inline-flex items-center gap-1.5 font-semibold text-xs px-2.5 py-1 rounded-lg border transition-colors ${
-                    today.isPm
-                      ? "text-indigo-600 bg-indigo-50 border-indigo-200 dark:text-indigo-300 dark:bg-indigo-950/40 dark:border-indigo-800/50"
-                      : "text-amber-600 bg-amber-50 border-amber-200 dark:text-amber-300 dark:bg-amber-950/40 dark:border-amber-800/50"
-                  }`}
-                >
-                  {today.isPm ? (
-                    <FaMoon size={11} className="text-indigo-500 dark:text-indigo-400" />
-                  ) : (
-                    <FaSun size={12} className="text-amber-500 dark:text-amber-400 animate-spin-slow" />
-                  )}
-                  <span>{today.time}</span>
-                </span>
+                {today.period === "morning" && (
+                  <span className="inline-flex items-center gap-1.5 font-semibold text-xs px-2.5 py-1 rounded-lg border text-amber-600 bg-amber-50 border-amber-200 dark:text-amber-300 dark:bg-amber-950/40 dark:border-amber-800/50">
+                    <FaSun size={12} className="text-amber-500" />
+                    <span>{today.time}</span>
+                  </span>
+                )}
+                {today.period === "noon" && (
+                  <span className="inline-flex items-center gap-1.5 font-semibold text-xs px-2.5 py-1 rounded-lg border text-emerald-700 bg-emerald-50 border-emerald-200 dark:text-emerald-300 dark:bg-emerald-950/40 dark:border-emerald-800/50">
+                    <FaSunPlantWilt size={12} className="text-emerald-500" />
+                    <span>{today.time}</span>
+                  </span>
+                )}
+                {today.period === "afternoon" && (
+                  <span className="inline-flex items-center gap-1.5 font-semibold text-xs px-2.5 py-1 rounded-lg border text-orange-600 bg-orange-50 border-orange-200 dark:text-orange-300 dark:bg-orange-950/40 dark:border-orange-800/50">
+                    <FaCloudSun size={12} className="text-orange-500" />
+                    <span>{today.time}</span>
+                  </span>
+                )}
+                {today.period === "evening" && (
+                  <span className="inline-flex items-center gap-1.5 font-semibold text-xs px-2.5 py-1 rounded-lg border text-indigo-600 bg-indigo-50 border-indigo-200 dark:text-indigo-300 dark:bg-indigo-950/40 dark:border-indigo-800/50">
+                    <FaMoon size={11} className="text-indigo-500" />
+                    <span>{today.time}</span>
+                  </span>
+                )}
+                {today.period === "night" && (
+                  <span className="inline-flex items-center gap-1.5 font-semibold text-xs px-2.5 py-1 rounded-lg border text-purple-600 bg-purple-50 border-purple-200 dark:text-purple-300 dark:bg-purple-950/40 dark:border-purple-800/50">
+                    <FaMoon size={11} className="text-purple-400" />
+                    <span>{today.time}</span>
+                  </span>
+                )}
               </>
             )}
           </div>

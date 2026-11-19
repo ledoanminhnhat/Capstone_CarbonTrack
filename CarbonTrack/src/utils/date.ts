@@ -43,10 +43,25 @@ export function formatLongDate(d: Date = new Date()): string {
   return `${weekday}, ${d.getDate()} ${month}, ${d.getFullYear()}`;
 }
 
-/** Lời chào theo giờ. */
+/** Lời chào chi tiết theo các buổi trong ngày (Sáng, Trưa, Chiều, Tối, Đêm). */
 export function greeting(d: Date = new Date()): string {
   const h = d.getHours();
-  return h < 12 ? "Good morning" : h < 18 ? "Good afternoon" : "Good evening";
+  if (h >= 5 && h < 11) return "Good morning";
+  if (h >= 11 && h < 14) return "Good noon";
+  if (h >= 14 && h < 18) return "Good afternoon";
+  if (h >= 18 && h < 22) return "Good evening";
+  return "Good night";
+}
+
+export type TimeOfDay = "morning" | "noon" | "afternoon" | "evening" | "night";
+
+export function getTimeOfDay(d: Date = new Date()): TimeOfDay {
+  const h = d.getHours();
+  if (h >= 5 && h < 11) return "morning";
+  if (h >= 11 && h < 14) return "noon";
+  if (h >= 14 && h < 18) return "afternoon";
+  if (h >= 18 && h < 22) return "evening";
+  return "night";
 }
 
 /** "5m ago", "3h ago"… */

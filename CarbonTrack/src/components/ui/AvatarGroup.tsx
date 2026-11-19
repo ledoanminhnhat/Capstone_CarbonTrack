@@ -1,3 +1,4 @@
+"use client";
 import Avatar, { AVATAR_SIZES, type AvatarSize } from "./Avatar";
 
 export interface AvatarPerson {

@@ -47,7 +47,7 @@ export default function Modal({
       <div
         role="dialog"
         aria-modal="true"
-        className={`bg-white rounded-3xl w-full ${maxWidth} overflow-hidden relative shadow-card`}
+        className={`bg-surface rounded-3xl w-full ${maxWidth} overflow-hidden relative shadow-card`}
         onClick={(e) => e.stopPropagation()}
       >
         {variant === "header" ? (

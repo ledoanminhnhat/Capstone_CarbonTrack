@@ -120,7 +120,30 @@ public class CommunityService {
                 likersOf(updated, usersById(recentLikerIds(updated))));
     }
 
-    public ShareResult share(String postId) {
+    // ===================== Danh sách người like =====================
+
+    /** Người đã like 1 bài, mới nhất trước. */
+    public List<Author> postLikers(String postId) {
+        return likersFromIds(loadPost(postId).getLikedBy());
+    }
+
+    /** Người đã like 1 comment, mới nhất trước. */
+    public List<Author> commentLikers(String commentId) {
+        Comment c = commentRepo.findById(commentId).orElseThrow(() -> notFound("Comment not found"));
+        return likersFromIds(c.getLikedBy() == null ? List.of() : c.getLikedBy());
+    }
+
+    /** likedBy thêm vào cuối -> đảo lại để người like gần nhất lên đầu; bỏ account đã bị xóa. */
+    private List<Author> likersFromIds(List<String> likedBy) {
+        List<String> ids = new ArrayList<>(likedBy);
+        Collections.reverse(ids);
+        Map<String, User> users = usersById(ids);
+        return ids.stream().filter(users::containsKey).map(id -> authorOf(id, users.get(id))).toList();
+    }
+
+    /** Share bài của người khác (không tự share bài mình). */
+    public ShareResult share(String userId, String postId) {
+        if (loadPost(postId).getUserId().equals(userId)) throw bad("You can't share your own post");
         Post updated = mongo.findAndModify(byId(postId), new Update().inc("shareCount", 1),
                 FindAndModifyOptions.options().returnNew(true), Post.class);
         if (updated == null) throw notFound("Post not found");

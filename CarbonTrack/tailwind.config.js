@@ -3,6 +3,8 @@ export default {
   content: [
     "./src/**/*.{js,ts,jsx,tsx,mdx}",
   ],
+  // Dark mode bật bằng class "dark" trên <html> (ThemeProvider quản lý)
+  darkMode: "class",
   theme: {
     extend: {
       colors: {
@@ -19,10 +21,15 @@ export default {
           800: "#065f46",
           900: "#064e3b",
         },
-        // Màu nền + chữ ngữ nghĩa
-        ink: "#1f2937",
-        muted: "#6b7280",
-        surface: "#ffffff",
+        // Màu ngữ nghĩa -> biến CSS (src/app/index.css), tự đổi theo light / dark.
+        // Dạng "R G B" để dùng được độ trong suốt: bg-surface/80, text-muted/50...
+        ink: "rgb(var(--ct-ink) / <alpha-value>)",            // chữ chính
+        muted: "rgb(var(--ct-muted) / <alpha-value>)",        // chữ phụ
+        surface: "rgb(var(--ct-surface) / <alpha-value>)",    // card, modal, sidebar
+        subtle: "rgb(var(--ct-subtle) / <alpha-value>)",      // nền rất nhạt (hover, ô readonly)
+        soft: "rgb(var(--ct-soft) / <alpha-value>)",          // nền nhạt (badge neutral, track progress)
+        line: "rgb(var(--ct-line) / <alpha-value>)",          // viền mảnh, kẻ bảng
+        "line-strong": "rgb(var(--ct-line-strong) / <alpha-value>)", // viền input
       },
       // Các gradient dùng chung: bg-gradient-brand, bg-gradient-sunrise...
       backgroundImage: {
@@ -34,8 +41,8 @@ export default {
         "gradient-app": "linear-gradient(160deg, #f0fdf4 0%, #ecfeff 100%)",
       },
       boxShadow: {
-        soft: "0 2px 10px rgba(0,0,0,0.04)",
-        card: "0 8px 30px rgba(0,0,0,0.06)",
+        soft: "0 2px 10px rgb(0 0 0 / var(--ct-shadow-soft))",
+        card: "0 8px 30px rgb(0 0 0 / var(--ct-shadow-card))",
         "glow-brand": "0 12px 25px -8px rgba(16,185,129,0.45)",
         "glow-ocean": "0 12px 25px -8px rgba(14,165,233,0.45)",
       },

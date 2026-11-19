@@ -93,7 +93,7 @@ export default function CreatePostModal({
                 c.addFiles(Array.from(e.dataTransfer.files));
               }}
               className={`aspect-[4/3] rounded-2xl border-2 border-dashed flex flex-col items-center justify-center gap-4 transition-colors ${
-                dragging ? "border-brand-500 bg-brand-50" : "border-gray-200 bg-gray-50"
+                dragging ? "border-brand-500 bg-brand-50" : "border-line-strong bg-subtle"
               }`}
             >
               <FaRegImages size={56} className="text-muted" />
@@ -107,7 +107,7 @@ export default function CreatePostModal({
             // Ảnh đã chọn
             <div className="grid grid-cols-3 gap-2">
               {c.files.map((f, i) => (
-                <div key={f.preview} className="relative aspect-square rounded-xl overflow-hidden bg-gray-100">
+                <div key={f.preview} className="relative aspect-square rounded-xl overflow-hidden bg-soft">
                   <img src={f.preview} alt="" className="w-full h-full object-cover" />
                   <button
                     onClick={() => c.removeFile(i)}
@@ -121,7 +121,7 @@ export default function CreatePostModal({
               {c.canAddMore && (
                 <button
                   onClick={pick}
-                  className="aspect-square rounded-xl border-2 border-dashed border-gray-200 text-muted flex flex-col items-center justify-center gap-1 hover:border-brand-400 hover:text-brand-600"
+                  className="aspect-square rounded-xl border-2 border-dashed border-line-strong text-muted flex flex-col items-center justify-center gap-1 hover:border-brand-400 hover:text-brand-600"
                 >
                   <FaPlus size={18} />
                   <span className="text-xs font-semibold">Add</span>
@@ -153,7 +153,7 @@ export default function CreatePostModal({
         <>
           {/* Xem trước ảnh */}
           {c.files.length > 0 && (
-            <div className="relative aspect-square rounded-xl overflow-hidden bg-gray-100 mb-4">
+            <div className="relative aspect-square rounded-xl overflow-hidden bg-soft mb-4">
               <img src={c.files[Math.min(previewIdx, c.files.length - 1)].preview} alt="" className="w-full h-full object-cover" />
               {c.files.length > 1 && (
                 <div className="absolute bottom-3 left-0 right-0 flex justify-center gap-1.5">
@@ -174,15 +174,32 @@ export default function CreatePostModal({
             <AuthorAvatar author={{ id: me.id, name: me.name, avatarUrl: me.avatarUrl ?? null }} size="sm" />
             <span className="font-semibold text-ink text-[0.9rem]">{me.name}</span>
           </div>
-          <textarea
-            autoFocus
-            value={c.content}
-            onChange={(e) => c.setContent(e.target.value)}
-            placeholder={c.files.length ? "Write a caption..." : `What green thing did you do today, ${me.name.split(" ")[0]}?`}
-            rows={c.files.length ? 3 : 6}
-            className="w-full resize-none text-[0.95rem] text-ink outline-none placeholder:text-muted"
-          />
-          <div className="flex justify-end">
+          {c.files.length ? (
+            // Bài có ảnh: caption bình thường
+            <textarea
+              autoFocus
+              value={c.content}
+              onChange={(e) => c.setContent(e.target.value)}
+              placeholder="Write a caption..."
+              rows={3}
+              className="w-full resize-none bg-transparent border border-line-strong rounded-xl px-4 py-3 text-[0.95rem] text-ink outline-none placeholder:text-muted focus:border-brand-500 transition-colors"
+            />
+          ) : (
+            // Bài chỉ có chữ: gõ thẳng lên thẻ gradient -> thấy y như lúc đăng
+            <div className="relative aspect-[4/3] rounded-2xl bg-gradient-brand flex items-center justify-center p-6 shadow-glow-brand">
+              <textarea
+                autoFocus
+                value={c.content}
+                onChange={(e) => c.setContent(e.target.value)}
+                placeholder={`What green thing did you do today, ${me.name.split(" ")[0]}?`}
+                className={`w-full h-full resize-none bg-transparent border-none outline-none text-white placeholder:text-white/60 font-bold text-center leading-snug flex items-center ${
+                  c.content.length < 80 ? "text-2xl" : c.content.length < 180 ? "text-xl" : "text-base"
+                }`}
+                style={{ paddingTop: c.content.length < 80 ? "18%" : "4%" }}
+              />
+            </div>
+          )}
+          <div className="flex justify-end mt-2">
             <span className={`text-xs ${c.tooLong ? "text-rose-600 font-semibold" : "text-muted"}`}>
               {c.content.length.toLocaleString()}/{MAX_POST_CONTENT.toLocaleString()}
             </span>

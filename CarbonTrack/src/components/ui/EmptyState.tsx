@@ -16,7 +16,7 @@ export default function EmptyState({
   return (
     <div
       className={`rounded-2xl p-8 text-center text-muted text-[0.9rem] flex flex-col items-center gap-3 ${
-        dashed ? "bg-white/60 border border-dashed border-gray-200" : "bg-white shadow-card"
+        dashed ? "bg-surface/60 border border-dashed border-line-strong" : "bg-surface shadow-card"
       }`}
     >
       {icon && (

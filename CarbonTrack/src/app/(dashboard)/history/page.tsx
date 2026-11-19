@@ -39,7 +39,7 @@ export default function HistoryPage() {
 
       <HistoryStats {...stats} />
 
-      <div className="bg-white rounded-2xl shadow-card p-6">
+      <div className="bg-surface rounded-2xl shadow-card p-6">
         <HistoryFilterBar filters={filters} onChange={set} monthOptions={monthOptions} />
         <HistoryTable
           rows={pager.pageItems}

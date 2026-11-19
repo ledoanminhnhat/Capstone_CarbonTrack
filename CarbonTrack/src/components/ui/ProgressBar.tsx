@@ -12,7 +12,7 @@ export default function ProgressBar({
 }) {
   const pct = max > 0 ? Math.min(100, Math.max(0, (value / max) * 100)) : 0;
   return (
-    <div className={`bg-gray-100 rounded-full overflow-hidden ${className}`}>
+    <div className={`bg-soft rounded-full overflow-hidden ${className}`}>
       <div
         className={`h-full rounded-full transition-all ${done ? "bg-gradient-sunrise" : "bg-gradient-leaf"}`}
         style={{ width: `${pct}%` }}

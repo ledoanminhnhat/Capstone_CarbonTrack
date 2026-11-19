@@ -7,7 +7,7 @@ import type { Activity } from "@/features/activities/types";
 
 export default function RecentActivities({ activities }: { activities: Activity[] }) {
   return (
-    <div className="bg-white rounded-2xl p-6 shadow-card">
+    <div className="bg-surface rounded-2xl p-6 shadow-card">
       <div className="flex items-center justify-between mb-6">
         <h3 className="m-0 text-ink text-[1.1rem] font-bold">Recent Activities</h3>
         <Link href="/history" className="text-brand-600 text-[0.85rem] font-semibold no-underline hover:underline">

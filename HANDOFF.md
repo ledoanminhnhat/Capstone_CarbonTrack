@@ -80,7 +80,8 @@ providers/AppProviders    # ToastProvider + ConfirmProvider (bọc ở app/layou
 ```
 - Thông báo: `useToast()` (success/error/info). Xác nhận: `await useConfirm()({ title, danger })`. **Không dùng `alert`/`confirm`.**
 - Gọi API mới: thêm hàm trong `features/<trang>/services/` dùng `request<T>(path, { method, body })`.
-- Màu dùng token Tailwind (`text-ink`, `text-muted`, `brand-*`), không viết hex trong className.
+- **Màu = token theo theme** (`tailwind.config.js` + biến CSS trong `src/app/index.css`): `text-ink`, `text-muted`, `bg-surface` (card), `bg-subtle` / `bg-soft` (nền nhạt), `border-line` / `border-line-strong`, `brand-*`. **Không dùng** `bg-white`, `bg-gray-*`, `border-gray-*`, hex trong className (trừ `text-white` / `bg-white/xx` trên nền gradient hoặc ảnh).
+- **Dark mode:** `darkMode: "class"`; `providers/ThemeProvider` (Light / Dark / Auto theo hệ điều hành, lưu `localStorage.ct_theme`) + script chống nháy trong `app/layout.tsx`. Chọn ở Settings → Appearance (`features/settings/components/AppearanceSection`). Nền dark xám trung tính. Màu nhạt của Tailwind (`bg-rose-50`, `text-amber-700`…) được đổi cho nền tối ở cuối `index.css`. Màu category cho chữ/icon là biến `--ct-cat-*`.
 
 ## Tính năng đã xong (chạy thật, đã test)
 - **Auth:** register/login JWT + BCrypt, role USER/ADMIN, logout, Remember me. Login trả thêm `avatarUrl`.
@@ -128,6 +129,7 @@ providers/AppProviders    # ToastProvider + ConfirmProvider (bọc ở app/layou
   - `GET /api/posts?page=0`, `GET /api/posts/{id}`, `POST /api/posts` {content, imageUrls}, `DELETE /api/posts/{id}`
   - `POST /api/posts/{id}/like` (toggle), `POST /api/posts/{id}/share`
   - `GET/POST /api/posts/{id}/comments`, `DELETE /api/comments/{id}`, `POST /api/comments/{id}/like` (toggle)
+  - `GET /api/posts/{id}/likers`, `GET /api/comments/{id}/likers` → danh sách người like (mới nhất trước, có `lastActiveAt`)
   - `GET /api/users/me/muted`, `POST/DELETE /api/users/me/muted/{userId}`
   - `GET /api/community/leaderboard`
   - `POST /api/uploads/signature?type=post|avatar`

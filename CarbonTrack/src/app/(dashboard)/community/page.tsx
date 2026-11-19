@@ -34,7 +34,7 @@ export default function CommunityPage() {
         subtitle="Share your eco wins, tips and photos with other CarbonTrack members."
       />
 
-      <div className="grid grid-cols-1 xl:grid-cols-[1fr_300px] gap-8 items-start">
+      <div className="grid grid-cols-1 xl:grid-cols-[1fr_360px] gap-8 items-start">
         {/* Feed hẹp ở giữa như Instagram */}
         <div className="flex flex-col gap-6 min-w-0 w-full max-w-[680px] mx-auto">
           {me && <CreatePostPrompt me={me} onPosted={feed.addPost} />}

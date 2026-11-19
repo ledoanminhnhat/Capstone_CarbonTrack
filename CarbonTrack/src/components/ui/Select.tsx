@@ -37,8 +37,8 @@ export default function Select({
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className={`w-full bg-white border rounded-xl py-2.5 px-3.5 text-sm text-ink cursor-pointer flex justify-between items-center gap-2 transition-colors ${
-          isOpen ? 'border-brand-500 ring-2 ring-brand-500/20' : 'border-gray-200 hover:border-gray-300'
+        className={`w-full bg-surface border rounded-xl py-2.5 px-3.5 text-sm text-ink cursor-pointer flex justify-between items-center gap-2 transition-colors ${
+          isOpen ? 'border-brand-500 ring-2 ring-brand-500/20' : 'border-line-strong hover:border-line-strong'
         }`}
       >
         <span className={selectedOption ? 'text-ink truncate' : 'text-muted truncate'}>
@@ -51,7 +51,7 @@ export default function Select({
       </button>
 
       {isOpen && (
-        <ul className="absolute z-50 w-full mt-2 bg-white border border-gray-100 rounded-xl shadow-card max-h-60 overflow-y-auto m-0 p-1 list-none">
+        <ul className="absolute z-50 w-full mt-2 bg-surface border border-line rounded-xl shadow-card max-h-60 overflow-y-auto m-0 p-1 list-none">
           {options.map((option) => {
             const active = option.value === value;
             return (

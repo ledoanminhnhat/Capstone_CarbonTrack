@@ -9,7 +9,7 @@ export default function ActivityName({ activity, extra }: { activity: Activity; 
     <span className="flex items-center gap-2.5">
       <span
         className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
-        style={{ backgroundColor: `${color}14` }}
+        style={{ backgroundColor: `color-mix(in srgb, ${color} 10%, transparent)` }}
       >
         <CategoryIcon value={activity.activity} size={15} color={color} />
       </span>

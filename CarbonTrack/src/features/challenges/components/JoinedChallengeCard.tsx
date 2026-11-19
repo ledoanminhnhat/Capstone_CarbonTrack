@@ -12,10 +12,10 @@ export default function JoinedChallengeCard({ c, onClick }: { c: ChallengeView; 
   return (
     <div
       onClick={onClick}
-      className="bg-white rounded-2xl overflow-hidden shadow-card flex flex-col cursor-pointer transition-all duration-200 hover:shadow-glow-brand hover:-translate-y-0.5"
+      className="bg-surface rounded-2xl overflow-hidden shadow-card flex flex-col cursor-pointer transition-all duration-200 hover:shadow-glow-brand hover:-translate-y-0.5"
     >
       <div className={`h-20 relative flex justify-center ${done ? "bg-gradient-sunrise" : "bg-gradient-leaf"}`}>
-        <div className="absolute -bottom-7 bg-white rounded-2xl p-1 shadow-card">
+        <div className="absolute -bottom-7 bg-surface rounded-2xl p-1 shadow-card">
           <ActivityIconBox value={c.matchValue} size="md" />
         </div>
       </div>

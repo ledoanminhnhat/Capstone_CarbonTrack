@@ -15,7 +15,7 @@ export default function SettingsSection({
   children: React.ReactNode;
 }) {
   return (
-    <div className="bg-white p-6 rounded-2xl shadow-card flex flex-col gap-5">
+    <div className="bg-surface p-6 rounded-2xl shadow-card flex flex-col gap-5">
       <div className="flex items-center gap-3">
         <span className={`w-10 h-10 rounded-xl flex items-center justify-center ${iconCls}`}>{icon}</span>
         <h3 className="m-0 font-bold text-[1.1rem] text-ink">{title}</h3>

@@ -15,13 +15,13 @@ interface PaginationProps {
 export default function Pagination({ page, totalPages, from, to, total, first, prev, next, last }: PaginationProps) {
   const btn = (disabled: boolean) =>
     `w-9 h-9 rounded-lg flex items-center justify-center transition-colors ${
-      disabled ? "text-gray-300 pointer-events-none" : "text-ink hover:bg-brand-50 hover:text-brand-600"
+      disabled ? "text-muted/50 pointer-events-none" : "text-ink hover:bg-brand-50 hover:text-brand-600"
     }`;
   const atStart = page === 1;
   const atEnd = page === totalPages;
 
   return (
-    <div className="flex justify-between items-center mt-6 pt-4 border-t border-gray-100 text-muted text-[0.85rem]">
+    <div className="flex justify-between items-center mt-6 pt-4 border-t border-line text-muted text-[0.85rem]">
       <span>{total === 0 ? "0 results" : `${from}–${to} of ${total}`}</span>
       <div className="flex items-center gap-1">
         <button className={btn(atStart)} onClick={first} aria-label="First page">

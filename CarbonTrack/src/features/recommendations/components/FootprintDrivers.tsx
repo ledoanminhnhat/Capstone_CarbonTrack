@@ -25,11 +25,11 @@ export default function FootprintDrivers({
       acc += b.percent * 3.6;
       return `${categoryColor(b.category)} ${start}deg ${acc}deg`;
     });
-    return stops.length ? `conic-gradient(${stops.join(", ")})` : "#f3f4f6";
+    return stops.length ? `conic-gradient(${stops.join(", ")})` : "rgb(var(--ct-soft))";
   }, [breakdown]);
 
   return (
-    <div className="bg-white rounded-2xl shadow-card p-6 flex flex-col self-start">
+    <div className="bg-surface rounded-2xl shadow-card p-6 flex flex-col self-start">
       <SectionTitle className="mb-6" subtitle={`${userName ? `${userName}'s` : "Your"} emissions by category`}>
         Footprint Drivers
       </SectionTitle>
@@ -37,7 +37,7 @@ export default function FootprintDrivers({
       <div className="flex justify-center mb-6">
         <div className="w-40 h-40 relative">
           <div className="absolute inset-0 rounded-full" style={{ background: donut }} />
-          <div className="absolute inset-[22%] bg-white rounded-full flex flex-col items-center justify-center">
+          <div className="absolute inset-[22%] bg-surface rounded-full flex flex-col items-center justify-center">
             <span className="text-xl font-extrabold text-ink">{totalCo2.toFixed(0)}</span>
             <span className="text-[0.7rem] text-muted">kg CO₂e</span>
           </div>
@@ -63,7 +63,7 @@ export default function FootprintDrivers({
         ))}
       </div>
 
-      <div className="mt-6 pt-5 border-t border-gray-100">
+      <div className="mt-6 pt-5 border-t border-line">
         <div className="flex justify-between text-[0.8rem] font-semibold mb-2">
           <span className="text-muted">Now {totalCo2.toFixed(1)} kg</span>
           <span className="text-brand-600">After plan {after} kg</span>

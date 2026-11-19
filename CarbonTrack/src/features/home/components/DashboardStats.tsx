@@ -19,10 +19,10 @@ function GoalTile({
   const over = remaining < 0;
   return (
     <Link
-      href="/settings"
+      href="/settings#tracking"
       title="Change your goal in Settings → Tracking"
       className={`rounded-2xl p-5 no-underline block transition-shadow hover:shadow-glow-brand ${
-        over ? "bg-rose-50 shadow-card ring-1 ring-rose-200" : "bg-white shadow-card"
+        over ? "bg-rose-50 shadow-card ring-1 ring-rose-200" : "bg-surface shadow-card"
       }`}
     >
       <div className="flex items-center justify-between mb-3">

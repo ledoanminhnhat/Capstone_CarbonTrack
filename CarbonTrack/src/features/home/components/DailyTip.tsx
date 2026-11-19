@@ -11,8 +11,8 @@ export default function DailyTip() {
   const { tip, position, total, next } = useDailyTip();
 
   return (
-    <div className="bg-white rounded-2xl shadow-card overflow-hidden flex flex-col">
-      <div className="relative h-36 bg-gray-100">
+    <div className="bg-surface rounded-2xl shadow-card overflow-hidden flex flex-col">
+      <div className="relative h-36 bg-soft">
         <img
           key={tip.photo.id}
           src={tipImageUrl(tip.photo.id)}

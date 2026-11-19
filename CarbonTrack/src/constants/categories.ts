@@ -13,15 +13,18 @@ export const CATEGORY_COLORS: Record<Category, string> = {
 
 export const categoryColor = (c: string) => CATEGORY_COLORS[c as Category] ?? "#a0aec0";
 
-/** Bản đậm hơn của màu category, cho chữ trong badge (vàng gốc khó đọc trên nền nhạt). */
+/**
+ * Màu category cho chữ / icon / badge — biến CSS (src/app/index.css) nên tự đổi theo theme:
+ * light đậm hơn màu biểu đồ (vàng gốc khó đọc), dark sáng hơn để nổi trên nền tối.
+ */
 export const CATEGORY_TEXT_COLORS: Record<Category, string> = {
-  Transport: "#2b6cb0",
-  Food: "#c05621",
-  Energy: "#b7791f",
-  Shopping: "#2f855a",
+  Transport: "var(--ct-cat-transport)",
+  Food: "var(--ct-cat-food)",
+  Energy: "var(--ct-cat-energy)",
+  Shopping: "var(--ct-cat-shopping)",
 };
 
-export const categoryTextColor = (c: string) => CATEGORY_TEXT_COLORS[c as Category] ?? "#4a5568";
+export const categoryTextColor = (c: string) => CATEGORY_TEXT_COLORS[c as Category] ?? "rgb(var(--ct-muted))";
 
 /** Class Tailwind cho tab category trong modal Log Activity. */
 export const CATEGORY_TAB_STYLE: Record<Category, { active: string; icon: string }> = {

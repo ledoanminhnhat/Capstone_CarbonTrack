@@ -7,7 +7,7 @@ import { PieTooltip } from "./ChartTooltip";
 
 export default function EmissionSourcesChart({ data, monthLabel }: { data: PieSlice[]; monthLabel: string }) {
   return (
-    <div className="bg-white rounded-2xl p-6 shadow-card">
+    <div className="bg-surface rounded-2xl p-6 shadow-card">
       <SectionTitle className="mb-6" subtitle={`By category · ${monthLabel}`}>
         Emission Sources
       </SectionTitle>
@@ -27,8 +27,7 @@ export default function EmissionSourcesChart({ data, monthLabel }: { data: PieSl
                 endAngle={-270}
                 paddingAngle={2}
                 dataKey="value"
-                stroke="#fff"
-                strokeWidth={2}
+                stroke="none"
               >
                 {data.map((s) => (
                   <Cell key={s.name} fill={s.color} />

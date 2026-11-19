@@ -19,7 +19,7 @@ export default function AvailableChallengeCard({
   return (
     <div
       onClick={onClick}
-      className="bg-white p-6 rounded-2xl shadow-card flex flex-col cursor-pointer transition-all duration-200 hover:shadow-glow-brand hover:-translate-y-0.5"
+      className="bg-surface p-6 rounded-2xl shadow-card flex flex-col cursor-pointer transition-all duration-200 hover:shadow-glow-brand hover:-translate-y-0.5"
     >
       <div className="flex items-start gap-4 mb-4">
         <ActivityIconBox value={c.matchValue} size="md" />

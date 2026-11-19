@@ -25,7 +25,7 @@ export default function RecommendationCard({
   const done = challenge?.status === "COMPLETED";
 
   return (
-    <div className="bg-white rounded-2xl shadow-card p-5 flex flex-wrap items-center gap-5">
+    <div className="bg-surface rounded-2xl shadow-card p-5 flex flex-wrap items-center gap-5">
       <div className="relative shrink-0">
         {/* icon theo hoạt động gợi ý chuyển sang (vd Bus), không có thì theo nguồn phát thải */}
         <ActivityIconBox value={rec.challengeMatch ?? rec.source} size="lg" />

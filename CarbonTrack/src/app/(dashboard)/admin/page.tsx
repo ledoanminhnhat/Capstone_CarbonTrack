@@ -25,7 +25,7 @@ function AdminUsers() {
       <Alert className="mb-4">{error}</Alert>
       <AdminStats {...f.stats} />
 
-      <div className="bg-white rounded-2xl shadow-card p-6">
+      <div className="bg-surface rounded-2xl shadow-card p-6">
         <UserFilterBar
           search={f.search}
           onSearch={f.setSearch}

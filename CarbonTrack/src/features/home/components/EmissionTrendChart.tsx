@@ -22,7 +22,7 @@ export default function EmissionTrendChart({
   dailyGoalKg: number;
 }) {
   return (
-    <div className="bg-white rounded-2xl p-6 shadow-card">
+    <div className="bg-surface rounded-2xl p-6 shadow-card">
       <div className="flex items-start justify-between mb-6">
         <SectionTitle className="" subtitle={`Daily CO₂ in ${monthLabel}`}>
           Emissions Trend

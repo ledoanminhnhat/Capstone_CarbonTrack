@@ -64,7 +64,7 @@ export default function UserTable({
           users.map((u) => {
             const isSelf = u.id === myId;
             return (
-              <tr key={u.id} className={`[&:last-child>td]:border-b-0 ${isSelf ? "bg-brand-50/50" : "hover:bg-gray-50/60"}`}>
+              <tr key={u.id} className={`[&:last-child>td]:border-b-0 ${isSelf ? "bg-brand-50/50" : "hover:bg-subtle"}`}>
                 <Td>
                   <div className="flex items-center gap-3 min-w-0">
                     <PresenceAvatar id={u.id} name={u.name} avatarUrl={u.avatarUrl} lastActiveAt={u.lastActiveAt} />
@@ -105,7 +105,7 @@ export default function UserTable({
                   <button
                     onClick={() => onDelete(u)}
                     disabled={isSelf}
-                    className="inline-flex items-center gap-1 text-rose-500 hover:text-rose-700 text-[0.85rem] font-semibold disabled:text-gray-300 disabled:cursor-not-allowed"
+                    className="inline-flex items-center gap-1 text-rose-500 hover:text-rose-700 text-[0.85rem] font-semibold disabled:text-muted/50 disabled:cursor-not-allowed"
                     title={isSelf ? "You cannot delete yourself" : "Delete user"}
                   >
                     <FaTrashCan size={18} /> Delete

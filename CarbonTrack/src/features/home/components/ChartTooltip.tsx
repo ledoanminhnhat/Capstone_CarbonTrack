@@ -2,7 +2,7 @@ import React from "react";
 
 /** Khung tooltip chung cho các biểu đồ. */
 export function TooltipBox({ children }: { children: React.ReactNode }) {
-  return <div className="bg-white px-3 py-2 rounded-lg shadow-card text-[0.8rem]">{children}</div>;
+  return <div className="bg-surface px-3 py-2 rounded-lg shadow-card text-[0.8rem]">{children}</div>;
 }
 
 interface TooltipProps {

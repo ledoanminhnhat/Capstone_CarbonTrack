@@ -13,18 +13,18 @@ export function Table({ children, minWidth = 600 }: { children: React.ReactNode;
 
 export function Th({ children, className = "" }: { children?: React.ReactNode; className?: string }) {
   return (
-    <th className={`text-left text-muted font-semibold text-[0.85rem] pb-4 px-3 first:pl-0 last:pr-0 border-b border-gray-100 ${className}`}>
+    <th className={`text-left text-muted font-semibold text-[0.85rem] pb-4 px-3 first:pl-0 last:pr-0 border-b border-line ${className}`}>
       {children}
     </th>
   );
 }
 
 export function Tr({ children }: { children: React.ReactNode }) {
-  return <tr className="hover:bg-gray-50/60 [&:last-child>td]:border-b-0">{children}</tr>;
+  return <tr className="hover:bg-subtle [&:last-child>td]:border-b-0">{children}</tr>;
 }
 
 export function Td({ children, className = "" }: { children?: React.ReactNode; className?: string }) {
-  return <td className={`py-4 px-3 first:pl-0 last:pr-0 border-b border-gray-100 text-[0.9rem] ${className}`}>{children}</td>;
+  return <td className={`py-4 px-3 first:pl-0 last:pr-0 border-b border-line text-[0.9rem] ${className}`}>{children}</td>;
 }
 
 /** Dòng thông báo chiếm hết cột (đang tải / trống). */

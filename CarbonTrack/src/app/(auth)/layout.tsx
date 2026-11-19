@@ -9,7 +9,7 @@ export default function AuthLayout({
   return (
     <div className="flex min-h-screen w-full">
       {/* FORM — bên trái */}
-      <div className="flex-1 flex flex-col justify-center items-center px-6 py-10 bg-white">
+      <div className="flex-1 flex flex-col justify-center items-center px-6 py-10 bg-surface">
         <div className="w-full max-w-[400px]">
           {/* Logo */}
           <div className="flex items-center gap-2 mb-10">

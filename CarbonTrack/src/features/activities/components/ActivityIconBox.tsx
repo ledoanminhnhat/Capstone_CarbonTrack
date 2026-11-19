@@ -25,7 +25,7 @@ export default function ActivityIconBox({
   return (
     <span
       className={`${s.box} flex items-center justify-center shrink-0 ${className}`}
-      style={{ backgroundColor: `${color}14` }}
+      style={{ backgroundColor: `color-mix(in srgb, ${color} 10%, transparent)` }}
     >
       <CategoryIcon value={value} size={s.icon} color={color} />
     </span>

@@ -15,7 +15,7 @@ export default function AdminChallengeTable({
   onDelete: (c: AdminChallenge) => void;
 }) {
   return (
-    <div className="bg-white rounded-2xl shadow-card p-6">
+    <div className="bg-surface rounded-2xl shadow-card p-6">
       <SectionTitle count={challenges.length} className="mb-5">
         All challenges
       </SectionTitle>

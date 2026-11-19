@@ -30,7 +30,7 @@ export default function Card({
 
   return (
     <div
-      className={`bg-white rounded-2xl shadow-card p-6 ${accentCls} ${
+      className={`bg-surface rounded-2xl shadow-card p-6 ${accentCls} ${
         hover ? "transition-all duration-200 hover:shadow-glow-brand hover:-translate-y-0.5" : ""
       } ${className}`}
       {...props}

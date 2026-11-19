@@ -36,7 +36,7 @@ export default function ChallengeDetailModal({
 
       <p className="text-muted text-[0.95rem] mb-5">{c.description}</p>
 
-      <div className="bg-gray-50 rounded-xl p-4 mb-5 flex flex-col gap-2 text-sm">
+      <div className="bg-subtle rounded-xl p-4 mb-5 flex flex-col gap-2 text-sm">
         {[
           ["What counts", whatCounts(c)],
           ["Goal", `${c.target} times`],

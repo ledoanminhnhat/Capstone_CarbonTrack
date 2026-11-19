@@ -1,21 +1,25 @@
 "use client";
 
-import { forwardRef } from "react";
+import { forwardRef, useState } from "react";
 import { FaHeart, FaRegHeart } from "react-icons/fa6";
 import { MAX_COMMENT_LENGTH } from "@/constants/app";
 import { timeAgo } from "@/utils/date";
 import type { Comment } from "../types";
 import { useComments } from "../hooks/useComments";
 import AuthorAvatar from "./AuthorAvatar";
+import LikersModal from "./LikersModal";
+import type { LikersTarget } from "../hooks/useLikers";
 
 function CommentRow({
   c,
   onLike,
   onDelete,
+  onShowLikers,
 }: {
   c: Comment;
   onLike: () => void;
   onDelete: () => void;
+  onShowLikers: () => void;
 }) {
   return (
     <div className="flex gap-2.5 items-start group">
@@ -28,9 +32,9 @@ function CommentRow({
         <div className="flex gap-3 text-[0.75rem] text-muted mt-0.5">
           <span>{timeAgo(c.createdAt)}</span>
           {c.likeCount > 0 && (
-            <span className="font-semibold">
+            <button onClick={onShowLikers} className="font-semibold hover:text-ink hover:underline" title="See who liked this">
               {c.likeCount} like{c.likeCount > 1 ? "s" : ""}
-            </span>
+            </button>
           )}
           {c.canDelete && (
             <button onClick={onDelete} className="font-semibold hover:text-rose-600 opacity-0 group-hover:opacity-100">
@@ -53,6 +57,7 @@ const PostComments = forwardRef<
 >(function PostComments({ postId, total, preview, onCountChange }, inputRef) {
   const c = useComments(postId, preview, onCountChange);
   const hidden = total - c.comments.length;
+  const [likers, setLikers] = useState<LikersTarget | null>(null);
 
   return (
     <div className="flex flex-col gap-2.5">
@@ -63,10 +68,16 @@ const PostComments = forwardRef<
       )}
 
       {c.comments.map((cm) => (
-        <CommentRow key={cm.id} c={cm} onLike={() => c.toggleLike(cm)} onDelete={() => c.remove(cm)} />
+        <CommentRow
+          key={cm.id}
+          c={cm}
+          onLike={() => c.toggleLike(cm)}
+          onDelete={() => c.remove(cm)}
+          onShowLikers={() => setLikers({ kind: "comment", id: cm.id })}
+        />
       ))}
 
-      <div className="flex items-center gap-2 border-t border-gray-100 pt-3 mt-1">
+      <div className="flex items-center gap-2 border-t border-line pt-3 mt-1">
         <input
           ref={inputRef}
           value={c.text}
@@ -82,6 +93,8 @@ const PostComments = forwardRef<
           </button>
         )}
       </div>
+
+      <LikersModal target={likers} onClose={() => setLikers(null)} />
     </div>
   );
 });

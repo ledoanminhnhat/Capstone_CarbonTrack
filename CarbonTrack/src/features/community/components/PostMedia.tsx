@@ -26,7 +26,7 @@ export function ImageCarousel({ urls, liked, onLike }: { urls: string[]; liked: 
   const many = urls.length > 1;
 
   return (
-    <div className="relative aspect-square bg-gray-100 overflow-hidden select-none" {...handlers}>
+    <div className="relative aspect-square bg-soft overflow-hidden select-none" {...handlers}>
       <div className="flex h-full transition-transform duration-300" style={{ transform: `translateX(-${i * 100}%)` }}>
         {urls.map((url) => (
           <img key={url} src={url} alt="" draggable={false} className="w-full h-full object-cover shrink-0" />
@@ -41,7 +41,7 @@ export function ImageCarousel({ urls, liked, onLike }: { urls: string[]; liked: 
           {i > 0 && (
             <button
               onClick={() => setI(i - 1)}
-              className="absolute left-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-white/85 text-ink flex items-center justify-center shadow hover:bg-white"
+              className="absolute left-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-white/85 text-gray-800 flex items-center justify-center shadow hover:bg-white"
               aria-label="Previous image"
             >
               <FaChevronLeft size={12} />
@@ -50,7 +50,7 @@ export function ImageCarousel({ urls, liked, onLike }: { urls: string[]; liked: 
           {i < urls.length - 1 && (
             <button
               onClick={() => setI(i + 1)}
-              className="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-white/85 text-ink flex items-center justify-center shadow hover:bg-white"
+              className="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-white/85 text-gray-800 flex items-center justify-center shadow hover:bg-white"
               aria-label="Next image"
             >
               <FaChevronRight size={12} />

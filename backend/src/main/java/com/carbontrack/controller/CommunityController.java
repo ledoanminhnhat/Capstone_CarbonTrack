@@ -54,8 +54,8 @@ public class CommunityController {
     }
 
     @PostMapping("/posts/{id}/share")
-    public ShareResult share(@PathVariable String id) {
-        return community.share(id);
+    public ShareResult share(@AuthenticationPrincipal String userId, @PathVariable String id) {
+        return community.share(userId, id);
     }
 
     // ----- Comments -----
@@ -80,6 +80,17 @@ public class CommunityController {
     @PostMapping("/comments/{id}/like")
     public LikeResult likeComment(@AuthenticationPrincipal String userId, @PathVariable String id) {
         return community.toggleCommentLike(userId, id);
+    }
+
+    // ----- Ai đã like -----
+    @GetMapping("/posts/{id}/likers")
+    public List<Author> postLikers(@PathVariable String id) {
+        return community.postLikers(id);
+    }
+
+    @GetMapping("/comments/{id}/likers")
+    public List<Author> commentLikers(@PathVariable String id) {
+        return community.commentLikers(id);
     }
 
     // ----- Mute (ẩn người dùng) -----

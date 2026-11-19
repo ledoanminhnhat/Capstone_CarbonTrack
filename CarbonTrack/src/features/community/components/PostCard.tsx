@@ -11,14 +11,20 @@ import PostMenu from "./PostMenu";
 import PostCaption from "./PostCaption";
 import PostComments from "./PostComments";
 import { ImageCarousel, TextPostCard } from "./PostMedia";
+import LikersModal from "./LikersModal";
+import type { LikersTarget } from "../hooks/useLikers";
 
 /** "Liked by You and 4 others" / "Liked by Lan" */
-function LikedBy({ post }: { post: Post }) {
+function LikedBy({ post, onOpen }: { post: Post; onOpen: () => void }) {
   if (post.likeCount === 0) return <p className="m-0 text-muted text-[0.85rem]">Be the first to like this</p>;
   const first = post.likedByMe ? "you" : post.recentLikers[0]?.name;
   const others = post.likeCount - 1;
   return (
-    <div className="flex items-center gap-2 text-[0.88rem] text-ink">
+    <button
+      onClick={onOpen}
+      title="See who liked this"
+      className="flex items-center gap-2 text-[0.88rem] text-ink text-left hover:opacity-80"
+    >
       <AvatarGroup people={post.recentLikers} max={3} size="xs" />
       {first ? (
         <span>
@@ -33,7 +39,7 @@ function LikedBy({ post }: { post: Post }) {
       ) : (
         <b>{post.likeCount.toLocaleString()} likes</b>
       )}
-    </div>
+    </button>
   );
 }
 
@@ -67,6 +73,7 @@ export default function PostCard({
 }) {
   const commentInput = useRef<HTMLInputElement>(null);
   const [bounce, setBounce] = useState(0);
+  const [likers, setLikers] = useState<LikersTarget | null>(null);
   const isMine = post.author.id === meId;
   const hasImages = post.imageUrls.length > 0;
 
@@ -76,7 +83,7 @@ export default function PostCard({
   };
 
   return (
-    <article className={`bg-white rounded-2xl shadow-card overflow-hidden ${highlighted ? "ring-2 ring-brand-400" : ""}`}>
+    <article className={`bg-surface rounded-2xl shadow-card overflow-hidden ${highlighted ? "ring-2 ring-brand-400" : ""}`}>
       {/* Header */}
       <header className="flex items-center gap-3 px-4 py-3">
         <AuthorAvatar author={post.author} size="sm" />
@@ -111,9 +118,12 @@ export default function PostCard({
           <IconBtn label="Comment" onClick={() => commentInput.current?.focus()}>
             <FaRegComment size={21} />
           </IconBtn>
-          <IconBtn label="Share" onClick={onShare}>
-            <FaRegPaperPlane size={20} />
-          </IconBtn>
+          {/* chỉ share được bài của người khác */}
+          {!isMine && (
+            <IconBtn label="Share" onClick={onShare}>
+              <FaRegPaperPlane size={20} />
+            </IconBtn>
+          )}
           {post.shareCount > 0 && (
             <span className="ml-auto text-muted text-xs">
               {post.shareCount} share{post.shareCount > 1 ? "s" : ""}
@@ -121,7 +131,7 @@ export default function PostCard({
           )}
         </div>
 
-        <LikedBy post={post} />
+        <LikedBy post={post} onOpen={() => setLikers({ kind: "post", id: post.id })} />
 
         {/* Caption (bài chữ đã hiện trong thẻ gradient) */}
         {hasImages && <PostCaption author={post.author.name} content={post.content} />}
@@ -134,6 +144,7 @@ export default function PostCard({
           onCountChange={onCommentCountChange}
         />
       </div>
+      <LikersModal target={likers} onClose={() => setLikers(null)} />
     </article>
   );
 }

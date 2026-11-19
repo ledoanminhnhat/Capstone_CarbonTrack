@@ -48,7 +48,7 @@ export default function LogActivityModal({ isOpen, onClose, onSaved }: LogActivi
               type="button"
               onClick={() => f.setCategory(c)}
               className={`flex flex-col items-center gap-1.5 py-3 rounded-xl border-2 transition-all ${
-                active ? style.active : "border-gray-200 text-muted hover:bg-gray-50"
+                active ? style.active : "border-line-strong text-muted hover:bg-subtle"
               }`}
             >
               <span className={style.icon}>
@@ -78,7 +78,7 @@ export default function LogActivityModal({ isOpen, onClose, onSaved }: LogActivi
           placeholder="0"
           min="0"
           step="any"
-          className="w-full border border-gray-200 rounded-xl py-3 pl-4 pr-24 text-lg font-semibold text-ink outline-none transition-all focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20"
+          className="w-full border border-line-strong rounded-xl py-3 pl-4 pr-24 text-lg font-semibold text-ink outline-none transition-all focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20"
         />
         <span className="absolute right-4 top-1/2 -translate-y-1/2 text-muted text-sm font-medium pointer-events-none">
           {config.unit}

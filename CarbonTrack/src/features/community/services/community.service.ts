@@ -36,3 +36,8 @@ export const unmuteUser = (id: string) => request(`/api/users/me/muted/${id}`, {
 
 // ----- Leaderboard -----
 export const getLeaderboard = () => request<LeaderboardEntry[]>("/api/community/leaderboard");
+
+// ----- Ai đã like (mới nhất trước) -----
+export const getPostLikers = (postId: string) => request<Author[]>(`/api/posts/${postId}/likers`);
+
+export const getCommentLikers = (commentId: string) => request<Author[]>(`/api/comments/${commentId}/likers`);

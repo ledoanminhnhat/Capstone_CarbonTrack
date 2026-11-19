@@ -34,7 +34,7 @@ export default function AvatarGroup({
       ))}
       {extra > 0 && (
         <span
-          className={`${AVATAR_SIZES[size].box} rounded-full ring-2 ring-white bg-gray-100 text-gray-600 font-semibold flex items-center justify-center !text-[0.65rem]`}
+          className={`${AVATAR_SIZES[size].box} rounded-full ring-2 ring-surface bg-soft text-muted font-semibold flex items-center justify-center !text-[0.65rem]`}
         >
           +{extra > 99 ? "99" : extra}
         </span>

@@ -47,11 +47,11 @@ export default function Avatar({
   className = "",
 }: AvatarProps) {
   const s = AVATAR_SIZES[size];
-  const base = `${s.box} rounded-full shrink-0 ${ring ? "ring-2 ring-white" : ""}`;
+  const base = `${s.box} rounded-full shrink-0 ${ring ? "ring-2 ring-surface" : ""}`;
   const idx = [...(id || name)].reduce((sum, ch) => sum + ch.charCodeAt(0), 0) % GRADIENTS.length;
 
   const face = avatarUrl ? (
-    <img src={avatarUrl} alt={name} className={`${base} object-cover bg-gray-100`} />
+    <img src={avatarUrl} alt={name} className={`${base} object-cover bg-soft`} />
   ) : (
     <div className={`${base} ${GRADIENTS[idx]} flex items-center justify-center text-white font-bold`}>
       {name ? name.charAt(0).toUpperCase() : "?"}
@@ -65,7 +65,7 @@ export default function Avatar({
       <span
         title={statusLabel}
         aria-label={statusLabel}
-        className={`absolute bottom-0 right-0 ${s.dot} rounded-full ring-2 ring-white ${STATUS_COLORS[status]}`}
+        className={`absolute bottom-0 right-0 ${s.dot} rounded-full ring-2 ring-surface ${STATUS_COLORS[status]}`}
       />
     </span>
   );

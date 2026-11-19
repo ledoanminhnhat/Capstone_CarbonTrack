@@ -27,7 +27,7 @@ export default function CreateChallengeForm({
   onSubmit: () => void;
 }) {
   return (
-    <div className="bg-white rounded-2xl shadow-card p-6 mb-6">
+    <div className="bg-surface rounded-2xl shadow-card p-6 mb-6">
       <h3 className="m-0 mb-5 text-ink text-[1.1rem] font-bold">Create new challenge</h3>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <FormField label="Title">

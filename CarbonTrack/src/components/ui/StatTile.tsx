@@ -31,7 +31,7 @@ export default function StatTile({
   return (
     <div
       className={`rounded-2xl p-5 ${
-        colored ? `${gradient[variant]} text-white` : "bg-white shadow-card"
+        colored ? `${gradient[variant]} text-white` : "bg-surface shadow-card"
       }`}
     >
       <div className="flex items-center justify-between mb-3">

@@ -3,11 +3,11 @@ import SectionTitle from "@/components/ui/SectionTitle";
 import type { Author, LeaderboardEntry } from "../types";
 import PresenceAvatar from "@/components/ui/PresenceAvatar";
 
-const RANK_COLOR = ["text-amber-500", "text-gray-400", "text-orange-400"];
+const RANK_COLOR = ["text-amber-500", "text-muted", "text-orange-400"];
 
 export function LeaderboardCard({ leaders, meId }: { leaders: LeaderboardEntry[]; meId?: string }) {
   return (
-    <div className="bg-white rounded-2xl shadow-card p-6">
+    <div className="bg-surface rounded-2xl shadow-card p-6">
       <h3 className="m-0 mb-4 text-ink text-[1.1rem] font-bold flex items-center gap-2">
         <FaTrophy className="text-amber-500" size={22} /> Leaderboard
       </h3>
@@ -49,7 +49,7 @@ export function GuidelinesCard() {
 export function HiddenUsersCard({ muted, onUnhide }: { muted: Author[]; onUnhide: (a: Author) => void }) {
   if (muted.length === 0) return null;
   return (
-    <div className="bg-white rounded-2xl shadow-card p-6">
+    <div className="bg-surface rounded-2xl shadow-card p-6">
       <SectionTitle count={muted.length}>Hidden users</SectionTitle>
       <ul className="m-0 p-0 list-none flex flex-col gap-3">
         {muted.map((m) => (

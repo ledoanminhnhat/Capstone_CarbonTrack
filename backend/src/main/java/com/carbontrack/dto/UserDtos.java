@@ -1,5 +1,7 @@
 package com.carbontrack.dto;
 
+import jakarta.validation.constraints.DecimalMax;
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
@@ -15,7 +17,15 @@ public class UserDtos {
             String email,
             String role,
             int points,
-            String avatarUrl
+            String avatarUrl,
+            double yearlyGoalKg
+    ) {}
+
+    // Cài đặt Tracking: mục tiêu phát thải 1 năm (kg CO2)
+    public record UpdateTrackingRequest(
+            @DecimalMin(value = "100", message = "Yearly goal must be at least 100 kg")
+            @DecimalMax(value = "100000", message = "Yearly goal must be at most 100,000 kg")
+            double yearlyGoalKg
     ) {}
 
     // Đổi / xóa avatar (avatarUrl = null để xóa)

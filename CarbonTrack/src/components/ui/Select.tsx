@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import { MdKeyboardArrowDown } from 'react-icons/md';
+import { useClickOutside } from '@/hooks/useClickOutside';
 
 export interface SelectOption {
   label: string;
@@ -28,15 +29,8 @@ export default function Select({
 
   const selectedOption = options.find((opt) => opt.value === value);
 
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
-      }
-    }
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+  const close = useCallback(() => setIsOpen(false), []);
+  useClickOutside(containerRef, close, isOpen);
 
   return (
     <div className={`relative ${className}`} ref={containerRef}>

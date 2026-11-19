@@ -53,6 +53,13 @@ public class UserService {
         userRepository.save(user);
     }
 
+    /** Lưu mục tiêu phát thải 1 năm (kg CO2). */
+    public UserProfile updateTracking(String userId, double yearlyGoalKg) {
+        User user = findOrThrow(userId);
+        user.setYearlyGoalKg(Math.round(yearlyGoalKg * 10) / 10.0);
+        return toProfile(userRepository.save(user));
+    }
+
     /** Đặt avatar mới (phải là ảnh trong folder avatars của mình) hoặc null để xóa. */
     public UserProfile updateAvatar(String userId, String avatarUrl) {
         if (avatarUrl != null && !uploadService.isOwnImage(avatarUrl, UploadService.Kind.AVATAR)) {
@@ -65,6 +72,6 @@ public class UserService {
 
     private UserProfile toProfile(User u) {
         return new UserProfile(u.getId(), u.getName(), u.getEmail(), u.getRole(), u.getPoints(),
-                u.getAvatarUrl());
+                u.getAvatarUrl(), u.effectiveYearlyGoalKg());
     }
 }

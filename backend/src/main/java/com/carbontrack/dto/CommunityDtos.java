@@ -21,7 +21,7 @@ public class CommunityDtos {
             @NotBlank @Size(max = MAX_COMMENT) String content
     ) {}
 
-    public record Author(String id, String name, String avatarUrl) {}
+    public record Author(String id, String name, String avatarUrl, Instant lastActiveAt) {}
 
     /** Bài đăng đã kèm thông tin cho người đang xem. */
     public record PostView(
@@ -31,6 +31,7 @@ public class CommunityDtos {
             List<String> imageUrls,
             int likeCount,
             boolean likedByMe,
+            List<Author> recentLikers,  // tối đa 3 người like gần nhất (AvatarGroup)
             int commentCount,
             int shareCount,
             Instant createdAt,
@@ -49,11 +50,16 @@ public class CommunityDtos {
             boolean likedByMe
     ) {}
 
-    public record LikeResult(int likeCount, boolean likedByMe) {}
+    public record LikeResult(int likeCount, boolean likedByMe, List<Author> recentLikers) {
+        /** Like comment: không cần danh sách người like. */
+        public LikeResult(int likeCount, boolean likedByMe) {
+            this(likeCount, likedByMe, List.of());
+        }
+    }
 
     public record ShareResult(int shareCount) {}
 
-    public record LeaderboardEntry(String id, String name, String avatarUrl, int points) {}
+    public record LeaderboardEntry(String id, String name, String avatarUrl, int points, Instant lastActiveAt) {}
 
     /** Thông tin để frontend upload ảnh thẳng lên Cloudinary (signed upload). */
     public record UploadSignature(

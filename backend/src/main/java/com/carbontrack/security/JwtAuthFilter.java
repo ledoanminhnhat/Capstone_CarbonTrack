@@ -1,5 +1,6 @@
 package com.carbontrack.security;
 
+import com.carbontrack.service.PresenceService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -22,9 +23,11 @@ import java.util.List;
 public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
+    private final PresenceService presenceService;
 
-    public JwtAuthFilter(JwtService jwtService) {
+    public JwtAuthFilter(JwtService jwtService, PresenceService presenceService) {
         this.jwtService = jwtService;
+        this.presenceService = presenceService;
     }
 
     @Override
@@ -48,6 +51,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 var auth = new UsernamePasswordAuthenticationToken(userId, null, authorities);
                 auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(auth);
+
+                presenceService.touch(userId); // ghi nhận đang online (tối đa 1 lần/phút)
             }
         }
 

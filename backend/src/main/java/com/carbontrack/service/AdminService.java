@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Set;
 
@@ -31,9 +32,7 @@ public class AdminService {
     /** Danh sách tất cả user, kèm số hoạt động đã ghi. */
     public List<AdminUserView> listUsers() {
         return userRepository.findAll().stream()
-                .map(u -> new AdminUserView(
-                        u.getId(), u.getName(), u.getEmail(), u.getRole(),
-                        activityRepository.countByUserId(u.getId())))
+                .map(this::toView)
                 .toList();
     }
 
@@ -49,8 +48,7 @@ public class AdminService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
         target.setRole(role);
         User saved = userRepository.save(target);
-        return new AdminUserView(saved.getId(), saved.getName(), saved.getEmail(), saved.getRole(),
-                activityRepository.countByUserId(saved.getId()));
+        return toView(saved);
     }
 
     /** Xóa 1 user + toàn bộ hoạt động của họ (không cho tự xóa chính mình). */
@@ -64,5 +62,24 @@ public class AdminService {
         activityRepository.deleteByUserId(targetId);
         communityService.deleteAllOfUser(targetId); // bài viết, comment, like, mute
         userRepository.deleteById(targetId);
+    }
+
+    private AdminUserView toView(User u) {
+        return new AdminUserView(u.getId(), u.getName(), u.getEmail(), u.getRole(),
+                activityRepository.countByUserId(u.getId()),
+                u.getAvatarUrl(), u.getPoints(), joinedAt(u), u.getLastActiveAt());
+    }
+
+    /**
+     * Ngày tham gia: dùng createdAt; account cũ không có thì thử suy ra từ id dạng
+     * Mongo ObjectId (8 ký tự hex đầu = thời điểm tạo, tính bằng giây). Id UUID thì trả null.
+     */
+    private static Instant joinedAt(User u) {
+        if (u.getCreatedAt() != null) return u.getCreatedAt();
+        String id = u.getId();
+        if (id != null && id.matches("[0-9a-fA-F]{24}")) {
+            return Instant.ofEpochSecond(Long.parseLong(id.substring(0, 8), 16));
+        }
+        return null;
     }
 }

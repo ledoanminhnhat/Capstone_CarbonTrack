@@ -1,5 +1,6 @@
 package com.carbontrack.service;
 
+import java.time.Instant;
 import com.carbontrack.dto.AuthDtos.AuthResponse;
 import com.carbontrack.dto.AuthDtos.LoginRequest;
 import com.carbontrack.dto.AuthDtos.RegisterRequest;
@@ -36,6 +37,7 @@ public class AuthService {
         user.setEmail(req.email());
         user.setPassword(passwordEncoder.encode(req.password())); // hash mật khẩu
         user.setRole("USER"); // đăng ký qua web luôn là USER
+        user.setCreatedAt(Instant.now());
 
         User saved = userRepository.save(user);
         return buildResponse(saved);

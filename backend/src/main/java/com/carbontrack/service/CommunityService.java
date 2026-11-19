@@ -51,9 +51,13 @@ public class CommunityService {
         User viewer = loadUser(viewerId);
         Page<Post> result = postRepo.findByUserIdNotInOrderByCreatedAtDesc(
                 mutedOf(viewer), PageRequest.of(Math.max(page, 0), PAGE_SIZE));
-        Map<String, User> authors = usersById(result.getContent().stream().map(Post::getUserId).toList());
+        // tải 1 lần: tác giả + vài người like gần nhất của mọi bài trong trang
+        Map<String, User> users = usersById(result.getContent().stream()
+                .flatMap(p -> java.util.stream.Stream.concat(
+                        java.util.stream.Stream.of(p.getUserId()), recentLikerIds(p).stream()))
+                .toList());
         List<PostView> posts = result.getContent().stream()
-                .map(p -> toView(p, viewer, authors.get(p.getUserId())))
+                .map(p -> toView(p, viewer, users))
                 .toList();
         return new FeedPage(posts, result.getNumber(), result.hasNext());
     }
@@ -61,7 +65,9 @@ public class CommunityService {
     public PostView getPost(String viewerId, String postId) {
         User viewer = loadUser(viewerId);
         Post p = loadPost(postId);
-        return toView(p, viewer, userRepo.findById(p.getUserId()).orElse(null));
+        List<String> ids = new ArrayList<>(recentLikerIds(p));
+        ids.add(p.getUserId());
+        return toView(p, viewer, usersById(ids));
     }
 
     public PostView create(String userId, CreatePostRequest req) {
@@ -81,7 +87,7 @@ public class CommunityService {
         p.setCreatedAt(Instant.now());
         Post saved = postRepo.save(p);
         User me = loadUser(userId);
-        return toView(saved, me, me);
+        return toView(saved, me, Map.of(me.getId(), me));
     }
 
     /** Tác giả hoặc admin mới được xóa. */
@@ -103,7 +109,8 @@ public class CommunityService {
         Post updated = mongo.findAndModify(byId(postId), u,
                 FindAndModifyOptions.options().returnNew(true), Post.class);
         if (updated == null) throw notFound("Post not found");
-        return new LikeResult(updated.getLikedBy().size(), updated.getLikedBy().contains(userId));
+        return new LikeResult(updated.getLikedBy().size(), updated.getLikedBy().contains(userId),
+                likersOf(updated, usersById(recentLikerIds(updated))));
     }
 
     public ShareResult share(String postId) {
@@ -194,7 +201,7 @@ public class CommunityService {
         Query q = new Query(Criteria.where("role").is("USER"))
                 .with(Sort.by(Sort.Direction.DESC, "points")).limit(5);
         return mongo.find(q, User.class).stream()
-                .map(u -> new LeaderboardEntry(u.getId(), u.getName(), u.getAvatarUrl(), u.getPoints())).toList();
+                .map(u -> new LeaderboardEntry(u.getId(), u.getName(), u.getAvatarUrl(), u.getPoints(), u.getLastActiveAt())).toList();
     }
 
     // ===================== Dọn dữ liệu khi admin xóa user =====================
@@ -214,10 +221,26 @@ public class CommunityService {
 
     // ===================== Helpers =====================
 
-    private PostView toView(Post p, User viewer, User author) {
-        return new PostView(p.getId(), authorOf(p.getUserId(), author), p.getContent(), p.getImageUrls(),
-                p.getLikedBy().size(), p.getLikedBy().contains(viewer.getId()),
-                p.getCommentCount(), p.getShareCount(), p.getCreatedAt(),
+    private static final int RECENT_LIKERS = 3;
+
+    /** Id những người like gần nhất (likedBy thêm vào cuối -> lấy từ cuối). */
+    private static List<String> recentLikerIds(Post p) {
+        List<String> all = p.getLikedBy();
+        List<String> out = new ArrayList<>();
+        for (int i = all.size() - 1; i >= 0 && out.size() < RECENT_LIKERS; i--) out.add(all.get(i));
+        return out;
+    }
+
+    private static List<Author> likersOf(Post p, Map<String, User> users) {
+        return recentLikerIds(p).stream().filter(users::containsKey)
+                .map(id -> authorOf(id, users.get(id))).toList();
+    }
+
+    /** `users` cần chứa tác giả + người like gần nhất. */
+    private PostView toView(Post p, User viewer, Map<String, User> users) {
+        return new PostView(p.getId(), authorOf(p.getUserId(), users.get(p.getUserId())), p.getContent(),
+                p.getImageUrls(), p.getLikedBy().size(), p.getLikedBy().contains(viewer.getId()),
+                likersOf(p, users), p.getCommentCount(), p.getShareCount(), p.getCreatedAt(),
                 p.getUserId().equals(viewer.getId()) || isAdmin(viewer));
     }
 
@@ -230,7 +253,8 @@ public class CommunityService {
     }
 
     private static Author authorOf(String id, User u) {
-        return u == null ? new Author(id, "Deleted user", null) : new Author(id, u.getName(), u.getAvatarUrl());
+        return u == null ? new Author(id, "Deleted user", null, null)
+                : new Author(id, u.getName(), u.getAvatarUrl(), u.getLastActiveAt());
     }
 
     private Map<String, User> usersById(Collection<String> ids) {

@@ -1,6 +1,9 @@
 import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
 import Badge from "@/components/ui/Badge";
+import Avatar from "@/components/ui/Avatar";
+import AvatarGroup from "@/components/ui/AvatarGroup";
+import { MdAdminPanelSettings, MdStar } from "react-icons/md";
 
 // Dùng chuỗi class đầy đủ để Tailwind quét được (không ghép động)
 const brandScale = [
@@ -139,6 +142,33 @@ export default function DesignSystemPage() {
           <Badge tone="warning">Pending</Badge>
           <Badge tone="info">Info</Badge>
           <Badge tone="neutral">Neutral</Badge>
+          <Badge tone="brand">Brand</Badge>
+        </div>
+        <div className="flex flex-wrap gap-3 mt-3">
+          <Badge tone="brand" variant="solid" icon={<MdAdminPanelSettings size={14} />}>Admin</Badge>
+          <Badge tone="brand" icon={<MdStar size={14} />}>+50</Badge>
+          <Badge tone="warning" variant="outline" size="sm">MEDIUM</Badge>
+          <Badge tone="neutral" variant="outline" size="sm">Coming soon</Badge>
+          <Badge tone="danger" variant="solid" size="sm">HARD</Badge>
+        </div>
+      </Section>
+
+      {/* Avatars */}
+      <Section title="Avatars">
+        <div className="flex flex-wrap items-center gap-4">
+          <Avatar id="a1" name="Lan" size="xs" />
+          <Avatar id="a2" name="Minh" size="sm" status="success" statusLabel="Active" />
+          <Avatar id="a3" name="Ngan" size="md" status="brand" statusLabel="Admin" />
+          <Avatar id="a4" name="Bao" size="lg" />
+          <AvatarGroup
+            people={[
+              { id: "a1", name: "Lan" },
+              { id: "a2", name: "Minh" },
+              { id: "a3", name: "Ngan" },
+            ]}
+            total={12}
+            size="sm"
+          />
         </div>
       </Section>
 

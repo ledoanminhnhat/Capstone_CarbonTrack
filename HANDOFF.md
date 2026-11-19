@@ -58,6 +58,30 @@ Backend cần `backend/.env.properties` (bị .gitignore). Trên máy mới:
 - `config/` — AdminSeeder, ChallengeSeeder, IdGeneratorCallback.
 - Like / đếm comment / share / mute dùng update atomic của MongoTemplate (`$addToSet`, `$pull`, `$inc`).
 
+## Kiến trúc frontend (`CarbonTrack/src`)
+Tổ chức **theo tính năng**: mỗi trang có types / services / hooks / components riêng; chỉ thứ dùng chung mới để ở ngoài.
+```
+app/                      # route Next.js — page.tsx chỉ ghép component, không chứa logic
+features/<trang>/         # auth, activities, home, history, challenges, recommendations, community, settings, admin
+  types/                  # <trang>.types.ts + index.ts (kiểu dữ liệu của trang)
+  services/*.service.ts   # gọi API của trang
+  hooks/use*.ts           # state + logic (tải dữ liệu, form, toast/confirm)
+  components/*.tsx        # UI của trang
+components/ui/            # thư viện component dùng chung (Button, Input, PasswordInput, Select, Modal,
+                          #   ConfirmDialog, Toast, Table, Pagination, StatTile, Avatar, Alert, EmptyState…)
+components/layout/        # Sidebar
+hooks/                    # hook dùng chung: useAsync, useCurrentUser, useRequireAuth, usePagination,
+                          #   useClickOutside, useObjectUrl, useShare
+services/                 # http.ts (request<T>() + xử lý lỗi), session.ts (token/user), user, upload (Cloudinary)
+types/                    # kiểu dùng chung: AuthUser, Role, UserProfile, UploadKind
+constants/                # app.ts (giới hạn, API_URL), categories.ts (category/sub-category/màu/emoji)
+utils/                    # date (MM/yyyy, timeAgo…), emission (sumCo2…), csv, image, error
+providers/AppProviders    # ToastProvider + ConfirmProvider (bọc ở app/layout.tsx)
+```
+- Thông báo: `useToast()` (success/error/info). Xác nhận: `await useConfirm()({ title, danger })`. **Không dùng `alert`/`confirm`.**
+- Gọi API mới: thêm hàm trong `features/<trang>/services/` dùng `request<T>(path, { method, body })`.
+- Màu dùng token Tailwind (`text-ink`, `text-muted`, `brand-*`), không viết hex trong className.
+
 ## Tính năng đã xong (chạy thật, đã test)
 - **Auth:** register/login JWT + BCrypt, role USER/ADMIN, logout, Remember me. Login trả thêm `avatarUrl`.
 - **Log Activity + Dashboard:** EmissionService tính CO₂, 4 stat tiles, biểu đồ Trend + Sources, lọc tháng, Recent Activities.
@@ -71,10 +95,20 @@ Backend cần `backend/.env.properties` (bị .gitignore). Trên máy mới:
   - Xóa: tác giả xóa bài mình; admin xóa mọi bài; comment xóa được bởi người viết / chủ bài / admin.
   - Leaderboard top 5 (role USER, theo points).
   - Admin xóa user → dọn luôn bài, comment, like, mute của user đó.
-- **Avatar:** upload ở Settings, có **crop** (kéo + zoom, `components/ui/AvatarCropper.tsx`), xóa được. Hiện ở sidebar, Community, Leaderboard.
-- **Settings:** đổi tên, avatar, đổi mật khẩu. Tracking / Reminder đang "Coming soon" (khóa).
-- **Admin:** quản lý user (đổi role / xóa, chặn tự thao tác chính mình).
-- **Design system:** `tailwind.config.js` (brand, gradients, shadows) + components `Button`, `Card`, `Badge`, `Select`, `Input`, `PageHeader`, `StatTile`, `Avatar`; màu category dùng chung ở `lib/categories.ts`. Showcase `/design`.
+  - Dưới mỗi bài: AvatarGroup 3 người like gần nhất + "You and N others" (backend trả `recentLikers`).
+- **Avatar:** upload ở Settings, có **crop** (kéo + zoom, `features/settings/components/AvatarCropper.tsx`), xóa được. Hiện ở sidebar, Community, Leaderboard, Admin.
+- **Đang online:** backend ghi `User.lastActiveAt` mỗi request đã đăng nhập (`PresenceService`, tối đa 1 lần/phút). Online = hoạt động trong 5 phút. Chấm xanh (`PresenceAvatar`) ở bảng Admin (+ cột Last active), Leaderboard, Hidden users; các danh sách này tự làm mới mỗi 60s.
+- **Daily Tip (Dashboard):** 8 mẹo kèm ảnh Unsplash (có credit tác giả), đổi theo ngày + nút "Another tip". Dữ liệu ở `features/home/constants/dailyTips.ts`.
+- **History / Recent Activities:** cột Activity = icon Font Awesome + tên; cột Category = badge màu category; Status = badge outline có icon.
+- **Settings:** đổi tên, avatar, đổi mật khẩu, **Tracking = mục tiêu phát thải năm** (mặc định 1800 kg). Reminder đang "Coming soon".
+- **Mục tiêu:** Dashboard lấy mục tiêu năm ÷ 12 làm mục tiêu tháng (thẻ Remaining goal, đỏ khi vượt; đường nét đứt trên Trend = tháng ÷ 30).
+- **Admin (User Management):** 4 stat tiles, tìm tên/email + lọc role, phân trang 10; bảng có avatar, role, điểm, số activity, **ngày tham gia**; đổi role / xóa (chặn tự thao tác chính mình).
+  - Ngày tham gia = `User.createdAt` (set khi đăng ký). Account cũ không có: nếu id là Mongo ObjectId thì suy ra từ id, id UUID thì hiện "—".
+- **Design system:** `tailwind.config.js` (brand, gradients, shadows) + `components/ui/*`. Showcase `/design`.
+  - `Badge`: tone (success/danger/warning/info/neutral/brand) hoặc `color` hex tùy chỉnh; variant soft/solid/outline; size sm/md; `icon`, `dot`.
+  - `Avatar` (+ `status` dot), `AvatarGroup` (+N), `PresenceAvatar` (chấm online).
+  - Icon: **Font Awesome 6 qua `react-icons/fa6`** cho category/sub-category (`constants/categoryIcons.ts`); Material (`react-icons/md`) cho icon giao diện chung.
+  - Màu category: `constants/categories.ts` (`CATEGORY_COLORS` cho biểu đồ, `CATEGORY_TEXT_COLORS` đậm hơn cho chữ trong badge).
 
 ## Ảnh (Cloudinary)
 | Loại | Folder | Biến đổi (nằm trong chữ ký) |
@@ -87,7 +121,7 @@ Backend cần `backend/.env.properties` (bị .gitignore). Trên máy mới:
 ## API chính
 - `POST /api/auth/register`, `POST /api/auth/login` → {token, id, name, email, role, avatarUrl}
 - `GET/POST /api/activities`, `DELETE /api/activities/{id}`
-- `GET/PUT /api/users/me`, `PUT /api/users/me/password`, `PUT /api/users/me/avatar` {avatarUrl | null}
+- `GET/PUT /api/users/me`, `PUT /api/users/me/password`, `PUT /api/users/me/avatar` {avatarUrl | null}, `PUT /api/users/me/tracking` {yearlyGoalKg} (100–100000)
 - `GET /api/challenges`, `POST /api/challenges/{id}/join`
 - `GET /api/recommendations?month=MM/yyyy` (bỏ month = all time), `POST /api/recommendations/{ruleId}/apply`
 - Community:
@@ -108,7 +142,6 @@ Backend cần `backend/.env.properties` (bị .gitignore). Trên máy mới:
 - DB đang có account `UuidTest` (test cũ) — xóa ở trang Admin nếu không cần.
 
 ## Việc tiếp theo (chưa làm)
-- **Refactor frontend** (đang bắt đầu).
 - **Google login** (verify Google ID token ở backend, cấp JWT; liên kết tài khoản theo email).
-- Settings: **Tracking** (year target, main transport…) và **Reminder**.
+- Settings: **Reminder**.
 - History: export PDF (hiện mới có CSV).

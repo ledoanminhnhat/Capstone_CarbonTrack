@@ -1,5 +1,6 @@
 package com.carbontrack.dto;
 
+import java.time.Instant;
 import jakarta.validation.constraints.NotBlank;
 
 /**
@@ -13,7 +14,11 @@ public class AdminDtos {
             String name,
             String email,
             String role,
-            long activityCount
+            long activityCount,
+            String avatarUrl,
+            int points,
+            Instant createdAt,  // null nếu account cũ không có thông tin
+            Instant lastActiveAt
     ) {}
 
     // Đổi role của 1 user

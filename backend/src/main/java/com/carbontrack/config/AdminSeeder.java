@@ -1,5 +1,6 @@
 package com.carbontrack.config;
 
+import java.time.Instant;
 import com.carbontrack.model.User;
 import com.carbontrack.repository.UserRepository;
 import org.springframework.boot.CommandLineRunner;
@@ -31,6 +32,7 @@ public class AdminSeeder implements CommandLineRunner {
             admin.setEmail(ADMIN_EMAIL);
             admin.setPassword(passwordEncoder.encode(ADMIN_PASSWORD));
             admin.setRole("ADMIN");
+            admin.setCreatedAt(Instant.now());
             userRepository.save(admin);
             System.out.println(">>> Seeded ADMIN account: " + ADMIN_EMAIL + " / " + ADMIN_PASSWORD);
         }

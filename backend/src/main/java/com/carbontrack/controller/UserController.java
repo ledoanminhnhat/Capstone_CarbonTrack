@@ -3,6 +3,7 @@ package com.carbontrack.controller;
 import com.carbontrack.dto.UserDtos.ChangePasswordRequest;
 import com.carbontrack.dto.UserDtos.UpdateAvatarRequest;
 import com.carbontrack.dto.UserDtos.UpdateProfileRequest;
+import com.carbontrack.dto.UserDtos.UpdateTrackingRequest;
 import com.carbontrack.dto.UserDtos.UserProfile;
 import com.carbontrack.service.UserService;
 import jakarta.validation.Valid;
@@ -35,6 +36,13 @@ public class UserController {
     public UserProfile updateProfile(@AuthenticationPrincipal String userId,
                                      @Valid @RequestBody UpdateProfileRequest request) {
         return userService.updateName(userId, request.name());
+    }
+
+    // PUT /api/users/me/tracking -> mục tiêu phát thải 1 năm
+    @PutMapping("/me/tracking")
+    public UserProfile updateTracking(@AuthenticationPrincipal String userId,
+                                      @Valid @RequestBody UpdateTrackingRequest request) {
+        return userService.updateTracking(userId, request.yearlyGoalKg());
     }
 
     // PUT /api/users/me/avatar -> đổi / xóa avatar

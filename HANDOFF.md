@@ -54,7 +54,7 @@ Backend cần `backend/.env.properties` (bị .gitignore). Trên máy mới:
 - `repository/` — Mongo repositories.
 - `service/` — AuthService, ActivityService, EmissionService (tính CO₂), UserService, AdminService, ChallengeService, RecommendationService, CommunityService, UploadService (ký Cloudinary).
 - `controller/` — Auth, Activity, User, Admin, Challenge, Recommendation, Community.
-- `security/` — JWT (principal = userId), SecurityConfig (CORS localhost:3000, `/api/admin/**` chỉ ADMIN).
+- `security/` — JWT (principal = userId; secret nhận base64 thường hoặc URL-safe), SecurityConfig (CORS theo `app.cors.allowed-origins`, `/api/admin/**` chỉ ADMIN).
 - `config/` — AdminSeeder, ChallengeSeeder, IdGeneratorCallback.
 - Like / đếm comment / share / mute dùng update atomic của MongoTemplate (`$addToSet`, `$pull`, `$inc`).
 
@@ -69,7 +69,7 @@ features/<trang>/         # auth, activities, home, history, challenges, recomme
   components/*.tsx        # UI của trang
 components/ui/            # thư viện component dùng chung (Button, Input, PasswordInput, Select, Modal,
                           #   ConfirmDialog, Toast, Table, Pagination, StatTile, Avatar, Alert, EmptyState…)
-components/layout/        # Sidebar
+components/layout/        # Sidebar (desktop), BottomNav + MobileTopBar (mobile), navLinks.tsx (menu dùng chung)
 hooks/                    # hook dùng chung: useAsync, useCurrentUser, useRequireAuth, usePagination,
                           #   useClickOutside, useObjectUrl, useShare
 services/                 # http.ts (request<T>() + xử lý lỗi), session.ts (token/user), user, upload (Cloudinary)
@@ -85,6 +85,7 @@ providers/AppProviders    # ToastProvider + ConfirmProvider (bọc ở app/layou
 
 ## Tính năng đã xong (chạy thật, đã test)
 - **Auth:** register/login JWT + BCrypt, role USER/ADMIN, logout, Remember me. Login trả thêm `avatarUrl`.
+- **Google login:** nút ở Login/Register (`features/auth/components/SocialLogin.tsx`, `@react-oauth/google`) lấy access token → `POST /api/auth/google` → backend `GoogleAuthService` kiểm tra `aud` = Client ID qua tokeninfo + lấy email/tên/ảnh qua userinfo. Email đã có → liên kết (`User.googleId`); chưa có → tạo USER mới không mật khẩu. Cấu hình: FE `NEXT_PUBLIC_GOOGLE_CLIENT_ID` (`CarbonTrack/.env.local`), BE `google.client-id` (`.env.properties`) / env `GOOGLE_CLIENT_ID`. Google Cloud: thêm origin vào Authorized JavaScript origins; app đang ở chế độ Testing → chỉ email trong Test users đăng nhập được.
 - **Log Activity + Dashboard:** EmissionService tính CO₂, 4 stat tiles, biểu đồ Trend + Sources, lọc tháng, Recent Activities.
 - **History:** 4 stat tiles theo bộ lọc, bảng + filter (category/status/tháng), phân trang, **Export CSV** (đúng các dòng đang lọc).
 - **Challenges:** auto-đếm tiến độ từ activity, hoàn thành → cộng `points`. Admin tạo/xóa trong cùng tab.
@@ -102,6 +103,8 @@ providers/AppProviders    # ToastProvider + ConfirmProvider (bọc ở app/layou
 - **Daily Tip (Dashboard):** 8 mẹo kèm ảnh Unsplash (có credit tác giả), đổi theo ngày + nút "Another tip". Dữ liệu ở `features/home/constants/dailyTips.ts`.
 - **History / Recent Activities:** cột Activity = icon Font Awesome + tên; cột Category = badge màu category; Status = badge outline có icon.
 - **Settings:** đổi tên, avatar, đổi mật khẩu, **Tracking = mục tiêu phát thải năm** (mặc định 1800 kg). Reminder đang "Coming soon".
+  - Tài khoản tạo bằng Google (`hasPassword = false` trong `/api/users/me`) thấy form **Set password** (không cần mật khẩu hiện tại); đặt xong thì login bằng email/mật khẩu hoặc Google đều được.
+  - Layout: desktop = danh sách mục bên trái + nội dung bên phải (mặc định Profile); mobile = màn hình danh sách → bấm vào mục, có nút Back. Cả hai dùng chung `SettingsNav`.
 - **Mục tiêu:** Dashboard lấy mục tiêu năm ÷ 12 làm mục tiêu tháng (thẻ Remaining goal, đỏ khi vượt; đường nét đứt trên Trend = tháng ÷ 30).
 - **Admin (User Management):** 4 stat tiles, tìm tên/email + lọc role, phân trang 10; bảng có avatar, role, điểm, số activity, **ngày tham gia**; đổi role / xóa (chặn tự thao tác chính mình).
   - Ngày tham gia = `User.createdAt` (set khi đăng ký). Account cũ không có: nếu id là Mongo ObjectId thì suy ra từ id, id UUID thì hiện "—".
@@ -110,6 +113,24 @@ providers/AppProviders    # ToastProvider + ConfirmProvider (bọc ở app/layou
   - `Avatar` (+ `status` dot), `AvatarGroup` (+N), `PresenceAvatar` (chấm online).
   - Icon: **Font Awesome 6 qua `react-icons/fa6`** cho category/sub-category (`constants/categoryIcons.ts`); Material (`react-icons/md`) cho icon giao diện chung.
   - Màu category: `constants/categories.ts` (`CATEGORY_COLORS` cho biểu đồ, `CATEGORY_TEXT_COLORS` đậm hơn cho chữ trong badge).
+
+- **Mobile responsive:** trên mobile dùng `BottomNav` + `MobileTopBar` thay Sidebar; bảng chuyển sang dạng thẻ (`ActivityCardList`, `UserCardList`, `AdminChallengeCardList`); `PageHeader` ẩn title/subtitle; Leaderboard Community mở dạng drawer; History có filter bar mới; Recommendations đưa sort cạnh action plan; Settings thiết kế lại.
+- **Home:** lời chào + badge thời gian đổi theo 5 khung giờ trong ngày (`utils/date.ts`).
+- **Metadata:** title / description / favicon (`/assets/logo.png`) ở `app/layout.tsx`.
+
+## Deploy
+- Backend có `backend/Dockerfile` (+ `.dockerignore`).
+- Biến môi trường (dùng khi deploy, thay cho `.env.properties`):
+
+| Biến | Mặc định (local) |
+|---|---|
+| `PORT` | `8080` |
+| `JWT_SECRET` | khóa dev trong `application.properties` — **production bắt buộc set** |
+| `CORS_ORIGINS` | `http://localhost:3000` (nhiều domain cách nhau bởi dấu phẩy) |
+| `GOOGLE_CLIENT_ID` | rỗng (lấy từ `.env.properties`) |
+| `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` | rỗng (lấy từ `.env.properties` nếu có) |
+
+- Frontend: set `NEXT_PUBLIC_API_URL` trỏ tới backend. Thêm `NEXT_PUBLIC_GOOGLE_CLIENT_ID`.
 
 ## Ảnh (Cloudinary)
 | Loại | Folder | Biến đổi (nằm trong chữ ký) |
@@ -121,6 +142,7 @@ providers/AppProviders    # ToastProvider + ConfirmProvider (bọc ở app/layou
 
 ## API chính
 - `POST /api/auth/register`, `POST /api/auth/login` → {token, id, name, email, role, avatarUrl}
+- `POST /api/auth/google` {accessToken} → giống login
 - `GET/POST /api/activities`, `DELETE /api/activities/{id}`
 - `GET/PUT /api/users/me`, `PUT /api/users/me/password`, `PUT /api/users/me/avatar` {avatarUrl | null}, `PUT /api/users/me/tracking` {yearlyGoalKg} (100–100000)
 - `GET /api/challenges`, `POST /api/challenges/{id}/join`
@@ -144,6 +166,5 @@ providers/AppProviders    # ToastProvider + ConfirmProvider (bọc ở app/layou
 - DB đang có account `UuidTest` (test cũ) — xóa ở trang Admin nếu không cần.
 
 ## Việc tiếp theo (chưa làm)
-- **Google login** (verify Google ID token ở backend, cấp JWT; liên kết tài khoản theo email).
 - Settings: **Reminder**.
 - History: export PDF (hiện mới có CSV).

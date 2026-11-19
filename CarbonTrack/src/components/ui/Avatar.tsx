@@ -1,5 +1,6 @@
+"use client";
 /* eslint-disable @next/next/no-img-element */
-import React from "react";
+import React, { useState } from "react";
 
 const GRADIENTS = ["bg-gradient-brand", "bg-gradient-ocean", "bg-gradient-sunrise", "bg-gradient-berry", "bg-gradient-leaf"];
 
@@ -50,8 +51,17 @@ export default function Avatar({
   const base = `${s.box} rounded-full shrink-0 ${ring ? "ring-2 ring-surface" : ""}`;
   const idx = [...(id || name)].reduce((sum, ch) => sum + ch.charCodeAt(0), 0) % GRADIENTS.length;
 
-  const face = avatarUrl ? (
-    <img src={avatarUrl} alt={name} className={`${base} object-cover bg-soft block overflow-hidden`} />
+  // Ảnh lỗi (link hỏng, Google chặn...) → hiện chữ cái đầu. Nhớ theo URL để đổi ảnh thì thử lại.
+  const [failedUrl, setFailedUrl] = useState<string | null>(null);
+
+  const face = avatarUrl && failedUrl !== avatarUrl ? (
+    <img
+      src={avatarUrl}
+      alt={name}
+      referrerPolicy="no-referrer" // ảnh Google (lh3.googleusercontent.com) hay chặn khi có referrer
+      onError={() => setFailedUrl(avatarUrl)}
+      className={`${base} object-cover bg-soft block overflow-hidden`}
+    />
   ) : (
     <div className={`${base} ${GRADIENTS[idx]} flex items-center justify-center text-white font-bold overflow-hidden`}>
       {name ? name.charAt(0).toUpperCase() : "?"}

@@ -6,7 +6,8 @@ import { errorMessage } from "@/utils/error";
 import { changePassword } from "@/services/user.service";
 import { validateNewPassword } from "@/features/auth/validation";
 
-export function useChangePassword() {
+/** hasPassword = false → đặt mật khẩu lần đầu (tài khoản Google), không cần mật khẩu hiện tại. */
+export function useChangePassword(hasPassword: boolean, onPasswordSet?: () => void) {
   const toast = useToast();
   const [current, setCurrent] = useState("");
   const [next, setNext] = useState("");
@@ -23,11 +24,12 @@ export function useChangePassword() {
     setError("");
     setSaving(true);
     try {
-      await changePassword(current, next);
+      await changePassword(hasPassword ? current : "", next);
       setCurrent("");
       setNext("");
       setConfirm("");
-      toast.success("Password changed");
+      toast.success(hasPassword ? "Password changed" : "Password set");
+      if (!hasPassword) onPasswordSet?.();
     } catch (e) {
       setError(errorMessage(e, "Change failed"));
     } finally {

@@ -19,21 +19,37 @@ function Check({ ok, children }: { ok: boolean; children: React.ReactNode }) {
   );
 }
 
-/** Tab Password: form đổi mật khẩu + yêu cầu mật khẩu (tick theo thời gian thực). */
-export default function ChangePasswordSection() {
-  const f = useChangePassword();
+/**
+ * Tab Password: form đổi mật khẩu + yêu cầu mật khẩu (tick theo thời gian thực).
+ * Tài khoản tạo bằng Google (hasPassword = false): form "Set password" — không có ô mật khẩu hiện tại.
+ */
+export default function ChangePasswordSection({
+  hasPassword,
+  onPasswordSet,
+}: {
+  hasPassword: boolean;
+  onPasswordSet?: () => void;
+}) {
+  const f = useChangePassword(hasPassword, onPasswordSet);
   const longEnough = f.next.length >= MIN_PASSWORD_LENGTH;
   const matches = !!f.next && f.next === f.confirm;
-  const different = !!f.next && f.next !== f.current;
-  const canSubmit = !!f.current && longEnough && matches && different && !f.saving;
+  const different = !hasPassword || (!!f.next && f.next !== f.current);
+  const canSubmit = (!hasPassword || !!f.current) && longEnough && matches && different && !f.saving;
 
   return (
     <SettingsLayout
       main={
-        <SettingsSection icon={<FaLock size={16} />} iconCls="text-sky-600 bg-sky-50" title="Change Password">
-          <FormField label="Current password">
-            <PasswordInput value={f.current} onChange={(e) => f.setCurrent(e.target.value)} autoComplete="current-password" />
-          </FormField>
+        <SettingsSection icon={<FaLock size={16} />} iconCls="text-sky-600 bg-sky-50" title={hasPassword ? "Change Password" : "Set Password"}>
+          {hasPassword ? (
+            <FormField label="Current password">
+              <PasswordInput value={f.current} onChange={(e) => f.setCurrent(e.target.value)} autoComplete="current-password" />
+            </FormField>
+          ) : (
+            <Alert tone="info">
+              You signed up with Google, so your account has no password yet. Set one to also log in with your email and
+              password.
+            </Alert>
+          )}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <FormField label="New password">
               <PasswordInput value={f.next} onChange={(e) => f.setNext(e.target.value)} autoComplete="new-password" />
@@ -45,7 +61,7 @@ export default function ChangePasswordSection() {
           <Alert>{f.error}</Alert>
           <div className="flex justify-end">
             <Button variant="gradient" size="sm" className="px-6" onClick={f.submit} disabled={!canSubmit}>
-              {f.saving ? "Changing..." : "Change password"}
+              {f.saving ? "Saving..." : hasPassword ? "Change password" : "Set password"}
             </Button>
           </div>
         </SettingsSection>
@@ -55,10 +71,13 @@ export default function ChangePasswordSection() {
           <ul className="m-0 p-0 list-none flex flex-col gap-2.5">
             <Check ok={longEnough}>At least {MIN_PASSWORD_LENGTH} characters</Check>
             <Check ok={matches}>New passwords match</Check>
-            <Check ok={different}>Different from current password</Check>
+            {hasPassword && <Check ok={different}>Different from current password</Check>}
           </ul>
           <p className="m-0 mt-4 pt-4 border-t border-line text-muted text-xs leading-relaxed">
-            Tip: mix letters, numbers and symbols. After changing, use the new password next time you log in.
+            Tip: mix letters, numbers and symbols.{" "}
+            {hasPassword
+              ? "After changing, use the new password next time you log in."
+              : "You can keep using Google sign-in after setting a password."}
           </p>
         </SettingsAside>
       }

@@ -22,6 +22,9 @@ public class AuthDtos {
             @NotBlank String password
     ) {}
 
+    // Access token Google (frontend lấy từ Google Identity Services)
+    public record GoogleLoginRequest(@NotBlank String accessToken) {}
+
     // Dữ liệu backend trả về sau khi đăng nhập/đăng ký thành công
     public record AuthResponse(
             String token,

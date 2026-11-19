@@ -30,6 +30,8 @@ public class User implements HasId {
 
     private String password;  // LUÔN lưu dạng đã hash BCrypt, không bao giờ plaintext
 
+    private String googleId;  // "sub" của Google, có khi đăng nhập bằng Google (null nếu chưa)
+
     private String role;      // "USER" hoặc "ADMIN"
 
     private int points;       // điểm thưởng tích lũy từ challenge

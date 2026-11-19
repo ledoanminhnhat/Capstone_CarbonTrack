@@ -1,6 +1,7 @@
 package com.carbontrack.controller;
 
 import com.carbontrack.dto.AuthDtos.AuthResponse;
+import com.carbontrack.dto.AuthDtos.GoogleLoginRequest;
 import com.carbontrack.dto.AuthDtos.LoginRequest;
 import com.carbontrack.dto.AuthDtos.RegisterRequest;
 import com.carbontrack.service.AuthService;
@@ -25,5 +26,10 @@ public class AuthController {
     @PostMapping("/login")
     public AuthResponse login(@Valid @RequestBody LoginRequest request) {
         return authService.login(request);
+    }
+
+    @PostMapping("/google")
+    public AuthResponse google(@Valid @RequestBody GoogleLoginRequest request) {
+        return authService.loginWithGoogle(request.accessToken());
     }
 }

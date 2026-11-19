@@ -9,6 +9,7 @@ export interface UserProfile {
   points: number;
   avatarUrl: string | null;
   yearlyGoalKg: number; // mục tiêu phát thải 1 năm (kg CO2)
+  hasPassword: boolean; // false = tài khoản tạo bằng Google, chưa đặt mật khẩu
 }
 
 /** Kiểu ảnh upload lên Cloudinary. */

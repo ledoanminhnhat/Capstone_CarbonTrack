@@ -41,11 +41,9 @@ public class UserService {
     public void changePassword(String userId, String currentPassword, String newPassword) {
         User user = findOrThrow(userId);
 
-        if (user.getPassword() == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "Tài khoản này chưa đặt mật khẩu");
-        }
-        if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
+        // Tài khoản tạo bằng Google chưa có mật khẩu → cho đặt lần đầu, không cần mật khẩu hiện tại
+        if (user.getPassword() != null
+                && (currentPassword == null || !passwordEncoder.matches(currentPassword, user.getPassword()))) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Mật khẩu hiện tại không đúng");
         }
 
@@ -72,6 +70,6 @@ public class UserService {
 
     private UserProfile toProfile(User u) {
         return new UserProfile(u.getId(), u.getName(), u.getEmail(), u.getRole(), u.getPoints(),
-                u.getAvatarUrl(), u.effectiveYearlyGoalKg());
+                u.getAvatarUrl(), u.effectiveYearlyGoalKg(), u.getPassword() != null);
     }
 }

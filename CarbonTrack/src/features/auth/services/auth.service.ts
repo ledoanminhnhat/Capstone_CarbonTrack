@@ -25,3 +25,15 @@ export async function register(name: string, email: string, password: string): P
 }
 
 export const logout = () => clearSession();
+
+/** Đăng nhập / đăng ký bằng Google: gửi access token cho backend xác minh, nhận JWT như login thường. */
+export async function loginWithGoogle(accessToken: string): Promise<AuthUser> {
+  const data = await request<AuthResponse>("/api/auth/google", {
+    method: "POST",
+    body: { accessToken },
+    auth: false,
+    errors: { 401: "Google sign-in failed", 503: "Google sign-in is not configured" },
+  });
+  saveSession(data);
+  return getStoredUser()!;
+}

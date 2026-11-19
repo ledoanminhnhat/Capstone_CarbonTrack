@@ -18,7 +18,8 @@ public class UserDtos {
             String role,
             int points,
             String avatarUrl,
-            double yearlyGoalKg
+            double yearlyGoalKg,
+            boolean hasPassword // false = tài khoản tạo bằng Google, chưa đặt mật khẩu
     ) {}
 
     // Cài đặt Tracking: mục tiêu phát thải 1 năm (kg CO2)
@@ -36,9 +37,9 @@ public class UserDtos {
             @NotBlank String name
     ) {}
 
-    // Đổi mật khẩu
+    // Đổi mật khẩu (currentPassword bỏ trống được nếu tài khoản chưa có mật khẩu — đặt lần đầu)
     public record ChangePasswordRequest(
-            @NotBlank String currentPassword,
+            String currentPassword,
             @NotBlank @Size(min = 6, message = "Mật khẩu mới tối thiểu 6 ký tự") String newPassword
     ) {}
 }

@@ -2,6 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Toast trượt lên */
+@keyframes toast-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
@@ -18,5 +24,139 @@
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 0, 0, 0.4); 
+  background: rgba(0, 0, 0, 0.4);
+}
+
+/* ===== Design system base ===== */
+@layer base {
+  /* Token màu (R G B) — Tailwind dùng qua ink / muted / surface / subtle / soft / line */
+  :root {
+    --ct-ink: 31 41 55;          /* #1f2937 */
+    --ct-muted: 107 114 128;     /* #6b7280 */
+    --ct-surface: 255 255 255;   /* #ffffff */
+    --ct-subtle: 249 250 251;    /* #f9fafb */
+    --ct-soft: 243 244 246;      /* #f3f4f6 */
+    --ct-line: 243 244 246;      /* #f3f4f6 */
+    --ct-line-strong: 229 231 235; /* #e5e7eb */
+    --ct-shadow-soft: 0.04;
+    --ct-shadow-card: 0.06;
+    --ct-page: linear-gradient(160deg, #f0fdf4 0%, #ecfeff 100%);
+    /* màu category cho chữ / icon */
+    --ct-cat-transport: #2b6cb0;
+    --ct-cat-food: #c05621;
+    --ct-cat-energy: #b7791f;
+    --ct-cat-shopping: #2f855a;
+    color-scheme: light;
+  }
+
+  /* Dark: xám trung tính */
+  .dark {
+    --ct-ink: 230 232 235;       /* #e6e8eb */
+    --ct-muted: 154 161 170;     /* #9aa1aa */
+    --ct-surface: 28 30 33;      /* #1c1e21 */
+    --ct-subtle: 34 37 40;       /* #222528 */
+    --ct-soft: 42 45 49;         /* #2a2d31 */
+    --ct-line: 46 49 53;         /* #2e3135 */
+    --ct-line-strong: 58 62 67;  /* #3a3e43 */
+    --ct-shadow-soft: 0.25;
+    --ct-shadow-card: 0.35;
+    --ct-page: #141517;
+    --ct-cat-transport: #63b3ed;
+    --ct-cat-food: #f6ad55;
+    --ct-cat-energy: #f6e05e;
+    --ct-cat-shopping: #68d391;
+    color-scheme: dark;
+  }
+
+  body {
+    @apply text-ink;
+    background: var(--ct-page);
+    background-attachment: fixed;
+    -webkit-font-smoothing: antialiased;
+  }
+}
+
+/*
+ * Dark mode cho các màu nhạt có sẵn của Tailwind (badge, ô icon, thông báo…):
+ * nền -50/-100 thành lớp màu trong suốt, chữ -600/-700 sáng lên để đọc được trên nền tối.
+ * Đặt ngoài @layer để thắng class gốc.
+ */
+.dark .bg-brand-50, .dark .hover\:bg-brand-50:hover { background-color: rgb(16 185 129 / 0.14); }
+.dark .bg-brand-50\/50 { background-color: rgb(16 185 129 / 0.08); }
+.dark .bg-brand-100 { background-color: rgb(16 185 129 / 0.22); }
+.dark .text-brand-600, .dark .text-brand-700, .dark .hover\:text-brand-700:hover { color: #34d399; }
+.dark .border-brand-200, .dark .hover\:border-brand-200:hover, .dark .border-brand-300 { border-color: rgb(52 211 153 / 0.4); }
+
+.dark .bg-rose-50, .dark .hover\:bg-rose-50:hover { background-color: rgb(244 63 94 / 0.14); }
+.dark .bg-rose-100 { background-color: rgb(244 63 94 / 0.2); }
+.dark .text-rose-600, .dark .text-rose-700 { color: #fb7185; }
+.dark .ring-rose-200, .dark .border-rose-300 { --tw-ring-color: rgb(244 63 94 / 0.4); border-color: rgb(244 63 94 / 0.4); }
+
+.dark .bg-amber-50 { background-color: rgb(245 158 11 / 0.14); }
+.dark .bg-amber-100 { background-color: rgb(245 158 11 / 0.2); }
+.dark .text-amber-600, .dark .text-amber-700 { color: #fbbf24; }
+.dark .border-amber-300 { border-color: rgb(245 158 11 / 0.4); }
+
+.dark .bg-sky-50 { background-color: rgb(14 165 233 / 0.14); }
+.dark .bg-sky-100 { background-color: rgb(14 165 233 / 0.2); }
+.dark .text-sky-600, .dark .text-sky-700 { color: #38bdf8; }
+.dark .border-sky-300 { border-color: rgb(14 165 233 / 0.4); }
+
+.dark .bg-emerald-50 { background-color: rgb(16 185 129 / 0.14); }
+.dark .bg-emerald-100 { background-color: rgb(16 185 129 / 0.2); }
+.dark .text-emerald-600, .dark .text-emerald-700 { color: #34d399; }
+.dark .border-emerald-300 { border-color: rgb(16 185 129 / 0.4); }
+
+.dark .bg-violet-50 { background-color: rgb(139 92 246 / 0.14); }
+.dark .text-violet-600, .dark .text-violet-700 { color: #a78bfa; }
+.dark .border-violet-500 { border-color: #8b5cf6; }
+
+.dark .bg-orange-50 { background-color: rgb(249 115 22 / 0.14); }
+.dark .text-orange-700 { color: #fb923c; }
+
+/* Thanh cuộn tối */
+.dark ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.18); }
+.dark ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.3); }
+
+@layer utilities {
+  /* Chữ tô bằng gradient */
+  .text-gradient-brand {
+    background: linear-gradient(135deg, #10b981 0%, #06b6d4 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .text-gradient-ocean {
+    background: linear-gradient(135deg, #0ea5e9 0%, #8b5cf6 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+}
+
+/* Tim bật lên khi double-click ảnh để like (Community) */
+@keyframes heart-pop {
+  0% { opacity: 0; transform: scale(0.3); }
+  15% { opacity: 0.95; transform: scale(1.2); }
+  30% { transform: scale(0.95); }
+  45%, 80% { opacity: 0.95; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1); }
+}
+/* Nút like nảy nhẹ khi bấm */
+@keyframes like-bounce {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.25); }
+  100% { transform: scale(1); }
+}
+
+/* Bottom sheet trượt lên (Modal trên mobile) */
+@keyframes sheet-up {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+/* Drawer trượt từ mép phải ra (Mobile Drawer) */
+@keyframes slide-left {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
 }

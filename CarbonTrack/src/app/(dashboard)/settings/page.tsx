@@ -1,139 +1,112 @@
-import React from "react";
+"use client";
+
+import { FaAngleRight, FaArrowLeft, FaBell, FaBullseye, FaCircleHalfStroke, FaLock, FaUser } from "react-icons/fa6";
+import Badge from "@/components/ui/Badge";
+import PageHeader from "@/components/ui/PageHeader";
+import { useProfileSettings } from "@/features/settings/hooks/useProfileSettings";
+import { useSettingsTab, type SettingsTab } from "@/features/settings/hooks/useSettingsTab";
+import ProfileHeader from "@/features/settings/components/ProfileHeader";
+import PersonalInfoSection from "@/features/settings/components/PersonalInfoSection";
+import ChangePasswordSection from "@/features/settings/components/ChangePasswordSection";
+import TrackingSection from "@/features/settings/components/TrackingSection";
+import AppearanceSection from "@/features/settings/components/AppearanceSection";
+import { ReminderSection } from "@/features/settings/components/ComingSoonSections";
+
+export const SETTINGS_ITEMS: {
+  id: SettingsTab;
+  label: string;
+  hint: string;
+  icon: React.ReactNode;
+  iconCls: string;
+  soon?: boolean;
+}[] = [
+  { id: "profile", label: "Profile", hint: "Photo, name, email", icon: <FaUser size={16} />, iconCls: "text-brand-600 bg-brand-50" },
+  { id: "password", label: "Password", hint: "Change your password & security", icon: <FaLock size={16} />, iconCls: "text-sky-600 bg-sky-50" },
+  { id: "tracking", label: "Tracking Goal", hint: "Yearly and monthly carbon emission targets", icon: <FaBullseye size={16} />, iconCls: "text-amber-500 bg-amber-50" },
+  { id: "appearance", label: "Appearance", hint: "Customize light, dark or system theme", icon: <FaCircleHalfStroke size={16} />, iconCls: "text-violet-600 bg-violet-50" },
+  { id: "reminders", label: "Reminders & Notifications", hint: "Activity alerts, weekly reports", icon: <FaBell size={16} />, iconCls: "text-rose-500 bg-rose-50", soon: true },
+];
 
 export default function SettingsPage() {
+  const p = useProfileSettings();
+  const { tab, setTab } = useSettingsTab();
+
+  // MÀN HÌNH 1: Khi chưa chọn mục nào (tab === null) -> chỉ hiện danh sách các mục
+  if (!tab) {
+    return (
+      <div className="max-w-[760px] mx-auto">
+        <PageHeader title="Settings" subtitle="Manage your profile, preferences and account settings." />
+
+        <div className="bg-surface rounded-2xl shadow-card border border-line p-2 sm:p-4 flex flex-col gap-2">
+          {SETTINGS_ITEMS.map((item) => (
+            <button
+              key={item.id}
+              onClick={() => setTab(item.id)}
+              className="w-full flex items-center gap-4 p-4 rounded-xl text-left hover:bg-subtle transition-all duration-150 group"
+            >
+              <span className={`w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 shadow-sm ${item.iconCls}`}>
+                {item.icon}
+              </span>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <span className="font-bold text-ink text-[1rem] group-hover:text-brand-600 transition-colors">
+                    {item.label}
+                  </span>
+                  {item.soon && (
+                    <Badge tone="neutral" variant="outline" size="sm">
+                      Coming Soon
+                    </Badge>
+                  )}
+                </div>
+                <span className="block text-muted text-sm mt-0.5 truncate">{item.hint}</span>
+              </div>
+              <FaAngleRight size={14} className="text-muted/60 group-hover:text-brand-600 group-hover:translate-x-1 transition-all" />
+            </button>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // MÀN HÌNH 2: Khi đã click vào 1 mục -> hiển thị nút "Back to Settings" và nội dung mục đó
+  const currentItem = SETTINGS_ITEMS.find((it) => it.id === tab);
+
   return (
-    <div className="flex flex-col gap-6 w-full">
-      <h2 className="text-3xl font-bold text-[#333] mb-2">Setting</h2>
+    <div className="max-w-[1000px] mx-auto">
+      {/* Nút Back to Settings */}
+      <div className="mb-6 flex items-center justify-between">
+        <button
+          onClick={() => setTab(null)}
+          className="inline-flex items-center gap-2 text-sm font-semibold text-muted hover:text-ink px-3 py-2 rounded-xl hover:bg-subtle transition-colors"
+        >
+          <FaArrowLeft size={13} /> Back to Settings
+        </button>
+      </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        
-        {/* Personal Information */}
-        <div className="bg-white p-6 rounded-xl shadow-sm flex flex-col gap-5">
-          <h3 className="font-bold text-xl text-[#333]">Personal Information</h3>
-          
-          <div className="flex items-center gap-4">
-            <div className="w-16 h-16 rounded-full bg-[#aed9b8] flex items-center justify-center text-3xl">👨🏻</div>
-            <h4 className="font-bold text-xl text-[#333]">Nhat 👋</h4>
-          </div>
+      <PageHeader
+        title={currentItem?.label ?? "Settings"}
+        subtitle={currentItem?.hint}
+      />
 
-          <div className="flex flex-col gap-4">
-            <div className="flex items-center gap-4">
-              <label className="text-[#555] font-semibold w-16">Name</label>
-              <input 
-                type="text" 
-                defaultValue="Nhat Le" 
-                className="flex-1 border border-[#ccc] rounded-md px-3 py-2 outline-none focus:border-[#0ea960]"
-              />
-            </div>
-            <div className="flex items-center gap-4">
-              <label className="text-[#555] font-semibold w-16">Gmail</label>
-              <input 
-                type="email" 
-                defaultValue="nhat.le@example.com" 
-                className="flex-1 border border-[#ccc] rounded-md px-3 py-2 outline-none focus:border-[#0ea960]"
-              />
-            </div>
-          </div>
-
-          <button className="w-full py-3 bg-[#0ea960] text-white font-bold rounded-lg hover:bg-[#0c9052] transition-colors mt-2">
-            Save change
-          </button>
-        </div>
-
-        {/* Account Setting */}
-        <div className="bg-white p-6 rounded-xl shadow-sm flex flex-col gap-5">
-          <h3 className="font-bold text-xl text-[#333]">Account Setting</h3>
-
-          <div className="flex flex-col gap-4">
-            <div className="flex flex-col gap-1">
-              <label className="text-[#555] text-sm">Current Password</label>
-              <input 
-                type="password" 
-                className="border border-[#ccc] rounded-md px-3 py-2 outline-none focus:border-[#0ea960]"
-              />
-            </div>
-            <div className="flex flex-col gap-1">
-              <label className="text-[#555] text-sm">New Password</label>
-              <input 
-                type="password" 
-                className="border border-[#ccc] rounded-md px-3 py-2 outline-none focus:border-[#0ea960]"
-              />
-            </div>
-            <div className="flex flex-col gap-1">
-              <label className="text-[#555] text-sm">Submit Password</label>
-              <input 
-                type="password" 
-                className="border border-[#ccc] rounded-md px-3 py-2 outline-none focus:border-[#0ea960]"
-              />
-            </div>
-          </div>
-
-          <button className="w-full py-3 bg-[#0ea960] text-white font-bold rounded-lg hover:bg-[#0c9052] transition-colors mt-auto">
-            Change Password
-          </button>
-        </div>
-
-        {/* Tracking Setting */}
-        <div className="bg-white p-6 rounded-xl shadow-sm flex flex-col gap-5">
-          <h3 className="font-bold text-xl text-[#333]">Tracking Setting</h3>
-
-          <div className="flex flex-col gap-4">
-            <div className="flex items-center gap-4">
-              <label className="text-[#555] font-semibold w-32">Year Target</label>
-              <input 
-                type="text" 
-                defaultValue="1.2 ton CO2e" 
-                className="flex-1 border border-[#ccc] rounded-md px-3 py-2 outline-none focus:border-[#0ea960]"
-              />
-            </div>
-            <div className="flex items-center gap-4">
-              <label className="text-[#555] font-semibold w-32">Family member</label>
-              <input 
-                type="text" 
-                defaultValue="4 people" 
-                className="flex-1 border border-[#ccc] rounded-md px-3 py-2 outline-none focus:border-[#0ea960]"
-              />
-            </div>
-            <div className="flex flex-col gap-1 mt-2">
-              <label className="text-[#555] font-semibold">Main Transport</label>
-              <select className="border border-[#ccc] rounded-md px-3 py-2 outline-none focus:border-[#0ea960] bg-white">
-                <option>Motorbike</option>
-                <option>Car</option>
-                <option>Public Transit</option>
-                <option>Bicycle</option>
-              </select>
-            </div>
-          </div>
-
-          <button className="w-full py-3 bg-[#0ea960] text-white font-bold rounded-lg hover:bg-[#0c9052] transition-colors mt-auto">
-            Save Setting
-          </button>
-        </div>
-
-        {/* Reminder */}
-        <div className="bg-white p-6 rounded-xl shadow-sm flex flex-col gap-5">
-          <h3 className="font-bold text-xl text-[#333]">Reminder</h3>
-
-          <div className="flex flex-col gap-4">
-            <label className="flex items-center gap-3 cursor-pointer">
-              <input type="checkbox" defaultChecked className="w-5 h-5 accent-[#0ea960]" />
-              <span className="text-[#555]">Reminding challenges and information everyday</span>
-            </label>
-            <label className="flex items-center gap-3 cursor-pointer">
-              <input type="checkbox" className="w-5 h-5 accent-[#0ea960]" />
-              <span className="text-[#555]">Let me know when done</span>
-            </label>
-            <label className="flex items-center gap-3 cursor-pointer">
-              <input type="checkbox" className="w-5 h-5 accent-[#0ea960]" />
-              <span className="text-[#333] font-bold">Announce for new challenges</span>
-            </label>
-          </div>
-
-          <button className="w-full py-3 bg-[#0ea960] text-white font-bold rounded-lg hover:bg-[#0c9052] transition-colors mt-auto">
-            Save Notifications
-          </button>
-        </div>
-
+      <div className="min-w-0">
+        {tab === "profile" && (
+          <>
+            <ProfileHeader profile={p.profile} onUpdated={p.setProfile} />
+            <PersonalInfoSection
+              profile={p.profile}
+              name={p.name}
+              onNameChange={p.setName}
+              error={p.error}
+              saving={p.saving}
+              onSave={p.saveName}
+              onGoTo={setTab}
+            />
+          </>
+        )}
+        {tab === "password" && <ChangePasswordSection />}
+        {tab === "tracking" && <TrackingSection profile={p.profile} onUpdated={p.setProfile} />}
+        {tab === "appearance" && <AppearanceSection />}
+        {tab === "reminders" && <ReminderSection />}
       </div>
     </div>
   );

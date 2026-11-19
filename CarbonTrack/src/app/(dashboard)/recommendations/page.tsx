@@ -36,7 +36,8 @@ export default function RecommendationsPage() {
             <div className="w-[150px]">
               <Select value={r.period} onChange={(v) => r.setPeriod(v as Period)} options={PERIOD_OPTIONS} />
             </div>
-            <div className="w-[190px]">
+            {/* Desktop: hiện ở header như cũ */}
+            <div className="hidden md:block w-[190px]">
               <Select value={r.sortBy} onChange={(v) => r.setSortBy(v as SortKey)} options={SORT_OPTIONS} />
             </div>
           </>
@@ -77,7 +78,13 @@ export default function RecommendationsPage() {
               savingPct={r.summary.savingPct}
             />
             <div className="flex flex-col gap-4">
-              <SectionTitle className="">Your Action Plan</SectionTitle>
+              {/* Tiêu đề Your Action Plan + Filter sort đặt cạnh nhau trên mobile */}
+              <div className="flex items-center justify-between gap-3 mb-1">
+                <SectionTitle className="m-0">Your Action Plan</SectionTitle>
+                <div className="md:hidden w-[160px]">
+                  <Select value={r.sortBy} onChange={(v) => r.setSortBy(v as SortKey)} options={SORT_OPTIONS} />
+                </div>
+              </div>
               {r.sorted.map((rec, i) => (
                 <RecommendationCard
                   key={rec.id}

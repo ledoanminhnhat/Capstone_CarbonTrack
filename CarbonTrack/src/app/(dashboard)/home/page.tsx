@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { FaMagnifyingGlass, FaPlus } from "react-icons/fa6";
-import Input from "@/components/ui/Input";
+import { FaPlus } from "react-icons/fa6";
 import Button from "@/components/ui/Button";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { monthKeyOf } from "@/utils/date";
@@ -29,15 +28,11 @@ export default function HomePage() {
     <div>
       <header className="flex flex-wrap justify-between items-start gap-4 mb-8">
         <GreetingClock name={user?.name} />
-        <div className="flex gap-4 items-center w-full sm:w-auto">
-          <div className="flex-1 sm:w-[250px]">
-            <Input type="text" placeholder="Search" icon={<FaMagnifyingGlass size={16} />} iconPosition="left" />
-          </div>
-          <div className="hidden sm:block">
-            <Button variant="gradient" onClick={() => setIsModalOpen(true)}>
-              <FaPlus size={16} className="mr-2" /> Log New Activity
-            </Button>
-          </div>
+        {/* nút Log chỉ hiện từ sm trở lên (giữ như trước) */}
+        <div className="hidden sm:block">
+          <Button variant="gradient" onClick={() => setIsModalOpen(true)}>
+            <FaPlus size={16} className="mr-2" /> Log New Activity
+          </Button>
         </div>
       </header>
 

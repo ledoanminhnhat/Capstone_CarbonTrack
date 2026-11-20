@@ -30,14 +30,14 @@ export default function StatTile({
   const colored = variant !== "white";
   return (
     <div
-      className={`rounded-2xl p-5 ${
+      className={`rounded-2xl p-4 md:p-5 ${
         colored ? `${gradient[variant]} text-white` : "bg-surface shadow-card"
       }`}
     >
-      <div className="flex items-center justify-between mb-3">
-        <span className={`text-[0.85rem] ${colored ? "text-white/80" : "text-muted"}`}>{label}</span>
+      <div className="flex items-start justify-between gap-2 mb-3">
+        <span className={`text-[0.85rem] leading-snug ${colored ? "text-white/80" : "text-muted"}`}>{label}</span>
         <span
-          className={`w-8 h-8 rounded-xl flex items-center justify-center ${
+          className={`w-8 h-8 shrink-0 rounded-full flex items-center justify-center ${
             colored ? "bg-white/15 text-white/70" : iconCls
           }`}
         >

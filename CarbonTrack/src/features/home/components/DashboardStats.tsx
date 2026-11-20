@@ -21,16 +21,16 @@ function GoalTile({
     <Link
       href="/settings#tracking"
       title="Change your goal in Settings → Tracking"
-      className={`rounded-2xl p-5 no-underline block transition-shadow hover:shadow-glow-brand ${
+      className={`rounded-2xl p-4 md:p-5 no-underline block transition-shadow hover:shadow-glow-brand ${
         over ? "bg-rose-50 shadow-card ring-1 ring-rose-200" : "bg-surface shadow-card"
       }`}
     >
-      <div className="flex items-center justify-between mb-3">
-        <span className={`text-[0.85rem] ${over ? "text-rose-600 font-semibold" : "text-muted"}`}>
+      <div className="flex items-start justify-between gap-2 mb-3">
+        <span className={`text-[0.85rem] leading-snug ${over ? "text-rose-600 font-semibold" : "text-muted"}`}>
           {over ? "Over monthly goal" : "Remaining goal"}
         </span>
         <span
-          className={`w-8 h-8 rounded-xl flex items-center justify-center ${
+          className={`w-8 h-8 shrink-0 rounded-full flex items-center justify-center ${
             over ? "text-rose-600 bg-rose-100" : "text-amber-500 bg-amber-50"
           }`}
         >
@@ -66,7 +66,7 @@ export default function DashboardStats({
   points: number;
 }) {
   return (
-    <section className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+    <section className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6 mb-6">
       <StatTile variant="brand" label="Total this month" value={totalThisMonth.toFixed(1)} unit="kg CO₂e" icon={<FaCloud size={16} />} />
       <StatTile
         label="Highest activity"

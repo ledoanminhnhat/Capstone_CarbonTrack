@@ -14,7 +14,7 @@ export default function HistoryStats({
   highCount: number;
 }) {
   return (
-    <section className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+    <section className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6 mb-6">
       <StatTile variant="brand" label="Total emissions" value={total.toFixed(1)} unit="kg CO₂e" icon={<FaCloud size={16} />} />
       <StatTile label="Activities" value={count} unit="logged" icon={<FaListUl size={16} />} iconCls="text-sky-600 bg-sky-50" />
       <StatTile

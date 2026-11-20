@@ -37,3 +37,16 @@ export async function loginWithGoogle(accessToken: string): Promise<AuthUser> {
   saveSession(data);
   return getStoredUser()!;
 }
+
+// ----- Quên mật khẩu -----
+
+/** Gửi mail đặt lại mật khẩu. Backend luôn trả lời giống nhau dù email có tài khoản hay không. */
+export const forgotPassword = (email: string) =>
+  request<{ message: string }>("/api/auth/forgot-password", { method: "POST", body: { email }, auth: false });
+
+/** Kiểm tra link đặt lại còn dùng được không (ném lỗi nếu hết hạn / sai). */
+export const validateResetToken = (token: string) =>
+  request(`/api/auth/reset-password/validate?token=${encodeURIComponent(token)}`, { auth: false });
+
+export const resetPassword = (token: string, password: string) =>
+  request("/api/auth/reset-password", { method: "POST", body: { token, password }, auth: false });

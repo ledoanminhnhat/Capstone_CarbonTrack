@@ -13,7 +13,7 @@ export default function ChallengeStats({
   pointsEarned: number;
 }) {
   return (
-    <section className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+    <section className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
       <StatTile variant="brand" label="In progress" value={inProgress} unit="challenges" icon={<FaBolt size={16} />} />
       <StatTile
         label="Completed"

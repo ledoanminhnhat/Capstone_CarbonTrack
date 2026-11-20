@@ -22,6 +22,15 @@ public class AuthDtos {
             @NotBlank String password
     ) {}
 
+    // Quên mật khẩu: chỉ cần email
+    public record ForgotPasswordRequest(@Email @NotBlank String email) {}
+
+    // Đặt mật khẩu mới bằng mã trong link email
+    public record ResetPasswordRequest(
+            @NotBlank String token,
+            @NotBlank @Size(min = 6, message = "Mật khẩu tối thiểu 6 ký tự") String password
+    ) {}
+
     // Access token Google (frontend lấy từ Google Identity Services)
     public record GoogleLoginRequest(@NotBlank String accessToken) {}
 

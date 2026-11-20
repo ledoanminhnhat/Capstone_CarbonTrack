@@ -14,7 +14,7 @@ interface PaginationProps {
 /** Thanh phân trang; nhận thẳng kết quả của usePagination. */
 export default function Pagination({ page, totalPages, from, to, total, first, prev, next, last }: PaginationProps) {
   const btn = (disabled: boolean) =>
-    `w-9 h-9 rounded-lg flex items-center justify-center transition-colors ${
+    `w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${
       disabled ? "text-muted/50 pointer-events-none" : "text-ink hover:bg-brand-50 hover:text-brand-600"
     }`;
   const atStart = page === 1;
@@ -25,19 +25,19 @@ export default function Pagination({ page, totalPages, from, to, total, first, p
       <span>{total === 0 ? "0 results" : `${from}–${to} of ${total}`}</span>
       <div className="flex items-center gap-1">
         <button className={btn(atStart)} onClick={first} aria-label="First page">
-          <FaAnglesLeft size={18} />
+          <FaAnglesLeft size={13} />
         </button>
         <button className={btn(atStart)} onClick={prev} aria-label="Previous page">
-          <FaAngleLeft size={18} />
+          <FaAngleLeft size={13} />
         </button>
         <span className="px-2 text-ink font-semibold">
           {page} / {totalPages}
         </span>
         <button className={btn(atEnd)} onClick={next} aria-label="Next page">
-          <FaAngleRight size={18} />
+          <FaAngleRight size={13} />
         </button>
         <button className={btn(atEnd)} onClick={last} aria-label="Last page">
-          <FaAnglesRight size={18} />
+          <FaAnglesRight size={13} />
         </button>
       </div>
     </div>

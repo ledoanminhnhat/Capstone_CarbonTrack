@@ -58,7 +58,12 @@ export default function PrivacyPage() {
 
         <section className="space-y-2">
           <h2 className="text-xl font-bold">Contact</h2>
-          <p>Questions about this policy: lynganthutran03@gmail.com</p>
+          <p>
+            Questions about this policy:{" "}
+            <a href="mailto:carbontrack.noreply@gmail.com" className="text-brand-600 hover:underline">
+              carbontrack.noreply@gmail.com
+            </a>
+          </p>
         </section>
 
         <Link href="/login" className="inline-block font-semibold underline">

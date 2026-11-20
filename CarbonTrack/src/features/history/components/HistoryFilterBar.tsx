@@ -1,4 +1,5 @@
 "use client";
+import type React from "react";
 
 import { useEffect, useRef, useState } from "react";
 import { FaFilter, FaMagnifyingGlass, FaRotateLeft, FaXmark } from "react-icons/fa6";
@@ -18,10 +19,13 @@ export default function HistoryFilterBar({
   filters,
   onChange,
   monthOptions,
+  actions,
 }: {
   filters: HistoryFilters;
   onChange: <K extends keyof HistoryFilters>(key: K, value: HistoryFilters[K]) => void;
   monthOptions: SelectOption[];
+  /** nút đặt cuối hàng, vd Export CSV */
+  actions?: React.ReactNode;
 }) {
   const [open, setOpen] = useState(false);
   const popoverRef = useRef<HTMLDivElement>(null);
@@ -57,10 +61,10 @@ export default function HistoryFilterBar({
   return (
     <div className="flex flex-wrap items-center gap-3 mb-6 relative">
       {/* Ô tìm kiếm */}
-      <div className="flex-1 min-w-[240px] max-w-[400px]">
+      <div className="flex-1 min-w-0 md:min-w-[240px] max-w-[400px]">
         <Input
           type="text"
-          placeholder="Search activity or detail..."
+          placeholder="Search activities..."
           icon={<FaMagnifyingGlass size={16} />}
           value={filters.search}
           onChange={(e) => onChange("search", e.target.value)}
@@ -113,7 +117,7 @@ export default function HistoryFilterBar({
 
         {/* Dropdown Popover chứa các filter */}
         {open && (
-          <div className="absolute left-0 mt-2 w-[300px] bg-surface rounded-2xl shadow-card border border-line p-4 z-30 flex flex-col gap-4 animate-[sheet-up_0.15s_ease-out]">
+          <div className="absolute right-0 mt-2 w-[min(300px,calc(100vw-2rem))] bg-surface rounded-2xl shadow-card border border-line p-4 z-30 flex flex-col gap-4 animate-[sheet-up_0.15s_ease-out]">
             <div className="flex items-center justify-between pb-2 border-b border-line">
               <span className="font-bold text-ink text-sm flex items-center gap-2">
                 <FaFilter size={12} className="text-muted" /> Filter Activities
@@ -178,6 +182,9 @@ export default function HistoryFilterBar({
           </div>
         )}
       </div>
+
+      {/* Nút phụ ở cuối hàng (vd Export CSV) */}
+      {actions && <div className="ml-auto shrink-0">{actions}</div>}
 
       {/* Mobile: badge các filter đang chọn để dễ nhìn & tắt nhanh (web đã thấy sẵn trong các ô chọn) */}
       {filters.category !== ALL && (

@@ -129,6 +129,8 @@ providers/AppProviders    # ToastProvider + ConfirmProvider (bọc ở app/layou
 | `CORS_ORIGINS` | `http://localhost:3000` (nhiều domain cách nhau bởi dấu phẩy) |
 | `GOOGLE_CLIENT_ID` | rỗng (lấy từ `.env.properties`) |
 | `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` | rỗng (lấy từ `.env.properties` nếu có) |
+| `MAIL_USERNAME`, `MAIL_PASSWORD` | rỗng (lấy từ `.env.properties`) — Gmail + App Password, dùng cho quên mật khẩu |
+| `FRONTEND_URL` | `http://localhost:3000` — domain frontend, để tạo link đặt lại mật khẩu trong mail |
 
 - Frontend: set `NEXT_PUBLIC_API_URL` trỏ tới backend. Thêm `NEXT_PUBLIC_GOOGLE_CLIENT_ID`.
 

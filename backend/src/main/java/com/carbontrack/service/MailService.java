@@ -1,50 +1,78 @@
 package com.carbontrack.service;
 
-import jakarta.mail.internet.MimeMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.http.MediaType;
+import org.springframework.http.client.JdkClientHttpRequestFactory;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.util.HtmlUtils;
 
+import java.net.http.HttpClient;
+import java.time.Duration;
+import java.util.List;
+import java.util.Map;
+
 /**
- * Gửi email qua SMTP (Gmail). Chạy bất đồng bộ (@Async) để API trả lời ngay,
- * và để thời gian phản hồi không để lộ email nào có tài khoản.
+ * Gửi email qua API của Brevo (HTTPS, cổng 443).
+ * Không dùng SMTP vì Render gói free chặn kết nối ra cổng SMTP (25/465/587).
+ * Chạy bất đồng bộ (@Async) để API trả lời ngay, và để thời gian phản hồi không để lộ email nào có tài khoản.
  */
 @Service
 public class MailService {
 
     private static final Logger log = LoggerFactory.getLogger(MailService.class);
+    private static final String BREVO_URL = "https://api.brevo.com/v3/smtp/email";
 
-    private final JavaMailSender mailSender;
-    private final String from;
+    private final RestClient http;
+    private final String apiKey;
+    private final String fromEmail;
+    private final String fromName;
 
-    public MailService(JavaMailSender mailSender, @Value("${spring.mail.username:}") String from) {
-        this.mailSender = mailSender;
-        this.from = from;
+    public MailService(@Value("${brevo.api-key:}") String apiKey,
+                       @Value("${app.mail.from}") String fromEmail,
+                       @Value("${app.mail.from-name:CarbonTrack}") String fromName) {
+        // HttpClient của JDK: giữ được nội dung lỗi của Brevo (vd 401 kèm lý do), có timeout để không treo vô hạn
+        HttpClient client = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).build();
+        JdkClientHttpRequestFactory factory = new JdkClientHttpRequestFactory(client);
+        factory.setReadTimeout(Duration.ofSeconds(15));
+        this.http = RestClient.builder().requestFactory(factory).build();
+        this.apiKey = apiKey;
+        this.fromEmail = fromEmail;
+        this.fromName = fromName;
     }
 
     /** Mail chứa link đặt lại mật khẩu. */
     @Async
     public void sendPasswordReset(String to, String name, String resetLink, int validMinutes) {
-        if (from == null || from.isBlank()) {
-            log.error("Chưa cấu hình spring.mail.username/password → không gửi được mail đặt lại mật khẩu");
+        send(to, name, "Reset your CarbonTrack password", resetHtml(name, resetLink, validMinutes));
+    }
+
+    private void send(String to, String toName, String subject, String html) {
+        if (apiKey == null || apiKey.isBlank()) {
+            log.error("Chưa cấu hình BREVO_API_KEY → không gửi được mail \"{}\"", subject);
             return;
         }
+        Map<String, Object> body = Map.of(
+                "sender", Map.of("email", fromEmail, "name", fromName),
+                "to", List.of(Map.of("email", to, "name", toName == null || toName.isBlank() ? to : toName)),
+                "subject", subject,
+                "htmlContent", html);
         try {
-            MimeMessage msg = mailSender.createMimeMessage();
-            MimeMessageHelper h = new MimeMessageHelper(msg, false, "UTF-8");
-            h.setFrom(from, "CarbonTrack");
-            h.setTo(to);
-            h.setSubject("Reset your CarbonTrack password");
-            h.setText(resetHtml(name, resetLink, validMinutes), true);
-            mailSender.send(msg);
+            http.post().uri(BREVO_URL)
+                    .header("api-key", apiKey)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .accept(MediaType.APPLICATION_JSON)
+                    .body(body)
+                    .retrieve()
+                    .toBodilessEntity();
         } catch (Exception e) {
             // không ghi link/token vào log
-            log.error("Gửi mail đặt lại mật khẩu thất bại: {}", e.getMessage());
+            String detail = e instanceof RestClientResponseException r ? r.getResponseBodyAsString() : "";
+            log.error("Gửi mail \"{}\" qua Brevo thất bại: {} {}", subject, e.getMessage(), detail);
         }
     }
 

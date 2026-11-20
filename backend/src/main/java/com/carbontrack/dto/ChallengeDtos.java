@@ -19,6 +19,31 @@ public class ChallengeDtos {
             String matchValue   // Bus / Transport / ...
     ) {}
 
+    /** Admin: challenge kèm thống kê tham gia. */
+    public record AdminChallengeView(
+            String id,
+            String title,
+            String description,
+            int points,
+            String matchType,
+            String matchValue,
+            int target,
+            boolean active,
+            int participants,   // số người đã tham gia
+            int completed       // số người đã hoàn thành
+    ) {}
+
+    /** Admin: 1 người tham gia challenge + tiến độ. */
+    public record Participant(
+            String userId,
+            String name,
+            String avatarUrl,
+            String joinedDate,  // ISO yyyy-MM-dd
+            int progress,       // đã đạt bao nhiêu (tối đa = target)
+            int target,
+            String status       // IN_PROGRESS / COMPLETED
+    ) {}
+
     /** Admin tạo challenge mới. */
     public record CreateChallengeRequest(
             @NotBlank String title,

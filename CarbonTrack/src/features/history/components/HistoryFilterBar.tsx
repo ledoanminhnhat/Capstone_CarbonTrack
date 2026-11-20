@@ -43,7 +43,10 @@ export default function HistoryFilterBar({
   useEffect(() => {
     if (!open) return;
     const handleClickOutside = (e: MouseEvent) => {
-      if (popoverRef.current && !popoverRef.current.contains(e.target as Node)) {
+      const t = e.target as HTMLElement;
+      // danh sách của Select nằm ngoài popover (portal) -> không tính là bấm ra ngoài
+      if (t.closest?.("[data-select-list]")) return;
+      if (popoverRef.current && !popoverRef.current.contains(t)) {
         setOpen(false);
       }
     };
@@ -64,8 +67,30 @@ export default function HistoryFilterBar({
         />
       </div>
 
-      {/* Nút Filter chỉ hiện icon đặt ngay cạnh search */}
-      <div className="relative shrink-0" ref={popoverRef}>
+      {/* Web (md trở lên): hiện thẳng các filter cạnh ô search */}
+      <div className="hidden md:flex items-center gap-3">
+        <div className="w-44">
+          <Select value={filters.category} onChange={(v) => onChange("category", v)} options={CATEGORY_OPTIONS} />
+        </div>
+        <div className="w-36">
+          <Select value={filters.status} onChange={(v) => onChange("status", v)} options={STATUS_OPTIONS} />
+        </div>
+        <div className="w-44">
+          <Select value={filters.month} onChange={(v) => onChange("month", v)} options={monthOptions} />
+        </div>
+        {activeCount > 0 && (
+          <button
+            type="button"
+            onClick={handleReset}
+            className="text-xs font-semibold text-rose-500 hover:text-rose-600 flex items-center gap-1.5"
+          >
+            <FaRotateLeft size={11} /> Reset
+          </button>
+        )}
+      </div>
+
+      {/* Mobile: nút Filter chỉ hiện icon đặt ngay cạnh search, bấm mở popover */}
+      <div className="relative shrink-0 md:hidden" ref={popoverRef}>
         <button
           type="button"
           onClick={() => setOpen((prev) => !prev)}
@@ -154,9 +179,9 @@ export default function HistoryFilterBar({
         )}
       </div>
 
-      {/* Hiển thị badge các filter đang chọn để người dùng dễ nhìn & tắt nhanh */}
+      {/* Mobile: badge các filter đang chọn để dễ nhìn & tắt nhanh (web đã thấy sẵn trong các ô chọn) */}
       {filters.category !== ALL && (
-        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-subtle border border-line text-xs font-medium text-ink">
+        <span className="md:hidden inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-subtle border border-line text-xs font-medium text-ink">
           Category: <strong className="text-brand-600">{filters.category}</strong>
           <button type="button" onClick={() => onChange("category", ALL)} className="text-muted hover:text-rose-500">
             <FaXmark size={11} />
@@ -164,7 +189,7 @@ export default function HistoryFilterBar({
         </span>
       )}
       {filters.status !== ALL && (
-        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-subtle border border-line text-xs font-medium text-ink">
+        <span className="md:hidden inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-subtle border border-line text-xs font-medium text-ink">
           Status: <strong className="text-brand-600">{filters.status}</strong>
           <button type="button" onClick={() => onChange("status", ALL)} className="text-muted hover:text-rose-500">
             <FaXmark size={11} />
@@ -172,7 +197,7 @@ export default function HistoryFilterBar({
         </span>
       )}
       {filters.month !== ALL && (
-        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-subtle border border-line text-xs font-medium text-ink">
+        <span className="md:hidden inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-subtle border border-line text-xs font-medium text-ink">
           Month: <strong className="text-brand-600">{filters.month}</strong>
           <button type="button" onClick={() => onChange("month", ALL)} className="text-muted hover:text-rose-500">
             <FaXmark size={11} />

@@ -3,12 +3,12 @@
 
 import { FaArrowRight, FaLightbulb } from "react-icons/fa6";
 import Badge from "@/components/ui/Badge";
-import { UNSPLASH_UTM, tipImageUrl } from "../constants/dailyTips";
-import { useDailyTip } from "../hooks/useDailyTip";
+import { UNSPLASH_UTM, tipImageUrl } from "../constants/ecoTips";
+import { useEcoTip } from "../hooks/useEcoTip";
 
 /** Thẻ mẹo mỗi ngày, có ảnh Unsplash + ghi credit tác giả. */
-export default function DailyTip() {
-  const { tip, position, total, next } = useDailyTip();
+export default function EcoTip() {
+  const { tip, position, total, next } = useEcoTip();
 
   return (
     <div className="bg-surface rounded-2xl shadow-card overflow-hidden flex flex-col">
@@ -22,7 +22,7 @@ export default function DailyTip() {
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
         <Badge tone="brand" variant="solid" size="sm" icon={<FaLightbulb size={12} />} className="absolute top-3 left-3">
-          Daily Tip
+          Eco Tip
         </Badge>
         <a
           href={`${tip.photo.pageUrl}${UNSPLASH_UTM}`}

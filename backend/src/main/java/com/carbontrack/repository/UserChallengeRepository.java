@@ -9,5 +9,7 @@ import java.util.Optional;
 public interface UserChallengeRepository extends MongoRepository<UserChallenge, String> {
     List<UserChallenge> findByUserId(String userId);
     Optional<UserChallenge> findByUserIdAndChallengeId(String userId, String challengeId);
+    List<UserChallenge> findByChallengeId(String challengeId);
     void deleteByChallengeId(String challengeId);
+    void deleteByUserId(String userId);
 }

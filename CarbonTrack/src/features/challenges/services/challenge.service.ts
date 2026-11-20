@@ -1,4 +1,4 @@
-import type { AdminChallenge, ChallengeView, NewChallenge } from "../types";
+import type { AdminChallenge, ChallengeView, NewChallenge, Participant } from "../types";
 import { request } from "@/services/http";
 
 // ----- User -----
@@ -13,3 +13,6 @@ export const createChallenge = (data: NewChallenge) =>
   request<AdminChallenge>("/api/admin/challenges", { method: "POST", body: data });
 
 export const deleteChallenge = (id: string) => request(`/api/admin/challenges/${id}`, { method: "DELETE" });
+
+export const getChallengeParticipants = (id: string) =>
+  request<Participant[]>(`/api/admin/challenges/${id}/participants`);

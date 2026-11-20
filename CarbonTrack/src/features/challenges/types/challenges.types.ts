@@ -24,6 +24,10 @@ export interface AdminChallenge {
   matchValue: string;
   target: number;
   active: boolean;
+  /** số người đã tham gia */
+  participants: number;
+  /** số người đã hoàn thành */
+  completed: number;
 }
 
 export interface NewChallenge {
@@ -33,4 +37,15 @@ export interface NewChallenge {
   matchType: MatchType;
   matchValue: string;
   target: number;
+}
+
+/** Admin: 1 người tham gia challenge + tiến độ. */
+export interface Participant {
+  userId: string;
+  name: string;
+  avatarUrl: string | null;
+  joinedDate: string; // ISO yyyy-MM-dd
+  progress: number;
+  target: number;
+  status: ChallengeStatus;
 }

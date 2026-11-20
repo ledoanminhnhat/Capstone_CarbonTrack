@@ -19,8 +19,16 @@ export function Th({ children, className = "" }: { children?: React.ReactNode; c
   );
 }
 
-export function Tr({ children }: { children: React.ReactNode }) {
-  return <tr className="hover:bg-subtle [&:last-child>td]:border-b-0">{children}</tr>;
+/** Dòng bảng; có onClick thì cả dòng bấm được. */
+export function Tr({ children, onClick }: { children: React.ReactNode; onClick?: () => void }) {
+  return (
+    <tr
+      onClick={onClick}
+      className={`hover:bg-subtle [&:last-child>td]:border-b-0 ${onClick ? "cursor-pointer" : ""}`}
+    >
+      {children}
+    </tr>
+  );
 }
 
 export function Td({ children, className = "" }: { children?: React.ReactNode; className?: string }) {

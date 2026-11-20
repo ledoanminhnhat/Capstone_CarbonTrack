@@ -2,8 +2,9 @@ package com.carbontrack.controller;
 
 import com.carbontrack.dto.AdminDtos.AdminUserView;
 import com.carbontrack.dto.AdminDtos.UpdateRoleRequest;
+import com.carbontrack.dto.ChallengeDtos.AdminChallengeView;
 import com.carbontrack.dto.ChallengeDtos.CreateChallengeRequest;
-import com.carbontrack.model.Challenge;
+import com.carbontrack.dto.ChallengeDtos.Participant;
 import com.carbontrack.service.AdminService;
 import com.carbontrack.service.ChallengeService;
 import jakarta.validation.Valid;
@@ -52,16 +53,22 @@ public class AdminController {
 
     // ===== Quản lý Challenge =====
 
-    // GET /api/admin/challenges -> tất cả challenge (kể cả inactive)
+    // GET /api/admin/challenges -> tất cả challenge (kể cả inactive) + số người tham gia / hoàn thành
     @GetMapping("/challenges")
-    public List<Challenge> listChallenges() {
+    public List<AdminChallengeView> listChallenges() {
         return challengeService.listAll();
     }
 
     // POST /api/admin/challenges -> tạo challenge mới
     @PostMapping("/challenges")
-    public Challenge createChallenge(@Valid @RequestBody CreateChallengeRequest request) {
+    public AdminChallengeView createChallenge(@Valid @RequestBody CreateChallengeRequest request) {
         return challengeService.create(request);
+    }
+
+    // GET /api/admin/challenges/{id}/participants -> ai đã tham gia + tiến độ
+    @GetMapping("/challenges/{id}/participants")
+    public List<Participant> challengeParticipants(@PathVariable String id) {
+        return challengeService.participants(id);
     }
 
     // DELETE /api/admin/challenges/{id} -> xóa challenge

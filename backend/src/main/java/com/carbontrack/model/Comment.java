@@ -22,6 +22,10 @@ public class Comment implements HasId {
     @Indexed
     private String postId;
 
+    /** null = comment gốc; khác null = reply của comment gốc đó (chỉ 2 tầng). */
+    @Indexed
+    private String parentId;
+
     private String userId;
     private String content;
     private Instant createdAt;

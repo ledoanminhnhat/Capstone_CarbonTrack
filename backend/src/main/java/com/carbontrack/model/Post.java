@@ -27,7 +27,8 @@ public class Post implements HasId {
 
     private List<String> likedBy = new ArrayList<>();   // id các user đã like
     private int commentCount;
-    private int shareCount;
+    private List<String> sharedBy = new ArrayList<>();  // id các user đã share (mỗi người tính 1 lần)
+    private int shareCount;     // = số người trong sharedBy + số share cũ (trước khi lưu sharedBy)
 
     @Indexed
     private Instant createdAt;

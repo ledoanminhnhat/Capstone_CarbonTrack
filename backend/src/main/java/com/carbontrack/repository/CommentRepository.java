@@ -11,8 +11,12 @@ public interface CommentRepository extends MongoRepository<Comment, String> {
 
     void deleteByPostId(String postId);
 
-    // vài comment mới nhất (để xem trước dưới bài, lọc người bị ẩn ở service)
-    List<Comment> findTop10ByPostIdOrderByCreatedAtDesc(String postId);
-
     List<Comment> findByUserId(String userId);
+
+    // comment gốc mới nhất (xem trước dưới bài, không lấy reply)
+    List<Comment> findTop10ByPostIdAndParentIdIsNullOrderByCreatedAtDesc(String postId);
+
+    long countByParentId(String parentId);
+
+    void deleteByParentId(String parentId);
 }

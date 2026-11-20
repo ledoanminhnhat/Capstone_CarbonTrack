@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { FaHeart, FaRegHeart, FaRegComment, FaRegPaperPlane } from "react-icons/fa6";
+import { FaHeart, FaRegHeart, FaRegComment, FaPaperPlane, FaRegPaperPlane } from "react-icons/fa6";
 import Badge from "@/components/ui/Badge";
 import AvatarGroup from "@/components/ui/AvatarGroup";
 import { timeAgo } from "@/utils/date";
@@ -121,13 +121,18 @@ export default function PostCard({
           {/* chỉ share được bài của người khác */}
           {!isMine && (
             <IconBtn label="Share" onClick={onShare}>
-              <FaRegPaperPlane size={20} />
+              {/* đã share thì icon đặc màu xanh */}
+              {post.sharedByMe ? <FaPaperPlane size={20} className="text-brand-500" /> : <FaRegPaperPlane size={20} />}
             </IconBtn>
           )}
           {post.shareCount > 0 && (
-            <span className="ml-auto text-muted text-xs">
+            <button
+              onClick={() => setLikers({ kind: "shares", id: post.id })}
+              className="ml-auto text-muted text-xs hover:text-ink hover:underline"
+              title="See who shared this"
+            >
               {post.shareCount} share{post.shareCount > 1 ? "s" : ""}
-            </span>
+            </button>
           )}
         </div>
 

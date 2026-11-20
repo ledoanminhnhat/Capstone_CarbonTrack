@@ -113,7 +113,7 @@ export function useFeed() {
 
   const sharePostLink = async (p: Post) => {
     if (await share(postShareUrl(p.id), `${p.author.name} on CarbonTrack`)) {
-      updatePost(p.id, await sharePost(p.id).catch(() => ({ shareCount: p.shareCount })));
+      updatePost(p.id, await sharePost(p.id).catch(() => ({ shareCount: p.shareCount, sharedByMe: p.sharedByMe })));
     }
   };
 

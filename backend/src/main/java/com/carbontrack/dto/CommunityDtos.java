@@ -18,7 +18,8 @@ public class CommunityDtos {
     ) {}
 
     public record CreateCommentRequest(
-            @NotBlank @Size(max = MAX_COMMENT) String content
+            @NotBlank @Size(max = MAX_COMMENT) String content,
+            String parentId // không bắt buộc: id comment muốn trả lời
     ) {}
 
     public record Author(String id, String name, String avatarUrl, Instant lastActiveAt) {}
@@ -35,6 +36,7 @@ public class CommunityDtos {
             List<CommentView> previewComments, // 2 comment mới nhất (cũ -> mới), kiểu Instagram
             int commentCount,
             int shareCount,
+            boolean sharedByMe,
             Instant createdAt,
             boolean canDelete       // tác giả hoặc admin
     ) {}
@@ -48,7 +50,9 @@ public class CommunityDtos {
             Instant createdAt,
             boolean canDelete,
             int likeCount,
-            boolean likedByMe
+            boolean likedByMe,
+            String parentId,  // null = comment gốc
+            int replyCount    // số reply (chỉ có nghĩa với comment gốc)
     ) {}
 
     public record LikeResult(int likeCount, boolean likedByMe, List<Author> recentLikers) {
@@ -58,7 +62,7 @@ public class CommunityDtos {
         }
     }
 
-    public record ShareResult(int shareCount) {}
+    public record ShareResult(int shareCount, boolean sharedByMe) {}
 
     public record LeaderboardEntry(String id, String name, String avatarUrl, int points, Instant lastActiveAt) {}
 

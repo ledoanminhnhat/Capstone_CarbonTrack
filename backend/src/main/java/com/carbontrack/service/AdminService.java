@@ -3,6 +3,7 @@ package com.carbontrack.service;
 import com.carbontrack.dto.AdminDtos.AdminUserView;
 import com.carbontrack.model.User;
 import com.carbontrack.repository.ActivityRepository;
+import com.carbontrack.repository.UserChallengeRepository;
 import com.carbontrack.repository.UserRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -19,13 +20,16 @@ public class AdminService {
 
     private final UserRepository userRepository;
     private final ActivityRepository activityRepository;
+    private final UserChallengeRepository userChallengeRepository;
 
     private final CommunityService communityService;
 
     public AdminService(UserRepository userRepository, ActivityRepository activityRepository,
+                        UserChallengeRepository userChallengeRepository,
                         CommunityService communityService) {
         this.userRepository = userRepository;
         this.activityRepository = activityRepository;
+        this.userChallengeRepository = userChallengeRepository;
         this.communityService = communityService;
     }
 
@@ -60,6 +64,7 @@ public class AdminService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
         }
         activityRepository.deleteByUserId(targetId);
+        userChallengeRepository.deleteByUserId(targetId); // các challenge đã tham gia
         communityService.deleteAllOfUser(targetId); // bài viết, comment, like, mute
         userRepository.deleteById(targetId);
     }

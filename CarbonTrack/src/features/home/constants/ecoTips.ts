@@ -1,7 +1,7 @@
-// Mẹo giảm phát thải cho thẻ Daily Tip, mỗi mẹo kèm 1 ảnh Unsplash (miễn phí, có ghi credit).
+// Mẹo giảm phát thải cho thẻ Eco Tip, mỗi mẹo kèm 1 ảnh Unsplash (miễn phí, có ghi credit).
 // Số liệu khớp với hệ số trong backend EmissionService.
 
-export interface DailyTip {
+export interface EcoTip {
   title: string;
   text: string;
   photo: {
@@ -11,7 +11,7 @@ export interface DailyTip {
   };
 }
 
-export const DAILY_TIPS: DailyTip[] = [
+export const ECO_TIPS: EcoTip[] = [
   {
     title: "Take the bus",
     text: "Taking the bus instead of a car cuts about 0.12 kg CO₂ per km — that's 1.2 kg on a 10 km commute.",

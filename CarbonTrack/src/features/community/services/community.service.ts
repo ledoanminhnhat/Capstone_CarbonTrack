@@ -14,15 +14,17 @@ export const deletePost = (id: string) => request(`/api/posts/${id}`, { method: 
 export const togglePostLike = (id: string) => request<LikeResult>(`/api/posts/${id}/like`, { method: "POST" });
 
 export const sharePost = (id: string) =>
-  request<{ shareCount: number }>(`/api/posts/${id}/share`, { method: "POST" });
+  request<{ shareCount: number; sharedByMe: boolean }>(`/api/posts/${id}/share`, { method: "POST" });
 
 // ----- Comments -----
 export const getComments = (postId: string) => request<Comment[]>(`/api/posts/${postId}/comments`);
 
-export const addComment = (postId: string, content: string) =>
-  request<Comment>(`/api/posts/${postId}/comments`, { method: "POST", body: { content } });
+export const addComment = (postId: string, content: string, parentId?: string) =>
+  request<Comment>(`/api/posts/${postId}/comments`, { method: "POST", body: { content, parentId } });
 
-export const deleteComment = (id: string) => request(`/api/comments/${id}`, { method: "DELETE" });
+/** Xóa comment gốc thì reply bị xóa theo; trả về số comment đã xóa. */
+export const deleteComment = (id: string) =>
+  request<{ deleted: number }>(`/api/comments/${id}`, { method: "DELETE" });
 
 export const toggleCommentLike = (id: string) =>
   request<LikeResult>(`/api/comments/${id}/like`, { method: "POST" });
@@ -39,5 +41,7 @@ export const getLeaderboard = () => request<LeaderboardEntry[]>("/api/community/
 
 // ----- Ai đã like (mới nhất trước) -----
 export const getPostLikers = (postId: string) => request<Author[]>(`/api/posts/${postId}/likers`);
+
+export const getPostSharers = (postId: string) => request<Author[]>(`/api/posts/${postId}/sharers`);
 
 export const getCommentLikers = (commentId: string) => request<Author[]>(`/api/comments/${commentId}/likers`);

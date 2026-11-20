@@ -10,6 +10,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
@@ -72,9 +73,9 @@ public class CommunityController {
     }
 
     @DeleteMapping("/comments/{id}")
-    public ResponseEntity<Void> deleteComment(@AuthenticationPrincipal String userId, @PathVariable String id) {
-        community.deleteComment(userId, id);
-        return ResponseEntity.noContent().build();
+    public Map<String, Integer> deleteComment(@AuthenticationPrincipal String userId, @PathVariable String id) {
+        // xóa comment gốc thì reply bị xóa theo -> trả số đã xóa để client trừ đúng đếm
+        return Map.of("deleted", community.deleteComment(userId, id));
     }
 
     @PostMapping("/comments/{id}/like")
@@ -83,6 +84,11 @@ public class CommunityController {
     }
 
     // ----- Ai đã like -----
+    @GetMapping("/posts/{id}/sharers")
+    public List<Author> postSharers(@PathVariable String id) {
+        return community.postSharers(id);
+    }
+
     @GetMapping("/posts/{id}/likers")
     public List<Author> postLikers(@PathVariable String id) {
         return community.postLikers(id);

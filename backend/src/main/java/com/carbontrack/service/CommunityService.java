@@ -141,13 +141,24 @@ public class CommunityService {
         return ids.stream().filter(users::containsKey).map(id -> authorOf(id, users.get(id))).toList();
     }
 
-    /** Share bài của người khác (không tự share bài mình). */
+    /** Người đã share 1 bài, mới nhất trước. */
+    public List<Author> postSharers(String postId) {
+        List<String> ids = loadPost(postId).getSharedBy();
+        return likersFromIds(ids == null ? List.of() : ids);
+    }
+
+    /**
+     * Share bài của người khác (không tự share bài mình). Mỗi người chỉ tính 1 lần:
+     * chỉ tăng đếm khi user chưa có trong sharedBy (1 lệnh atomic, bấm liên tục cũng không đếm trùng).
+     */
     public ShareResult share(String userId, String postId) {
         if (loadPost(postId).getUserId().equals(userId)) throw bad("You can't share your own post");
-        Post updated = mongo.findAndModify(byId(postId), new Update().inc("shareCount", 1),
+        Query notYet = new Query(Criteria.where("_id").is(postId).and("sharedBy").ne(userId));
+        Post updated = mongo.findAndModify(notYet,
+                new Update().addToSet("sharedBy", userId).inc("shareCount", 1),
                 FindAndModifyOptions.options().returnNew(true), Post.class);
-        if (updated == null) throw notFound("Post not found");
-        return new ShareResult(updated.getShareCount());
+        if (updated == null) updated = loadPost(postId); // đã share trước đó -> giữ nguyên số
+        return new ShareResult(updated.getShareCount(), true);
     }
 
     // ===================== Comments =====================
@@ -157,33 +168,56 @@ public class CommunityService {
         Post post = loadPost(postId);
         boolean viewerOwnsPost = post.getUserId().equals(viewer.getId());
         Set<String> muted = new HashSet<>(mutedOf(viewer));
-        List<Comment> list = commentRepo.findByPostIdOrderByCreatedAtAsc(postId).stream()
+        List<Comment> all = commentRepo.findByPostIdOrderByCreatedAtAsc(postId);
+        // ẩn comment của người bị mute; comment gốc bị ẩn thì ẩn luôn các reply của nó
+        Set<String> hiddenRoots = new HashSet<>();
+        all.stream().filter(c -> c.getParentId() == null && muted.contains(c.getUserId()))
+                .forEach(c -> hiddenRoots.add(c.getId()));
+        List<Comment> list = all.stream()
                 .filter(c -> !muted.contains(c.getUserId()))
+                .filter(c -> c.getParentId() == null || !hiddenRoots.contains(c.getParentId()))
                 .toList();
+        Map<String, Integer> replyCounts = new HashMap<>();
+        list.stream().filter(c -> c.getParentId() != null)
+                .forEach(c -> replyCounts.merge(c.getParentId(), 1, Integer::sum));
         Map<String, User> authors = usersById(list.stream().map(Comment::getUserId).toList());
         return list.stream()
-                .map(c -> toView(c, viewer, authors.get(c.getUserId()), viewerOwnsPost))
+                .map(c -> toView(c, viewer, authors.get(c.getUserId()), viewerOwnsPost,
+                        replyCounts.getOrDefault(c.getId(), 0)))
                 .toList();
     }
 
     public CommentView addComment(String userId, String postId, CreateCommentRequest req) {
-        loadPost(postId);
+        Post post = loadPost(postId);
         String content = req.content().trim();
         if (content.isEmpty()) throw bad("Comment cannot be empty");
 
+        // reply: chỉ 2 tầng -> trả lời 1 reply thì gắn vào comment gốc của nó
+        String parentId = null;
+        if (req.parentId() != null && !req.parentId().isBlank()) {
+            Comment parent = commentRepo.findById(req.parentId())
+                    .orElseThrow(() -> notFound("Comment not found"));
+            if (!parent.getPostId().equals(postId)) throw bad("Comment does not belong to this post");
+            parentId = parent.getParentId() != null ? parent.getParentId() : parent.getId();
+        }
+
         Comment c = new Comment();
         c.setPostId(postId);
+        c.setParentId(parentId);
         c.setUserId(userId);
         c.setContent(content);
         c.setCreatedAt(Instant.now());
         Comment saved = commentRepo.save(c);
         mongo.updateFirst(byId(postId), new Update().inc("commentCount", 1), Post.class);
         User me = loadUser(userId);
-        return toView(saved, me, me, false);
+        return toView(saved, me, me, post.getUserId().equals(userId), 0);
     }
 
-    /** Người viết comment, chủ bài, hoặc admin được xóa comment. */
-    public void deleteComment(String userId, String commentId) {
+    /**
+     * Người viết comment, chủ bài, hoặc admin được xóa comment.
+     * Xóa comment gốc thì xóa luôn các reply. Trả về số comment đã xóa.
+     */
+    public int deleteComment(String userId, String commentId) {
         User me = loadUser(userId);
         Comment c = commentRepo.findById(commentId).orElseThrow(() -> notFound("Comment not found"));
         boolean postOwner = postRepo.findById(c.getPostId())
@@ -191,8 +225,19 @@ public class CommunityService {
         if (!c.getUserId().equals(userId) && !postOwner && !isAdmin(me)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You cannot delete this comment");
         }
-        commentRepo.deleteById(commentId);
-        mongo.updateFirst(byId(c.getPostId()), new Update().inc("commentCount", -1), Post.class);
+        return removeWithReplies(c);
+    }
+
+    /** Xóa 1 comment (+ reply nếu là comment gốc) và giảm commentCount của bài tương ứng. */
+    private int removeWithReplies(Comment c) {
+        int deleted = 1;
+        if (c.getParentId() == null) {
+            deleted += (int) commentRepo.countByParentId(c.getId());
+            commentRepo.deleteByParentId(c.getId());
+        }
+        commentRepo.deleteById(c.getId());
+        mongo.updateFirst(byId(c.getPostId()), new Update().inc("commentCount", -deleted), Post.class);
+        return deleted;
     }
 
     /** Like / bỏ like 1 comment (atomic). */
@@ -237,14 +282,17 @@ public class CommunityService {
     // ===================== Dọn dữ liệu khi admin xóa user =====================
 
     public void deleteAllOfUser(String userId) {
-        // comment của user trên bài người khác: giảm đếm của bài đó
+        // comment của user trên bài người khác: xóa (kèm reply nếu là comment gốc), giảm đếm của bài đó.
+        // reply có thể đã bị xóa theo comment gốc ở vòng trước -> kiểm tra còn tồn tại
         commentRepo.findByUserId(userId).forEach(c -> {
-            commentRepo.deleteById(c.getId());
-            mongo.updateFirst(byId(c.getPostId()), new Update().inc("commentCount", -1), Post.class);
+            if (commentRepo.existsById(c.getId())) removeWithReplies(c);
         });
         postRepo.findByUserId(userId).forEach(p -> commentRepo.deleteByPostId(p.getId()));
         postRepo.deleteByUserId(userId);
         mongo.updateMulti(new Query(), new Update().pull("likedBy", userId), Post.class);
+        // bỏ khỏi danh sách người share + giảm đếm của các bài đó
+        mongo.updateMulti(new Query(Criteria.where("sharedBy").is(userId)),
+                new Update().pull("sharedBy", userId).inc("shareCount", -1), Post.class);
         mongo.updateMulti(new Query(), new Update().pull("likedBy", userId), Comment.class);
         mongo.updateMulti(new Query(), new Update().pull("mutedUserIds", userId), User.class);
     }
@@ -268,9 +316,9 @@ public class CommunityService {
 
     private static final int PREVIEW_COMMENTS = 2;
 
-    /** 2 comment mới nhất không thuộc người bị ẩn, xếp cũ -> mới. */
+    /** 2 comment gốc mới nhất không thuộc người bị ẩn, xếp cũ -> mới (không lấy reply). */
     private List<Comment> previewOf(String postId, Set<String> muted) {
-        List<Comment> latest = new ArrayList<>(commentRepo.findTop10ByPostIdOrderByCreatedAtDesc(postId).stream()
+        List<Comment> latest = new ArrayList<>(commentRepo.findTop10ByPostIdAndParentIdIsNullOrderByCreatedAtDesc(postId).stream()
                 .filter(c -> !muted.contains(c.getUserId()))
                 .limit(PREVIEW_COMMENTS)
                 .toList());
@@ -282,20 +330,22 @@ public class CommunityService {
     private PostView toView(Post p, User viewer, Map<String, User> users, List<Comment> preview) {
         boolean viewerOwnsPost = p.getUserId().equals(viewer.getId());
         List<CommentView> previewViews = preview.stream()
-                .map(c -> toView(c, viewer, users.get(c.getUserId()), viewerOwnsPost))
+                .map(c -> toView(c, viewer, users.get(c.getUserId()), viewerOwnsPost,
+                        (int) commentRepo.countByParentId(c.getId())))
                 .toList();
         return new PostView(p.getId(), authorOf(p.getUserId(), users.get(p.getUserId())), p.getContent(),
                 p.getImageUrls(), p.getLikedBy().size(), p.getLikedBy().contains(viewer.getId()),
-                likersOf(p, users), previewViews, p.getCommentCount(), p.getShareCount(), p.getCreatedAt(),
+                likersOf(p, users), previewViews, p.getCommentCount(), p.getShareCount(),
+                p.getSharedBy() != null && p.getSharedBy().contains(viewer.getId()), p.getCreatedAt(),
                 p.getUserId().equals(viewer.getId()) || isAdmin(viewer));
     }
 
     /** Được xóa comment: người viết, chủ bài, hoặc admin (khớp với deleteComment). */
-    private CommentView toView(Comment c, User viewer, User author, boolean viewerOwnsPost) {
+    private CommentView toView(Comment c, User viewer, User author, boolean viewerOwnsPost, int replyCount) {
         List<String> likedBy = c.getLikedBy() == null ? List.of() : c.getLikedBy();
         return new CommentView(c.getId(), authorOf(c.getUserId(), author), c.getContent(), c.getCreatedAt(),
                 c.getUserId().equals(viewer.getId()) || viewerOwnsPost || isAdmin(viewer),
-                likedBy.size(), likedBy.contains(viewer.getId()));
+                likedBy.size(), likedBy.contains(viewer.getId()), c.getParentId(), replyCount);
     }
 
     private static Author authorOf(String id, User u) {

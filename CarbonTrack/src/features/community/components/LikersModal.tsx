@@ -1,6 +1,6 @@
 "use client";
 
-import { FaHeart } from "react-icons/fa6";
+import { FaHeart, FaPaperPlane } from "react-icons/fa6";
 import Modal from "@/components/ui/Modal";
 import Alert from "@/components/ui/Alert";
 import { lastActiveLabel, isOnline } from "@/utils/presence";
@@ -8,10 +8,12 @@ import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useLikers, type LikersTarget } from "../hooks/useLikers";
 import AuthorAvatar from "./AuthorAvatar";
 
-/** Modal "Likes": ai đã like bài / comment (mới nhất trước), có chấm online. */
+/** Modal "Likes" / "Shares": ai đã like bài / comment hoặc share bài (mới nhất trước), có chấm online. */
 export default function LikersModal({ target, onClose }: { target: LikersTarget | null; onClose: () => void }) {
   const me = useCurrentUser();
   const { likers, loading, error } = useLikers(target);
+  const isShares = target?.kind === "shares";
+  const icon = isShares ? <FaPaperPlane className="text-brand-500" size={14} /> : <FaHeart className="text-rose-500" size={15} />;
 
   return (
     <Modal
@@ -19,7 +21,7 @@ export default function LikersModal({ target, onClose }: { target: LikersTarget 
       onClose={onClose}
       title={
         <span className="flex items-center gap-2">
-          <FaHeart className="text-rose-500" size={15} /> Likes
+          {icon} {isShares ? "Shares" : "Likes"}
           {!loading && <span className="text-muted font-normal text-[0.9rem]">· {likers.length}</span>}
         </span>
       }
@@ -29,7 +31,7 @@ export default function LikersModal({ target, onClose }: { target: LikersTarget 
       {loading ? (
         <p className="m-0 py-6 text-center text-muted text-sm">Loading...</p>
       ) : likers.length === 0 ? (
-        <p className="m-0 py-6 text-center text-muted text-sm">No likes yet.</p>
+        <p className="m-0 py-6 text-center text-muted text-sm">{isShares ? "No shares yet." : "No likes yet."}</p>
       ) : (
         <ul className="m-0 p-0 list-none max-h-[360px] overflow-y-auto -mx-2">
           {likers.map((a) => (
@@ -44,7 +46,7 @@ export default function LikersModal({ target, onClose }: { target: LikersTarget 
                   {lastActiveLabel(a.lastActiveAt)}
                 </div>
               </div>
-              <FaHeart className="text-rose-500 shrink-0" size={13} />
+              <span className="shrink-0">{icon}</span>
             </li>
           ))}
         </ul>

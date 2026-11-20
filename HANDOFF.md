@@ -100,7 +100,7 @@ providers/AppProviders    # ToastProvider + ConfirmProvider (bọc ở app/layou
   - Dưới mỗi bài: AvatarGroup 3 người like gần nhất + "You and N others" (backend trả `recentLikers`).
 - **Avatar:** upload ở Settings, có **crop** (kéo + zoom, `features/settings/components/AvatarCropper.tsx`), xóa được. Hiện ở sidebar, Community, Leaderboard, Admin.
 - **Đang online:** backend ghi `User.lastActiveAt` mỗi request đã đăng nhập (`PresenceService`, tối đa 1 lần/phút). Online = hoạt động trong 5 phút. Chấm xanh (`PresenceAvatar`) ở bảng Admin (+ cột Last active), Leaderboard, Hidden users; các danh sách này tự làm mới mỗi 60s.
-- **Daily Tip (Dashboard):** 8 mẹo kèm ảnh Unsplash (có credit tác giả), đổi theo ngày + nút "Another tip". Dữ liệu ở `features/home/constants/dailyTips.ts`.
+- **Eco Tip (Dashboard):** 8 mẹo kèm ảnh Unsplash (có credit tác giả), đổi mỗi 30 phút + nút "Another tip". Dữ liệu ở `features/home/constants/ecoTips.ts`.
 - **History / Recent Activities:** cột Activity = icon Font Awesome + tên; cột Category = badge màu category; Status = badge outline có icon.
 - **Settings:** đổi tên, avatar, đổi mật khẩu, **Tracking = mục tiêu phát thải năm** (mặc định 1800 kg). Reminder đang "Coming soon".
   - Tài khoản tạo bằng Google (`hasPassword = false` trong `/api/users/me`) thấy form **Set password** (không cần mật khẩu hiện tại); đặt xong thì login bằng email/mật khẩu hoặc Google đều được.

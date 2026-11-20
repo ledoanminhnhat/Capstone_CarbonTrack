@@ -11,6 +11,7 @@ const MATCH_TYPE_OPTIONS = [
   { label: "CATEGORY (whole group)", value: "CATEGORY" },
 ];
 
+/** Form tạo challenge (nằm trong modal "New challenge"). */
 export default function CreateChallengeForm({
   form,
   onChange,
@@ -27,8 +28,7 @@ export default function CreateChallengeForm({
   onSubmit: () => void;
 }) {
   return (
-    <div className="bg-surface rounded-2xl shadow-card p-6 mb-6">
-      <h3 className="m-0 mb-5 text-ink text-[1.1rem] font-bold">Create new challenge</h3>
+    <div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <FormField label="Title">
           <Input placeholder="e.g. Take the bus 5 times" value={form.title} onChange={(e) => onChange({ title: e.target.value })} />
@@ -58,7 +58,7 @@ export default function CreateChallengeForm({
         </FormField>
       </div>
       <Alert className="mt-4">{error}</Alert>
-      <Button variant="gradient" onClick={onSubmit} disabled={creating} className="mt-5">
+      <Button variant="gradient" onClick={onSubmit} disabled={creating} className="mt-5 w-full">
         {creating ? "Creating..." : "Create Challenge"}
       </Button>
     </div>

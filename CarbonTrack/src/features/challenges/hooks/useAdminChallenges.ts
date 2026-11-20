@@ -35,10 +35,11 @@ export function useAdminChallenges() {
 
   const setMatchType = (matchType: MatchType) => updateForm({ matchType, matchValue: matchValuesFor(matchType)[0] });
 
-  const create = async () => {
+  /** Trả về true nếu tạo thành công (để đóng modal). */
+  const create = async (): Promise<boolean> => {
     if (!form.title.trim() || !form.description.trim() || !form.matchValue.trim()) {
       setFormError("Please fill title, description and match value");
-      return;
+      return false;
     }
     setCreating(true);
     setFormError("");
@@ -47,8 +48,10 @@ export function useAdminChallenges() {
       setData((prev) => [...(prev ?? []), created]);
       setForm(EMPTY_FORM);
       toast.success(`Created "${created.title}"`);
+      return true;
     } catch (e) {
       setFormError(errorMessage(e, "Create failed"));
+      return false;
     } finally {
       setCreating(false);
     }
